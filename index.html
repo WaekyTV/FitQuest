@@ -1208,13 +1208,49 @@
             }
         }
 
-        function speak(text) {
-            if (isAudioActive && synth) {
-                synth.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'fr-FR';
-                synth.speak(utterance);
+        let voicesLoaded = false;
+        let selectedVoice = null;
+
+        // Fonction pour charger les voix et sélectionner une voix française
+        function loadVoices() {
+            if (voicesLoaded) return; // Évite de recharger inutilement
+            const availableVoices = synth.getVoices();
+            selectedVoice = availableVoices.find(voice => voice.lang === 'fr-FR' || voice.lang === 'fr_FR');
+            if (selectedVoice) {
+                voicesLoaded = true;
+                console.log("Voix française chargée pour la synthèse vocale.");
+            } else {
+                console.warn("Aucune voix française trouvée, utilisation de la voix par défaut.");
+                selectedVoice = availableVoices[0]; // Utilise la première voix disponible si pas de fr-FR
             }
+        }
+
+        // Écouteur pour s'assurer que les voix sont chargées
+        if (synth) {
+            synth.onvoiceschanged = loadVoices;
+            loadVoices(); // Tente de charger les voix immédiatement si elles sont déjà disponibles
+        }
+
+        function speak(text) {
+            // S'assure que l'AudioContext est démarré si ce n'est pas déjà fait
+            initializeAudioContextNonBlocking();
+
+            if (!isAudioActive || !synth || !selectedVoice) {
+                console.warn("Synthèse vocale inactive ou non prête. Message non lu:", text);
+                showMessage("AUDIO INACTIF OU VOIX NON PRÊTE POUR LA SYNTHÈSE VOCALE.", 'warning');
+                return;
+            }
+
+            synth.cancel(); // Annule toute parole en cours
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            utterance.voice = selectedVoice; // Utilise la voix française sélectionnée
+            utterance.volume = masterVolume; // Utilise le volume global de l'app
+
+            // Ajoute un petit délai pour contourner certains problèmes de WebView
+            setTimeout(() => {
+                synth.speak(utterance);
+            }, 100); // Délai de 100ms
         }
 
         // --- Fonctions Utilitaires Générales ---
@@ -2531,12 +2567,23 @@
                 if (chronoIntervals.length === 0) { showMessage("ERREUR: AJOUTEZ DES INTERVALLES AVANT DE COMMENCER.", 'error'); return; }
                 if (isChronoRunning && !isChronoPaused) return;
 
+                // Tente d'activer l'AudioContext et la synthèse vocale avec une phrase vide
+                initializeAudioContextNonBlocking();
+                speak(""); // Activation silencieuse pour "débloquer" la synthèse vocale dans la WebView
+
                 isChronoRunning = true; isChronoPaused = false; chronoCurrentIntervalIndex = -1;
 
                 if (enableChronoPreCountdown) chronoCurrentTime = chronoPreCountdownDuration;
-                else { chronoCurrentIntervalIndex = 0; chronoCurrentTime = chronoIntervals[0].duration; speak(String(chronoIntervals[0].instruction).toUpperCase()); showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono'); }
+                else {
+                    chronoCurrentIntervalIndex = 0;
+                    chronoCurrentTime = chronoIntervals[0].duration;
+                    speak(String(chronoIntervals[0].instruction).toUpperCase());
+                    showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono');
+                }
 
-                updateLocalStorageChronoState(); updateChronoDisplay(); showMessage("CHRONO DÉMARRÉ !", 'chrono');
+                updateLocalStorageChronoState();
+                updateChronoDisplay();
+                showMessage("CHRONO DÉMARRÉ !", 'chrono');
                 if (!chronoIntervalTimerRef) chronoIntervalTimerRef = setInterval(chronoLoop, 1000);
             };
 
