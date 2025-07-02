@@ -226,6 +226,9 @@
             position: fixed;
             z-index: 1000;
             pointer-events: none; /* Permet les clics à travers les notifications */
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Espacement entre les notifications */
         }
         .notification {
             padding: 1rem;
@@ -239,13 +242,15 @@
             gap: 0.5rem;
             min-width: 250px; /* Largeur minimale pour le contenu */
             max-width: 90%; /* Largeur max, responsive */
-            margin: 10px; /* Espacement des bords de l'écran */
         }
 
         /* Trophées (haut gauche) */
-        .notification.trophy {
+        .notification-container-top-left {
             top: 20px; /* Position en haut */
             left: 20px; /* Position à gauche */
+            align-items: flex-start; /* Aligner les éléments à gauche */
+        }
+        .notification.trophy {
             transform: translateX(-100%); /* Démarre hors écran à gauche */
             background-color: #9333ea; /* purple-600 */
             color: white;
@@ -261,15 +266,9 @@
 
         /* Messages généraux, conseils, chrono (bas droite) */
         .notification-container-bottom-right {
-            position: fixed;
             bottom: 20px;
-            right: 0; /* Alignement à droite */
-            z-index: 1000;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column; /* Empile de bas en haut */
+            right: 20px; /* Position à droite */
             align-items: flex-end; /* Aligner les éléments à droite */
-            gap: 10px; /* Espacement entre les notifications */
         }
 
         .notification.general,
@@ -281,7 +280,6 @@
             text-align: right; /* Alignement du texte à droite */
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
-            margin-right: 0; /* Annule le margin: 10px; par défaut pour coller à droite */
         }
         .notification.general.error {
             background-color: #dc2626; /* red-600 */
@@ -311,36 +309,62 @@
         }
 
         /* Adaptations pour écrans de petite taille (téléphones) */
-        @media (max-width: 640px) {
-            .notification {
-                width: 90%;
-                left: 50%;
-                /* Réinitialise les transformations spécifiques pour centrer horizontalement */
-                transform: translateX(-50%) !important;
-                border-radius: 0.5rem; /* Coins arrondis complets pour la petite taille */
-                margin: 10px auto; /* Centre horizontalement et ajoute de l'espacement */
-                text-align: center; /* Centre le texte sur les petits écrans */
-            }
-            /* Ajustement des positions verticales pour les petits écrans */
-            .notification.trophy { top: 10px; left: 50%; transform: translateX(-50%) !important; border-radius: 0.5rem; border-top-left-radius: 0.5rem; border-bottom-left-radius: 0.5rem; } /* Centré en haut pour les trophées */
+        @media (max-width: 440px) {
+            .notification-container-top-left,
             .notification-container-bottom-right {
-                bottom: 10px;
-                right: 50%;
-                transform: translateX(50%); /* Pour centrer le conteneur */
-                align-items: center; /* Centrer les notifications dans le conteneur */
+                left: 50%;
+                transform: translateX(-50%); /* Centre horizontalement le conteneur */
+                right: auto; /* Annule le right: 20px; */
+                width: 90%; /* Prend 90% de la largeur disponible pour laisser des marges */
+                align-items: center; /* Centre les notifications à l'intérieur du conteneur */
             }
+
+            .notification {
+                width: 100%; /* Prend toute la largeur de son conteneur (qui est 90% de l'écran) */
+                padding: 0.25rem; /* Réduit le padding pour plus de compacité */
+                margin: 0 auto; /* Centre la notification elle-même */
+                border-radius: 0.5rem; /* Coins arrondis complets */
+                text-align: center; /* Centre le texte */
+                flex-direction: column; /* Empile icône et texte verticalement */
+                gap: 0.1rem; /* Réduit l'espacement entre icône et texte */
+                min-width: unset; /* Supprime la min-width pour permettre un meilleur ajustement */
+                align-items: center; /* Centre les éléments flex (icône et texte) */
+            }
+
+            .notification.trophy .text-4xl {
+                font-size: 1.8rem; /* Réduit la taille de l'icône de trophée */
+            }
+            .notification.general .text-2xl {
+                font-size: 1.2rem; /* Réduit la taille des icônes générales */
+            }
+
+            .notification.trophy .font-bold.text-lg.sm\:text-xl {
+                font-size: 0.9rem; /* Réduit la taille du titre de trophée */
+            }
+            .notification.trophy .text-sm.sm\:text-base {
+                font-size: 0.7rem; /* Réduit la taille de la description de trophée */
+            }
+            .notification.general .font-bold.text-sm.sm\:text-base {
+                font-size: 0.7rem; /* Réduit la taille du texte général */
+            }
+
+            .notification.trophy,
             .notification.general,
             .notification.tip {
-                margin-right: auto; /* Annule le margin-right: 0; et centre */
-                margin-left: auto;
-                border-top-right-radius: 0.5rem; /* Réapplique les bords arrondis */
+                /* Réinitialise les transformations spécifiques pour les centrer */
+                transform: translateX(-50%) !important;
+                border-top-left-radius: 0.5rem;
+                border-bottom-left-radius: 0.5rem;
+                border-top-right-radius: 0.5rem;
                 border-bottom-right-radius: 0.5rem;
             }
 
-            .notification.general.show,
-            .notification.tip.show {
-                /* Maintient le centrage après animation */
-                transform: translateX(-50%) !important;
+            .notification-container-top-left {
+                top: 20px; /* Maintient l'espace en haut pour les trophées */
+            }
+
+            .notification-container-bottom-right {
+                bottom: 50px; /* Maintient l'espace en bas pour les autres notifications */
             }
 
             /* Navigation menu for small screens */
@@ -367,7 +391,8 @@
             .main-content-area {
                 padding-bottom: 6rem; /* Adjust for footer on mobile */
             }
-        </style>
+        }
+    </style>
 </head>
 <body class="font-vt323 text-white bg-gray-900 min-h-screen flex flex-col">
     <!-- Loading Screen -->
@@ -485,9 +510,9 @@
     <!-- Modals and Notifications -->
     <div id="global-modals-container"></div>
     <!-- Conteneur pour les notifications de trophées (haut-gauche) -->
-    <div id="notification-container-trophy" class="notification-container"></div>
+    <div id="notification-container-trophy" class="notification-container notification-container-top-left"></div>
     <!-- Conteneur pour toutes les autres notifications (bas-droite, empilement vers le haut) -->
-    <div id="notification-container-bottom-right" class="notification-container flex flex-col-reverse items-end space-y-2 bottom-4 right-0"></div>
+    <div id="notification-container-bottom-right" class="notification-container notification-container-bottom-right flex-col-reverse"></div>
 
 
     <script>
@@ -1764,7 +1789,7 @@
             let selectedPhase = loadFromLocalStorage('selectedWorkoutPhase', 'phase1');
             // Assurer que la phase sélectionnée existe dans le nouveau programme
             if (!workoutProgram[selectedPhase]) {
-                selectedPhase = 'phase1'; // Revenir à la phase 1 par défaut si la phase précédente n'existe plus
+                selectedPhase = 'phase1'; // Revenir à la phase 1 par défaut si la phase precedente n'existe plus
                 saveToLocalStorage('selectedWorkoutPhase', selectedPhase);
             }
             phaseSelect.value = selectedPhase;
@@ -3083,7 +3108,8 @@ function parlerAvecKodular() {
   if (window.AppInventor && window.AppInventor.setWebViewString) {
     window.AppInventor.setWebViewString(texte);
   } else {
-    alert("Kodular non détecté, texte : " + texte);
+    // Replaced alert with showMessage for consistency and better UX
+    showMessage("KODULAR NON DÉTECTÉ, TEXTE : " + texte, 'warning');
   }
 }
 </script>
