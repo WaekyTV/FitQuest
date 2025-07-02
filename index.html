@@ -317,6 +317,9 @@
                 right: auto; /* Annule le right: 20px; */
                 width: 100%; /* Prend toute la largeur disponible */
                 align-items: center; /* Centre les notifications à l'intérieur du conteneur */
+                top: 20px; /* Positionne les deux conteneurs en haut */
+                bottom: auto; /* Annule la position bottom pour le conteneur du bas */
+                flex-direction: column; /* Empile les notifications de haut en bas */
             }
 
             .notification {
@@ -332,19 +335,11 @@
             .notification.general,
             .notification.tip {
                 /* Réinitialise les transformations spécifiques pour les centrer */
-                transform: translateX(-50%) !important;
+                transform: translateX(0) !important; /* Retire le translateX(-100%) ou translateX(100%) */
                 border-top-left-radius: 0.5rem;
                 border-bottom-left-radius: 0.5rem;
                 border-top-right-radius: 0.5rem;
                 border-bottom-right-radius: 0.5rem;
-            }
-
-            .notification-container-top-left {
-                top: 10px; /* Moins d'espace en haut */
-            }
-
-            .notification-container-bottom-right {
-                bottom: 10px; /* Moins d'espace en bas */
             }
 
             /* Navigation menu for small screens */
@@ -371,7 +366,8 @@
             .main-content-area {
                 padding-bottom: 6rem; /* Adjust for footer on mobile */
             }
-        </style>
+        }
+    </style>
 </head>
 <body class="font-vt323 text-white bg-gray-900 min-h-screen flex flex-col">
     <!-- Loading Screen -->
@@ -1206,43 +1202,22 @@
     // Vérifie si l'audio est actif et si le contexte Tone.js est en cours d'exécution
     if (isAudioActive && Tone.context.state === 'running') {
         const now = Tone.context.currentTime;
-        // Un synthétiseur pour les bips courts
-        const shortBeepSynth = new Tone.MembraneSynth({
-            envelope: {
-                attack: 0.005,
-                decay: 0.08, // Durée courte pour un "bip"
-                sustain: 0.0,
-                release: 0.05
-            }
-        }).toDestination();
+        const beepSynth = new Tone.MembraneSynth().toDestination();
+        const goSynth = new Tone.Synth().toDestination();
 
-        // Un synthétiseur pour le son "Go!" plus long
-        const goSoundSynth = new Tone.Synth({
-            oscillator: {
-                type: "sine" // Son plus doux pour le "Go!"
-            },
-            envelope: {
-                attack: 0.01,
-                decay: 0.4, // Durée plus longue pour le "biiiiiiip"
-                sustain: 0.1,
-                release: 0.5
-            }
-        }).toDestination();
+        // Son du premier "bip" (compte à rebours)
+        beepSynth.triggerAttackRelease("C5", "8n", now); // C5, durée 1/8 de note
 
-        // Bip 1 (pour le "3")
-        shortBeepSynth.triggerAttackRelease("G4", "16n", now); // Note G4, très courte
+        // Son du deuxième "bip" (compte à rebours)
+        beepSynth.triggerAttackRelease("E5", "8n", now + 0.7); // E5, après 0.7 secondes
 
-        // Bip 2 (pour le "2")
-        shortBeepSynth.triggerAttackRelease("C5", "16n", now + 0.5); // Note C5, 0.5 seconde après le premier
+        // Son du troisième "bip" (compte à rebours)
+        beepSynth.triggerAttackRelease("G5", "8n", now + 1.4); // G5, après 1.4 secondes
 
-        // Bip 3 (pour le "1")
-        shortBeepSynth.triggerAttackRelease("E5", "16n", now + 1.0); // Note E5, 0.5 seconde après le deuxième
-
-        // Son "GO!" (le long "biiiiiiip")
-        goSoundSynth.triggerAttackRelease("C4", "0.8", now + 1.8); // Note C4 (plus grave), durée 0.8 seconde, 0.8 seconde après le troisième bip
+        // Son "GO!" (plus grave et un peu plus long)
+        goSynth.triggerAttackRelease("C4", "0.5", now + 2.1); // C4, durée de 0.5 secondes, après 2.1 secondes
     }
 }
-
 
 
         // MODIFICATION ICI : La fonction speak envoie maintenant le texte à Kodular
