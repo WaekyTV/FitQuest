@@ -1206,22 +1206,43 @@
     // Vérifie si l'audio est actif et si le contexte Tone.js est en cours d'exécution
     if (isAudioActive && Tone.context.state === 'running') {
         const now = Tone.context.currentTime;
-        const beepSynth = new Tone.MembraneSynth().toDestination(); // Pour les bips percussifs
-        const goSynth = new Tone.Synth().toDestination(); // Pour le son "Go!" plus mélodique
+        // Un synthétiseur pour les bips courts
+        const shortBeepSynth = new Tone.MembraneSynth({
+            envelope: {
+                attack: 0.005,
+                decay: 0.08, // Durée courte pour un "bip"
+                sustain: 0.0,
+                release: 0.05
+            }
+        }).toDestination();
 
-        // Premier bip (semblable au "3")
-        beepSynth.triggerAttackRelease("G4", "8n", now);
+        // Un synthétiseur pour le son "Go!" plus long
+        const goSoundSynth = new Tone.Synth({
+            oscillator: {
+                type: "sine" // Son plus doux pour le "Go!"
+            },
+            envelope: {
+                attack: 0.01,
+                decay: 0.4, // Durée plus longue pour le "biiiiiiip"
+                sustain: 0.1,
+                release: 0.5
+            }
+        }).toDestination();
 
-        // Deuxième bip (semblable au "2")
-        beepSynth.triggerAttackRelease("C5", "8n", now + 0.7); // 0.7 secondes après le premier
+        // Bip 1 (pour le "3")
+        shortBeepSynth.triggerAttackRelease("G4", "16n", now); // Note G4, très courte
 
-        // Troisième bip (semblable au "1")
-        beepSynth.triggerAttackRelease("E5", "8n", now + 1.4); // 0.7 secondes après le deuxième
+        // Bip 2 (pour le "2")
+        shortBeepSynth.triggerAttackRelease("C5", "16n", now + 0.5); // Note C5, 0.5 seconde après le premier
 
-        // Son "GO!" (plus grave et un peu plus long, comme le coup de sifflet)
-        goSynth.triggerAttackRelease("C4", "0.5", now + 2.1); // 0.7 secondes après le troisième bip
+        // Bip 3 (pour le "1")
+        shortBeepSynth.triggerAttackRelease("E5", "16n", now + 1.0); // Note E5, 0.5 seconde après le deuxième
+
+        // Son "GO!" (le long "biiiiiiip")
+        goSoundSynth.triggerAttackRelease("C4", "0.8", now + 1.8); // Note C4 (plus grave), durée 0.8 seconde, 0.8 seconde après le troisième bip
     }
 }
+
 
 
         // MODIFICATION ICI : La fonction speak envoie maintenant le texte à Kodular
