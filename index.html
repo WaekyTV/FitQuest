@@ -4,35 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitQuest</title>
-    <!-- Tailwind CSS CDN pour un style utilitaire et réactif -->
+    <!-- Tailwind CSS CDN for utility and responsive styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: VT323 pour un look rétro distinctif -->
+    <!-- Google Fonts: VT323 for a distinctive retro look -->
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <!-- Lucide Icons CDN pour des icônes légères et personnalisables -->
+    <!-- Lucide Icons CDN for light and customizable icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Tone.js CDN pour la gestion des sons et de l'audio dans l'application -->
+    <!-- Tone.js CDN for sound and audio management in the application -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
-    <!-- Chart.js CDN pour les graphiques -->
+    <!-- Chart.js CDN for charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
     <style>
-        /* Styles personnalisés inspirés de Tailwind et du rétro-gaming */
+        /* Custom styles inspired by Tailwind and retro-gaming */
         body {
             font-family: 'VT323', monospace;
-            background-color: #1a202c; /* Couleur de fond sombre (bg-gray-900) */
-            color: #e2e8f0; /* Couleur de texte claire (text-white) */
+            background-color: #1a202c; /* Dark background color (bg-gray-900) */
+            color: #e2e8f0; /* Light text color (text-white) */
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* S'assure que le corps prend au moins toute la hauteur de la fenêtre */
-            overflow-x: hidden; /* Empêche le défilement horizontal sur les petits écrans */
+            min-height: 100vh; /* Ensures the body takes at least the full viewport height */
+            overflow-x: hidden; /* Prevents horizontal scrolling on small screens */
         }
         .font-vt323 {
             font-family: 'VT323', monospace;
         }
 
-        /* Styles des boutons rétro pour une meilleure interaction visuelle */
+        /* Retro button styles for better visual interaction */
         .btn-retro {
             background-color: #2563eb; /* bg-blue-600 */
             color: white;
@@ -225,10 +225,10 @@
         .notification-container {
             position: fixed;
             z-index: 1000;
-            pointer-events: none; /* Permet les clics à travers les notifications */
+            pointer-events: none; /* Allows clicks through notifications */
             display: flex;
             flex-direction: column;
-            gap: 10px; /* Espacement entre les notifications */
+            gap: 10px; /* Spacing between notifications */
         }
         .notification {
             padding: 1rem;
@@ -240,44 +240,44 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            min-width: 250px; /* Largeur minimale pour le contenu */
-            max-width: 90%; /* Largeur max, responsive */
+            min-width: 250px; /* Minimum width for content */
+            max-width: 90%; /* Max width, responsive */
         }
 
-        /* Trophées (haut gauche) */
+        /* Trophies (top left) */
         .notification-container-top-left {
-            top: 20px; /* Position en haut */
-            left: 20px; /* Position à gauche */
-            align-items: flex-start; /* Aligner les éléments à gauche */
+            top: 20px; /* Top position */
+            left: 20px; /* Left position */
+            align-items: flex-start; /* Align items to the left */
         }
         .notification.trophy {
-            transform: translateX(-100%); /* Démarre hors écran à gauche */
+            transform: translateX(-100%); /* Starts off-screen to the left */
             background-color: #9333ea; /* purple-600 */
             color: white;
             border: 2px solid #6b21a8; /* purple-800 */
-            text-align: left; /* Alignement du texte à gauche */
+            text-align: left; /* Text alignment to the left */
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
         }
         .notification.trophy.show {
-            transform: translateX(0); /* Glisse à l'intérieur */
+            transform: translateX(0); /* Slides in */
             opacity: 1;
         }
 
-        /* Messages généraux, conseils, chrono (bas droite) */
+        /* General messages, tips, chrono (bottom right) */
         .notification-container-bottom-right {
             bottom: 20px;
-            right: 20px; /* Position à droite */
-            align-items: flex-end; /* Aligner les éléments à droite */
+            right: 20px; /* Right position */
+            align-items: flex-end; /* Align items to the right */
         }
 
         .notification.general,
         .notification.tip {
-            transform: translateX(100%); /* Démarre hors écran à droite */
-            background-color: #2563eb; /* blue-600 par défaut */
+            transform: translateX(100%); /* Starts off-screen to the right */
+            background-color: #2563eb; /* blue-600 by default */
             color: white;
-            border: 2px solid #1e40af; /* blue-800 par défaut */
-            text-align: right; /* Alignement du texte à droite */
+            border: 2px solid #1e40af; /* blue-800 by default */
+            text-align: right; /* Text alignment to the right */
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
         }
@@ -289,11 +289,11 @@
             background-color: #d97706; /* orange-600 */
             border-color: #9a3412; /* orange-800 */
         }
-        .notification.general.success { /* Ajouté pour le type 'success' */
+        .notification.general.success { /* Added for 'success' type */
             background-color: #16a34a; /* green-600 */
             border-color: #15803d; /* green-800 */
         }
-        .notification.general.chrono { /* Ajouté pour le type 'chrono' */
+        .notification.general.chrono { /* Added for 'chrono' type */
             background-color: #9333ea; /* purple-600 */
             border-color: #6b21a8; /* purple-800 */
         }
@@ -304,38 +304,38 @@
 
         .notification.general.show,
         .notification.tip.show {
-            transform: translateX(0); /* Glisse à l'intérieur */
+            transform: translateX(0); /* Slides in */
             opacity: 1;
         }
 
-        /* Adaptations pour écrans de petite taille (téléphones) */
+        /* Adaptations for small screens (phones) */
         @media (max-width: 640px) {
             .notification-container-top-left,
             .notification-container-bottom-right {
                 left: 50%;
-                transform: translateX(-50%); /* Centre horizontalement le conteneur */
-                right: auto; /* Annule le right: 20px; */
-                width: 100%; /* Prend toute la largeur disponible */
-                align-items: center; /* Centre les notifications à l'intérieur du conteneur */
-                top: 20px; /* Positionne les deux conteneurs en haut */
-                bottom: auto; /* Annule la position bottom pour le conteneur du bas */
-                flex-direction: column; /* Empile les notifications de haut en bas */
+                transform: translateX(-50%); /* Horizontally center the container */
+                right: auto; /* Cancel right: 20px; */
+                width: 100%; /* Take full available width */
+                align-items: center; /* Center notifications within the container */
+                top: 20px; /* Position both containers at the top */
+                bottom: auto; /* Cancel bottom position for the bottom container */
+                flex-direction: column; /* Stack notifications from top to bottom */
             }
 
             .notification {
-                width: 90%; /* Prend 90% de la largeur du conteneur */
-                margin: 0 auto; /* Centre la notification elle-même */
-                border-radius: 0.5rem; /* Coins arrondis complets */
-                text-align: center; /* Centre le texte */
-                flex-direction: column; /* Empile icône et texte verticalement */
-                gap: 0.25rem; /* Réduit l'espacement */
+                width: 90%; /* Take 90% of container width */
+                margin: 0 auto; /* Center the notification itself */
+                border-radius: 0.5rem; /* Full rounded corners */
+                text-align: center; /* Center text */
+                flex-direction: column; /* Stack icon and text vertically */
+                gap: 0.25rem; /* Reduce spacing */
             }
 
             .notification.trophy,
             .notification.general,
             .notification.tip {
-                /* Réinitialise les transformations spécifiques pour les centrer */
-                transform: translateX(0) !important; /* Retire le translateX(-100%) ou translateX(100%) */
+                /* Reset specific transformations to center them */
+                transform: translateX(0) !important; /* Remove translateX(-100%) or translateX(100%) */
                 border-top-left-radius: 0.5rem;
                 border-bottom-left-radius: 0.5rem;
                 border-top-right-radius: 0.5rem;
@@ -366,6 +366,93 @@
             .main-content-area {
                 padding-bottom: 6rem; /* Adjust for footer on mobile */
             }
+        }
+
+        /* Collapsible content styles */
+        .collapsible-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: #4a5568; /* bg-gray-700 */
+            border-radius: 0.375rem;
+            border: 2px solid #2563eb;
+            box-shadow: 2px 2px 0 0 rgba(0,0,0,0.3);
+            transition: background-color 0.2s ease-in-out;
+        }
+        .collapsible-header:hover {
+            background-color: #2d3748; /* hover:bg-gray-800 */
+        }
+        .collapsible-header.expanded {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .collapsible-header .lucide {
+            transition: transform 0.3s ease-in-out;
+        }
+        .collapsible-header.expanded .lucide {
+            transform: rotate(90deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out; /* Smooth transition */
+            background-color: #2d3748; /* bg-gray-800 */
+            border-left: 2px solid #2563eb;
+            border-right: 2px solid #2563eb;
+            border-bottom: 2px solid #2563eb;
+            border-bottom-left-radius: 0.375rem;
+            border-bottom-right-radius: 0.375rem;
+            padding: 0 1rem; /* Padding applied when expanded */
+        }
+        .collapsible-content.expanded {
+            max-height: 2000px; /* Sufficiently large value */
+            padding: 1rem; /* Apply padding when expanded */
+        }
+
+        .sub-collapsible-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background-color: #2563eb; /* bg-blue-600 */
+            border-radius: 0.375rem;
+            border: 1px solid #1e40af;
+            margin-top: 0.5rem;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .sub-collapsible-header:hover {
+            background-color: #1d4ed8; /* hover:bg-blue-700 */
+        }
+        .sub-collapsible-header.expanded {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .sub-collapsible-header .lucide {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sub-collapsible-header.expanded .lucide {
+            transform: rotate(90deg);
+        }
+
+        .sub-collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+            background-color: #1e40af; /* bg-blue-800 */
+            border-left: 1px solid #1e40af;
+            border-right: 1px solid #1e40af;
+            border-bottom: 1px solid #1e40af;
+            border-bottom-left-radius: 0.375rem;
+            border-bottom-right-radius: 0.375rem;
+            padding: 0 0.75rem; /* Padding applied when expanded */
+        }
+        .sub-collapsible-content.expanded {
+            max-height: 1000px; /* Sufficiently large value */
+            padding: 0.75rem; /* Apply padding when expanded */
         }
     </style>
 </head>
@@ -474,7 +561,7 @@
         </nav>
 
         <main id="main-content" class="flex-1 p-4 sm:p-6 main-content-area max-w-full mx-auto">
-            <!-- Le contenu sera rendu ici par JavaScript -->
+            <!-- Content will be rendered here by JavaScript -->
         </main>
 
         <footer class="fixed bottom-0 left-0 right-0 bg-gray-800 shadow-lg p-3 sm:hidden border-t-4 border-blue-700 text-center text-xs text-gray-400">
@@ -484,25 +571,25 @@
 
     <!-- Modals and Notifications -->
     <div id="global-modals-container"></div>
-    <!-- Conteneur pour les notifications de trophées (haut-gauche) -->
+    <!-- Container for trophy notifications (top-left) -->
     <div id="notification-container-trophy" class="notification-container notification-container-top-left"></div>
-    <!-- Conteneur pour toutes les autres notifications (bas-droite, empilement vers le haut) -->
+    <!-- Container for all other notifications (bottom-right, stacking upwards) -->
     <div id="notification-container-bottom-right" class="notification-container notification-container-bottom-right flex-col-reverse"></div>
 
 
     <script>
-        // Initialisation de Lucide Icons
+        // Initialize Lucide Icons
         function renderLucideIcons() {
             lucide.createIcons();
         }
 
         // =====================================================================
-        // SECTION 1: VARIABLES GLOBALEs ET ÉTAT DE L'APPLICATION
+        // SECTION 1: GLOBAL VARIABLES AND APPLICATION STATE
         // =====================================================================
         let currentPage = 'daily_plan';
         let isLoadingApp = true;
         let loadingProgress = 0;
-        let messageQueue = []; // File d'attente pour les messages généraux
+        let messageQueue = []; // Queue for general messages
         let currentDisplayedMessage = '';
         let currentDisplayedMessageType = '';
         let messageDisplayTimeoutRef = null;
@@ -516,15 +603,15 @@
             proteinNeeds: 'N/A',
             currentXP: 0,
             earnedTrophies: [],
-            hideExerciseHistory: false, // Nouvel état pour cacher/afficher l'historique des exercices
-            apiKey: '' // Nouvelle propriété pour la clé API
+            hideExerciseHistory: false, // New state for hiding/showing exercise history
+            apiKey: '' // New property for API key
         };
         let workoutLogs = [];
         let weightHistory = [];
-        let intervalSequences = []; // Pour les séquences de chrono sauvegardées
-        let shifts = []; // Pour les postes du planning
+        let intervalSequences = []; // For saved chrono sequences
+        let shifts = []; // For planning shifts
 
-        // Définition initiale du programme d'entraînement par défaut
+        // Initial definition of the default workout program
         const defaultWorkoutProgramStructure = {
             phase1: {
                 name: "PHASE 1 : PROGRAMME INITIAL (4 À 6 PREMIÈRES SEMAINES)",
@@ -602,13 +689,13 @@
             },
         };
 
-        let workoutProgram = {}; // Sera initialisé avec la valeur par défaut ou sauvegardée
-        let previousLevel = 0; // Pour suivre le niveau et déclencher les sons de level-up
+        let workoutProgram = {}; // Will be initialized with default or saved value
+        let previousLevel = 0; // To track the level and trigger level-up sounds
 
         let isAudioActive = true;
         let masterVolume = 0.5;
 
-        // Lecteurs Tone.js et synthèse vocale (accès global)
+        // Tone.js players and speech synthesis (global access)
         let trophySoundPlayer;
         let levelUpPlayer;
         let majorLevelUpPlayer;
@@ -617,7 +704,7 @@
         let loadingSoundLoop;
         let synth;
 
-        // États du Chrono (accès global pour l'opération en arrière-plan)
+        // Chrono states (global access for background operation)
         let chronoIntervals = [];
         let chronoCurrentTime = 0;
         let chronoCurrentIntervalIndex = -1;
@@ -627,17 +714,17 @@
         let chronoPreCountdownDuration = 10;
         let chronoIntervalTimerRef = null;
 
-        // Variables pour les instances de Chart.js
+        // Variables for Chart.js instances
         let weightChartInstance = null;
         let exerciseChartInstance = null;
 
-        let userId = 'local_user'; // ID utilisateur par défaut pour le stockage local
+        let userId = 'local_user'; // Default user ID for local storage
 
         // =====================================================================
-        // SECTION 2: DONNÉES STATIQUES DE L'APPLICATION (RECETTES, TROPHÉES)
+        // SECTION 2: STATIC APPLICATION DATA (RECIPES, TROPHIES)
         // =====================================================================
 
-        // --- Données des Trophées ---
+        // --- Trophy Data ---
         const allTrophies = [
             { id: 't001', name: 'PREMIER PAS', description: 'Atteindre le Niveau 1. Le voyage commence !', levelRequired: 1 },
             { id: 't002', name: 'NOVICE EN FORME', description: 'Atteindre le Niveau 2. Vous prenez le rythme.', levelRequired: 2 },
@@ -752,7 +839,7 @@
         ];
 
 
-        const recipeTemplates = { /* ... (identique au code React précédent) ... */
+        const recipeTemplates = { /* ... (same as previous React code) ... */
             proteins: [
                 { name: "POULET", type: "lean_meat", base_portion_g: 150, allergens: ["NONE"] },
                 { name: "SAUMON", type: "fatty_fish", base_portion_g: 120, allergens: ["FISH"] },
@@ -801,7 +888,7 @@
                 petit_dejeuner_sucre_oeufs: {
                     name: (protein, carb, veggie1) => `FLOCONS D'AVOINE PROTEINES AUX ${veggie1.name.toUpperCase()} & OEUFS`,
                     description: (mealType, poste, sport, userProfile) => `UN PETIT-DÉJEUNER ÉQUILIBRÉ ET RICHE POUR L'ÉNERGIE. IDÉAL POUR UN CONTEXTE DE ${poste.toUpperCase()} AVEC ${sport.toUpperCase()} APRÈS.`,
-                    ingredients: (protein, carb, veggie1, supplement, pPortion, cPortion, numPeople) => [ // Ajout de numPeople
+                    ingredients: (protein, carb, veggie1, supplement, pPortion, cPortion, numPeople) => [ // Added numPeople
                         `${cPortion} DE ${carb.name.toUpperCase()}`,
                         `${pPortion} DE ${protein.name.toUpperCase()}`,
                         `${veggie1.name.toUpperCase()} (EN TRANCHES)`,
@@ -817,7 +904,7 @@
                 petit_dejeuner_sucre_yaourt: {
                     name: (protein, carb, veggie1) => `${protein.name.toUpperCase()} BOWL AVEC ${carb.name.toUpperCase()} ET ${veggie1.name.toUpperCase()}`,
                     description: (mealType, poste, sport, userProfile) => `UN BOWL RAFRAÎCHISSANT ET NUTRITIF. PARFAIT POUR COMMENCER UNE JOURNÉE DE ${poste.toUpperCase()} AVEC OU SANS SPORT.`,
-                    ingredients: (protein, carb, veggie1, supplement, pPortion, cPortion, numPeople) => [ // Ajout de numPeople
+                    ingredients: (protein, carb, veggie1, supplement, pPortion, cPortion, numPeople) => [ // Added numPeople
                         `${pPortion} DE ${protein.name.toUpperCase()}`,
                         `${cPortion} DE ${carb.name.toUpperCase()}`,
                         `${Math.round(100 * numPeople)}g DE ${veggie1.name.toUpperCase()}`, // Scaled
@@ -833,10 +920,10 @@
                 petit_dejeuner_sucre_porridge: {
                     name: (protein, carb, veggie1) => `PORRIDGE ÉNERGÉTIQUE AU ${veggie1.name.toUpperCase()} ET ${protein.name.toUpperCase()}`,
                     description: (mealType, poste, sport, userProfile) => `UN PORRIDGE RICHE EN ÉNERGIE POUR LES MATINS EXIGEANTS DE ${poste.toUpperCase()}.`,
-                    ingredients: (protein, carb, veggie1, supplement, pPortion, cPortion, numPeople) => [ // Ajout de numPeople
+                    ingredients: (protein, carb, veggie1, supplement, pPortion, cPortion, numPeople) => [ // Added numPeople
                         `${cPortion} DE ${carb.name.toUpperCase()} (CÉRÉALES/FLOCONS)`,
                         `${pPortion} DE ${protein.name.toUpperCase()} (WHEY OU FROMAGE BLANC)`,
-                        `${Math.round(1 * numPeople)} ${veggie1.name.toUpperCase()}`, // Suppose 1 fruit par personne, adapté par le nombre de personnes
+                        `${Math.round(1 * numPeople)} ${veggie1.name.toUpperCase()}`, // Assume 1 fruit per person, adapted by number of people
                         `${Math.round(10 * numPeople)}g GRAINES DE LIN`, // Scaled
                         `${Math.round(200 * numPeople)}ml LAIT VÉGÉTAL` // Scaled
                     ],
@@ -849,7 +936,7 @@
                 repas_complet_viande_riz_legumes: {
                     name: (protein, carb, veggie1, veggie2, flavor) => `${protein.name.toUpperCase()} GRILLÉ, RIZ & LÉGUMES SAUTÉS (${flavor.toUpperCase()})`,
                     description: (mealType, poste, sport, userProfile) => `UN REPAS ÉQUILIBRÉ POUR SOUTENIR L'ÉNERGIE PENDANT OU APRÈS UN POSTE DE ${poste.toUpperCase()}.`,
-                    ingredients: (protein, carb, veggie1, veggie2, supplement, pPortion, cPortion, numPeople) => [ // Ajout de numPeople
+                    ingredients: (protein, carb, veggie1, veggie2, supplement, pPortion, cPortion, numPeople) => [ // Added numPeople
                         `${pPortion} DE ${protein.name.toUpperCase()}`,
                         `${cPortion} DE ${carb.name.toUpperCase()}`,
                         `${Math.round(150 * numPeople)}g DE ${veggie1.name.toUpperCase()}`, // Scaled
@@ -865,7 +952,7 @@
                 repas_complet_poisson_patate_legumes: {
                     name: (protein, carb, veggie1, veggie2, flavor) => `${protein.name.toUpperCase()} AU FOUR, ${carb.name.toUpperCase()} & ${veggie1.name.toUpperCase()} (${flavor.toUpperCase()})`,
                     description: (mealType, poste, sport, userProfile) => `UN REPAS DIGESTE ET RICHE EN OMÉGA-3. EXCELLENT POUR LA RÉCUPÉRATION.`,
-                    ingredients: (protein, carb, veggie1, veggie2, supplement, pPortion, cPortion, numPeople) => [ // Ajout de numPeople
+                    ingredients: (protein, carb, veggie1, veggie2, supplement, pPortion, cPortion, numPeople) => [ // Added numPeople
                         `${pPortion} DE ${protein.name.toUpperCase()}`,
                         `${cPortion} DE ${carb.name.toUpperCase()}`,
                         `${Math.round(200 * numPeople)}g DE ${veggie1.name.toUpperCase()}`, // Scaled
@@ -880,7 +967,7 @@
                 repas_vegetarien_legumineuses_quinoa_legumes: {
                     name: (protein, carb, veggie1, veggie2, flavor) => `CURRY DE ${protein.name.toUpperCase()} ET ${veggie1.name.toUpperCase()} AVEC ${carb.name.toUpperCase()}`,
                     description: (mealType, poste, sport, userProfile) => `UN PLAT VÉGÉTARIEN NUTRITIF ET SATISFAISANT. PARFAIT POUR UN JOUR SANS VIANDE.`,
-                    ingredients: (protein, carb, veggie1, veggie2, supplement, pPortion, cPortion, numPeople) => [ // Ajout de numPeople
+                    ingredients: (protein, carb, veggie1, veggie2, supplement, pPortion, cPortion, numPeople) => [ // Added numPeople
                         `${pPortion} DE ${protein.name.toUpperCase()}`,
                         `${cPortion} DE ${carb.name.toUpperCase()}`,
                         `${Math.round(150 * numPeople)}g DE ${veggie1.name.toUpperCase()}`, // Scaled
@@ -909,7 +996,7 @@
             ]
         };
 
-        const sleepRoutines = { /* ... (identique au code React précédent) ... */
+        const sleepRoutines = { /* ... (same as previous React code) ... */
             '6h-18h': {
                 name: "ROUTINE JOUR (6H-18H)",
                 details: [
@@ -954,59 +1041,59 @@
         };
 
         // =====================================================================
-        // SECTION 3: FONCTIONS UTILITAIRES ET DE GESTION DE L'ÉTAT
+        // SECTION 3: UTILITY AND STATE MANAGEMENT FUNCTIONS
         // =====================================================================
 
-        // --- Fonctions de gestion du localStorage ---
+        // --- LocalStorage Management Functions ---
         /**
-         * Sauvegarde les données dans le localStorage.
-         * @param {string} key - Clé sous laquelle stocker les données.
-         * @param {any} data - Les données à stocker.
+         * Saves data to localStorage.
+         * @param {string} key - The key under which to store the data.
+         * @param {any} data - The data to store.
          */
         function saveToLocalStorage(key, data) {
             try {
                 localStorage.setItem(key, JSON.stringify(data));
-                console.log(`[LocalStorage] Données sauvegardées pour '${key}'.`);
+                console.log(`[LocalStorage] Data saved for '${key}'.`);
             } catch (e) {
-                console.error(`[LocalStorage] Erreur lors de l'enregistrement pour '${key}':`, e);
+                console.error(`[LocalStorage] Error saving for '${key}':`, e);
                 showMessage(`ERREUR: Impossible de sauvegarder ${key}.`, 'error');
             }
         }
 
         /**
-         * Charge les données depuis le localStorage.
-         * @param {string} key - Clé des données à charger.
-         * @param {any} defaultValue - Valeur par défaut si les données ne sont pas trouvées ou sont corrompues.
-         * @returns {any} Les données chargées ou la valeur par défaut.
+         * Loads data from localStorage.
+         * @param {string} key - The key of the data to load.
+         * @param {any} defaultValue - Default value if data is not found or is corrupted.
+         * @returns {any} The loaded data or the default value.
          */
         function loadFromLocalStorage(key, defaultValue) {
             try {
                 const data = localStorage.getItem(key);
                 return data ? JSON.parse(data) : defaultValue;
             } catch (e) {
-                console.error(`[LocalStorage] Erreur lors du chargement pour '${key}':`, e);
+                console.error(`[LocalStorage] Error loading for '${key}':`, e);
                 showMessage(`ATTENTION: Données corrompues pour ${key}. Chargement par défaut.`, 'warning');
                 return defaultValue;
             }
         }
 
         /**
-         * Supprime une clé du localStorage.
-         * @param {string} key - Clé à supprimer.
+         * Removes a key from localStorage.
+         * @param {string} key - The key to remove.
          */
         function removeFromLocalStorage(key) {
             try {
                 localStorage.removeItem(key);
-                console.log(`[LocalStorage] Données supprimées pour '${key}'.`);
+                console.log(`[LocalStorage] Data removed for '${key}'.`);
             } catch (e) {
-                console.error(`[LocalStorage] Erreur lors de la suppression pour '${key}':`, e);
+                console.error(`[LocalStorage] Error removing for '${key}':`, e);
                 showMessage(`ERREUR: Impossible de supprimer ${key}.`, 'error');
             }
         }
 
-        // Initialiser l'état global à partir du localStorage
+        // Initialize global state from localStorage
         function initializeGlobalState() {
-            console.log("[INITIALISATION] Chargement de l'état global depuis localStorage...");
+            console.log("[INITIALISATION] Loading global state from localStorage...");
             userProfile = loadFromLocalStorage('userProfile', {
                 height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A',
                 currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: ''
@@ -1016,10 +1103,10 @@
             weightHistory = loadFromLocalStorage('weightHistory', []);
             intervalSequences = loadFromLocalStorage('intervalSequences', []);
             shifts = loadFromLocalStorage('shifts', []);
-            // Charger le programme d'entraînement personnalisé si existant, sinon utiliser la valeur par défaut
+            // Load custom workout program if it exists, otherwise use default
             workoutProgram = loadFromLocalStorage('savedWorkoutProgram', JSON.parse(JSON.stringify(defaultWorkoutProgramStructure)));
 
-            // Initialiser previousLevel avec le niveau actuel de l'utilisateur
+            // Initialize previousLevel with the user's current level
             previousLevel = calculateLevelAndXP(userProfile.currentXP).level;
 
             const savedChronoState = loadFromLocalStorage('chronoState', {});
@@ -1033,13 +1120,13 @@
 
             if (!Array.isArray(userProfile.earnedTrophies)) {
                 userProfile.earnedTrophies = [];
-                console.warn("[INITIALISATION] earnedTrophies n'était pas un tableau, réinitialisé.");
+                console.warn("[INITIALISATION] earnedTrophies was not an array, reset.");
             }
-            console.log("[INITIALISATION] État global chargé.");
+            console.log("[INITIALISATION] Global state loaded.");
         }
 
         /**
-         * Met à jour l'état du chrono dans le localStorage.
+         * Updates the chrono state in localStorage.
          */
         function updateLocalStorageChronoState() {
             saveToLocalStorage('chronoState', {
@@ -1050,11 +1137,11 @@
         }
 
 
-        // --- Système de Notifications et Messages ---
+        // --- Notification and Message System ---
         /**
-         * Affiche un message général (info, succès, erreur, avertissement, chrono, tip) en bas à droite.
-         * @param {string} msg - Le message à afficher.
-         * @param {'info'|'success'|'error'|'warning'|'chrono'|'tip'} type - Le type de message pour le style.
+         * Displays a general message (info, success, error, warning, chrono, tip) at the bottom right.
+         * @param {string} msg - The message to display.
+         * @param {'info'|'success'|'error'|'warning'|'chrono'|'tip'} type - The message type for styling.
          */
         function showMessage(msg, type = 'info') {
             const container = document.getElementById('notification-container-bottom-right');
@@ -1080,9 +1167,9 @@
         }
 
         /**
-         * Affiche une notification de trophée (haut gauche).
-         * @param {string} trophyName - Nom du trophée.
-         * @param {string} description - Description du trophée.
+         * Displays a trophy notification (top left).
+         * @param {string} trophyName - Name of the trophy.
+         * @param {string} description - Description of the trophy.
          */
         function showTrophyNotification(trophyName, description) {
             const container = document.getElementById('notification-container-trophy');
@@ -1108,7 +1195,7 @@
             }, 12000);
         }
 
-        // --- Fonctions Audio (Tone.js & SpeechSynthesis) ---
+        // --- Audio Functions (Tone.js & SpeechSynthesis) ---
         let audioContextStartedOnce = false;
 
         async function initializeAudioContextNonBlocking() {
@@ -1199,51 +1286,51 @@
         }
 
         function playMarioKartStartSound() {
-    // Vérifie si l'audio est actif et si le contexte Tone.js est en cours d'exécution
-    if (isAudioActive && Tone.context.state === 'running') {
-        const now = Tone.context.currentTime;
-        const beepSynth = new Tone.MembraneSynth().toDestination();
-        const goSynth = new Tone.Synth().toDestination();
+            // Checks if audio is active and if the Tone.js context is running
+            if (isAudioActive && Tone.context.state === 'running') {
+                const now = Tone.context.currentTime;
+                const beepSynth = new Tone.MembraneSynth().toDestination();
+                const goSynth = new Tone.Synth().toDestination();
 
-        // Premier bip (haut)
-new Tone.MembraneSynth().toDestination().triggerAttackRelease("C5", "16n", now);
-// Deuxième bip (moyen)
-new Tone.MembraneSynth().toDestination().triggerAttackRelease("E5", "16n", now);
-// Troisième bip (bas)
-new Tone.MembraneSynth().toDestination().triggerAttackRelease("G5", "16n", now);
-// Son "GO!" (plus long et plus aigu)
-new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
-    }
-}
+                // First beep (high)
+                new Tone.MembraneSynth().toDestination().triggerAttackRelease("C5", "16n", now);
+                // Second beep (medium)
+                new Tone.MembraneSynth().toDestination().triggerAttackRelease("E5", "16n", now);
+                // Third beep (low)
+                new Tone.MembraneSynth().toDestination().triggerAttackRelease("G5", "16n", now);
+                // "GO!" sound (longer and higher)
+                new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
+            }
+        }
 
 
-        // MODIFICATION ICI : La fonction speak envoie maintenant le texte à Kodular
+        // MODIFICATION HERE: The speak function now sends text to Kodular
         function speak(text) {
             if (isAudioActive) {
-                // Utilise la synthèse vocale du navigateur si disponible et active
+                // Uses browser speech synthesis if available and active
                 if (synth) {
                     synth.cancel();
                     const utterance = new SpeechSynthesisUtterance(text);
                     utterance.lang = 'fr-FR';
                     synth.speak(utterance);
                 }
-                // Envoie le texte à Kodular via la fonction parlerAvecKodular
+                // Sends text to Kodular via the parlerAvecKodular function
                 parlerAvecKodular(text);
             }
         }
 
-        // La fonction parlerAvecKodular doit maintenant accepter un argument texte
+        // The parlerAvecKodular function must now accept a text argument
         function parlerAvecKodular(texte) {
           if (window.AppInventor && window.AppInventor.setWebViewString) {
             window.AppInventor.setWebViewString(texte);
           } else {
             // Replaced alert with showMessage for consistency and better UX
-            // showMessage("KODULAR NON DÉTECTÉ, TEXTE : " + texte, 'warning'); // Commenté pour éviter double notification si Kodular n'est pas là
+            // showMessage("KODULAR NON DÉTECTÉ, TEXTE : " + texte, 'warning'); // Commented to avoid double notification if Kodular is not present
           }
         }
 
 
-        // --- Fonctions Utilitaires Générales ---
+        // --- General Utility Functions ---
         function generateUniqueId() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
                 const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -1310,7 +1397,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
             return moment;
         }
 
-        // Conseils nutritionnels spécifiques mappés aux contextes
+        // Specific nutritional advice mapped to contexts
         const specificMealAdvice = {
             'petit_dejeuner': {
                 '18h-6h': "CONSEIL : APRÈS UN POSTE DE NUIT, PRIVILÉGIE UN REPAS NUTRITIF POUR FAVORISER LA RÉCUPÉRATION ET UN SOMMEIL DE QUALITÉ. LES PROTÉINES ET GLUCIDES LENTS SONT CLÉS.",
@@ -1336,7 +1423,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
             }
         };
 
-        // --- Calcul de l'XP et du Niveau ---
+        // --- XP and Level Calculation ---
         function getLevelThresholds(level) {
             if (level === 0) return { current: 0, next: 100 };
             let xp = 0;
@@ -1371,7 +1458,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
         }
 
         // =====================================================================
-        // SECTION 4: LOGIQUE PRINCIPALE DE L'APPLICATION
+        // SECTION 4: MAIN APPLICATION LOGIC
         // =====================================================================
 
         async function initializeApp() {
@@ -1397,7 +1484,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                 updateProgress(20);
                 setupAudioPlayers();
                 updateProgress(40);
-                initializeGlobalState(); // Cette fonction charge maintenant workoutProgram
+                initializeGlobalState(); // This function now loads workoutProgram
                 updateXPBar();
                 updateProfileDisplay();
                 updateProgress(60);
@@ -1419,7 +1506,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                 updateProgress(100);
 
             } catch (error) {
-                console.error("L'initialisation de l'application a échoué:", error);
+                console.error("Application initialization failed:", error);
                 showMessage(`ERREUR D'INITIALISATION: ${error.message}`, 'error');
             } finally {
                 if (loadingSoundLoop && loadingSoundLoop.state === 'started') {
@@ -1441,7 +1528,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
             }
         }
 
-        // --- Fonctions de Rendu pour chaque Page/Vue ---
+        // --- Render Functions for each Page/View ---
         function renderLoadingScreen() {
             document.getElementById('loading-progress-bar').style.width = `${loadingProgress}%`;
             document.getElementById('loading-progress-text').textContent = `${loadingProgress}% CHARGEMENT...`;
@@ -1522,13 +1609,13 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                 userProfile.earnedTrophies = earnedTrophies;
                 saveToLocalStorage('userProfile', userProfile);
 
-                newTrophiesEarned.forEach(trophy => showTrophyNotification(trophy.name, trophy.description));
+                newTrophiesEarned.forEach(trophy => showTrophyNotification(trorophy.name, trophy.description));
                 if (currentPage === 'trophies') renderTrophyRoomView(document.getElementById('main-content'));
             }
         }
 
 
-        // --- Gestion du Profil ---
+        // --- Profile Management ---
         function updateProfileDisplay() {
             const heightInput = document.getElementById('userHeight');
             const weightInput = document.getElementById('userWeight');
@@ -1644,7 +1731,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
         }
 
 
-        // --- Vue du Planning Quotidien ---
+        // --- Daily Plan View ---
         function renderDailyPlanView(container) {
             let html = `
                 <div class="card-retro mb-6">
@@ -1652,9 +1739,9 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                     <div class="mb-6 space-y-4 p-4 rounded-lg border-2 border-blue-700 bg-gray-700">
                         <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">AJOUTER UN POSTE :</h3>
                         <div class="relative">
-                        <label for="shiftDate" class="block text-white-200 text-sm font-bold mb-2">DATE DU POSTE :</label> 
+                        <label for="shiftDate" class="block text-white-200 text-sm font-bold mb-2">DATE DU POSTE :</label>
                         <input type="date" id="shiftDate" class="input-retro pr-10" style="color: #ffffff;" value="" />
-                        <i data-lucide="calendar" class="absolute right-11 top-12 -translate-y-1/2 text-white pointer-events-none" style="width:15px; height:18px;"></i> 
+                        <i data-lucide="calendar" class="absolute right-11 top-12 -translate-y-1/2 text-white pointer-events-none" style="width:15px; height:18px;"></i>
                         </div>
                         <div><label for="shiftType" class="block text-gray-200 text-sm font-bold mb-2">TYPE DE POSTE :</label>
                             <select id="shiftType" class="select-retro">
@@ -1759,7 +1846,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
         }
 
 
-        // --- Vue d'Entraînement ---
+        // --- Workout View ---
         function renderWorkoutView(container) {
             let html = `
                 <div class="card-retro mb-6">
@@ -1788,9 +1875,9 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
             const workoutPhaseContent = document.getElementById('workout-phase-content');
 
             let selectedPhase = loadFromLocalStorage('selectedWorkoutPhase', 'phase1');
-            // Assurer que la phase sélectionnée existe dans le nouveau programme
+            // Ensure the selected phase exists in the new program
             if (!workoutProgram[selectedPhase]) {
-                selectedPhase = 'phase1'; // Revenir à la phase 1 par défaut si la phase précédente n'existe plus
+                selectedPhase = 'phase1'; // Revert to default phase 1 if the previous phase no longer exists
                 saveToLocalStorage('selectedWorkoutPhase', selectedPhase);
             }
             phaseSelect.value = selectedPhase;
@@ -1879,17 +1966,17 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
 
         async function generateAndShowDifficultyTip(feeling, exerciseName) {
             const LLM_PROMPT = `
-                Tu es un coach sportif expert et bienveillant.
-                Waeky vient d'enregistrer un exercice : "${exerciseName.toUpperCase()}" avec un ressenti de difficulté : "${feeling.toUpperCase()}".
+                You are an expert and benevolent sports coach.
+                Waeky just logged an exercise: "${exerciseName.toUpperCase()}" with a difficulty feeling: "${feeling.toUpperCase()}".
 
-                Génère un conseil court (maximum 2 phrases) et motivant, adapté à ce ressenti.
-                - Si "FACILE", encourage à augmenter la difficulté (poids, répétitions, vitesse, durée) ou à varier.
-                - Si "MOYEN", encourage à maintenir l'effort et la constance, ou à envisager une légère progression.
-                - Si "DIFFICILE", encourage à persévérer, à se reposer, ou à ajuster la charge/intensité pour éviter le surentraînement.
+                Generate a short (maximum 2 sentences) and motivating tip, adapted to this feeling.
+                - If "FACILE" (Easy), encourage increasing difficulty (weight, repetitions, speed, duration, etc.) or varying exercises.
+                - If "MOYEN" (Medium), encourage maintaining effort and consistency, or considering slight progression.
+                - If "DIFFICILE" (Difficult), encourage perseverance, rest, or adjusting load/intensity to avoid overtraining.
 
-                FORMAT DE RÉPONSE ATTENDU (STRICTEMENT EN JSON) :
+                EXPECTED RESPONSE FORMAT (STRICTLY IN JSON):
                 {
-                  "tip": "TON CONSEIL (EN MAJUSCULES)"
+                  "tip": "YOUR TIP (IN CAPITAL LETTERS)"
                 }
             `.trim();
 
@@ -1918,7 +2005,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`Erreur HTTP lors de la génération du conseil: ${response.status} ${response.statusText} - ${errorText}`);
+                    throw new Error(`HTTP Error during tip generation: ${response.status} ${response.statusText} - ${errorText}`);
                 }
 
                 const rawResult = await response.text();
@@ -1926,8 +2013,8 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                 showMessage(parsedContent.tip, 'tip');
 
             } catch (error) {
-                console.error("Erreur lors de la génération du conseil de difficulté:", error);
-                showMessage(`CONSEIL IA INDISPONIBLE: ${error.message}`, 'warning');
+                console.error("Error generating difficulty tip:", error);
+                showMessage(`IA TIP UNAVAILABLE: ${error.message}`, 'warning');
             }
         }
 
@@ -1973,7 +2060,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
 
                 const logDate = new Date();
                 const currentPhase = document.getElementById('phaseSelect').value;
-                const workoutPhaseName = workoutProgram[currentPhase]?.name || 'PHASE INCONNUE'; // Gérer le cas où la phase n'existe plus
+                const workoutPhaseName = workoutProgram[currentPhase]?.name || 'PHASE INCONNUE'; // Handle case where phase no longer exists
 
                 workoutLogs.push({
                     id: generateUniqueId(), date: logDate.toISOString(), exerciseName: currentExercise.name,
@@ -2022,7 +2109,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
         }
 
 
-        // --- Vue des Recettes ---
+        // --- Recipes View ---
         async function generateInternalMeal(mealType, dayContext, otherMealsToday = [], currentMealToReplace = null, allowMeatFish, userProfileData, numberOfPeople = 1) {
             const finalNumberOfPeople = (mealType === 'petit_dejeuner' || mealType.startsWith('collation')) ? 1 : numberOfPeople;
 
@@ -2034,81 +2121,81 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
             const mealSpecificConstraints = [];
             let imcAdaptation = "";
             if (userProfileForPrompt.imcCategory.includes('INSUFFISANCE PONDÉRALE')) {
-                imcAdaptation = "Waeky est en insuffisance pondérale. Assure un apport calorique suffisant et des nutriments denses pour favoriser une prise de poids saine.";
+                imcAdaptation = "Waeky is underweight. Ensure a sufficient caloric intake and nutrient-dense foods to promote healthy weight gain.";
             } else if (userProfileForPrompt.imcCategory.includes('SURPOIDS') || userProfileForPrompt.imcCategory.includes('OBÉSITÉ')) {
-                imcAdaptation = `Waeky est en catégorie d'IMC "${userProfileForPrompt.imcCategory}". Privilégie des recettes moins caloriques, plus riches en fibres et en protéines maigres pour favoriser la perte de poids et la satiété. Réduis les portions de glucides et lipides si nécessaire.`;
+                imcAdaptation = `Waeky is in the IMC category "${userProfileForPrompt.imcCategory}". Prioritize lower-calorie recipes, richer in fiber and lean protein to promote weight loss and satiety. Reduce carbohydrate and lipid portions if necessary.`;
             } else {
-                imcAdaptation = "Waeky a un poids normal. Maintiens un équilibre macro-nutritionnel pour soutenir son niveau d'activité sans excès.";
+                imcAdaptation = "Waeky has a normal weight. Maintain a macro-nutritional balance to support their activity level without excess.";
             }
             mealSpecificConstraints.push(imcAdaptation);
 
             let mealContextDescription = "";
             if (mealType === 'petit_dejeuner') {
-                mealContextDescription = "Petit-déjeuner";
-                mealSpecificConstraints.push("Doit être à tendance sucrée, évitant les saveurs salées.");
-                mealSpecificConstraints.push("Les œufs peuvent être utilisés UNIQUEMENT s'ils sont intégrés dans des préparations comme des galettes, crêpes ou porridges, PAS en tant que plat principal (ex: œufs brouillés, omelette).");
-                mealSpecificConstraints.push("PAS DE PÂTES, DE SEMOULE, NI DE SAUCE TOMATE.");
-                mealSpecificConstraints.push("Privilégiez les fruits, flocons d'avoine, yaourt grec, ou whey protéine pour les bases.");
+                mealContextDescription = "Breakfast";
+                mealSpecificConstraints.push("Must be sweet, avoiding savory flavors.");
+                mealSpecificConstraints.push("Eggs can ONLY be used if integrated into preparations like pancakes, crepes or porridges, NOT as a main dish (e.g. scrambled eggs, omelet).");
+                mealSpecificConstraints.push("NO PASTA, SEMOLINA, OR TOMATO SAUCE.");
+                mealSpecificConstraints.push("Prioritize fruits, oatmeal, Greek yogurt, or whey protein for bases.");
             } else if (mealType === 'dejeuner') {
-                mealContextDescription = "Déjeuner";
-                mealSpecificConstraints.push("Doit être un repas équilibré pour soutenir l'énergie pendant la journée.");
+                mealContextDescription = "Lunch";
+                mealSpecificConstraints.push("Must be a balanced meal to sustain energy throughout the day.");
             } else if (mealType === 'diner') {
-                mealContextDescription = "Dîner";
-                mealSpecificConstraints.push("Doit être un repas digeste favorisant un bon sommeil.");
+                mealContextDescription = "Dinner";
+                mealSpecificConstraints.push("Must be an easily digestible meal promoting good sleep.");
             } else if (mealType.startsWith('collation')) {
-                mealContextDescription = "Collation";
-                mealSpecificConstraints.push("Doit être rapide, facile à transporter et énergétique.");
+                mealContextDescription = "Snack";
+                mealSpecificConstraints.push("Must be quick, easy to transport, and energizing.");
             }
 
             if (!allowMeatFish) {
-                mealSpecificConstraints.push("Utilise une source de protéines végétarienne (lentilles, tofu, pois chiches, œufs - si applicable au repas, produits laitiers) ou laitière. Ne propose PAS de viande ou de poisson.");
+                mealSpecificConstraints.push("Use a vegetarian protein source (lentils, tofu, chickpeas, eggs - if applicable to the meal, dairy products) or dairy. Do NOT offer meat or fish.");
             } else {
-                mealSpecificConstraints.push("Tu peux utiliser n'importe quelle source de protéines. Pour des raisons de budget, privilégie des options économiques comme les légumineuses, les œufs (if applicable au repas), ou les produits laitiers, en alternance avec la viande/poisson.");
+                mealSpecificConstraints.push("You can use any protein source. For budget reasons, prioritize economical options like legumes, eggs (if applicable to the meal), or dairy products, alternating with meat/fish.");
             }
 
             const sportImpact = dayContext.sport !== 'aucun'
-                ? `Waeky a une séance de sport de type '${dayContext.sport}' prévue. Les glucides complexes et les protéines sont importants pour l'énergie et la récupération.`
-                : `Waeky n'a pas de sport prévu ce jour. Les repas doivent rester équilibrés.`;
+                ? `Waeky has a '${dayContext.sport}' type sports session planned. Complex carbohydrates and proteins are important for energy and recovery.`
+                : `Waeky has no sport planned for this day. Meals should remain balanced.`;
 
-            const posteImpact = `Waeky est en poste de type '${dayContext.poste}'. Pense à adapter la digestion et l'énergie en fonction de cet horaire.`;
+            const posteImpact = `Waeky is on a '${dayContext.poste}' type shift. Remember to adapt digestion and energy based on this schedule.`;
 
 
             const LLM_PROMPT = `
-            Tu es un nutritionniste et chef culinaire expert, travaillant pour 'FitQuest'.
-            Ta mission est de créer une recette détaillée et adaptée pour Waeky, un agent de sécurité avec un emploi du temps exigeant.
+            You are an expert nutritionist and culinary chef, working for 'FitQuest'.
+            Your mission is to create a detailed and adapted recipe for Waeky, a security guard with a demanding schedule.
 
-            CONTEXTE DE WAEKY :
-            - IMC: ${userProfileForPrompt.imc} (Catégorie: ${userProfileForPrompt.imcCategory})
-            - Poids: ${userProfileForPrompt.weight} kg
-            - Besoin en protéines estimé: ${userProfileForPrompt.proteinNeeds} g/jour
-            - Ce repas est pour ${finalNumberOfPeople} personne(s).
+            WAEKY'S CONTEXT:
+            - IMC: ${userProfileForPrompt.imc} (Category: ${userProfileForPrompt.imcCategory})
+            - Weight: ${userProfileForPrompt.weight} kg
+            - Estimated protein needs: ${userProfileForPrompt.proteinNeeds} g/day
+            - This meal is for ${finalNumberOfPeople} person(s).
 
-            PLANNING DU JOUR :
-            - Poste: ${dayContext.poste}
+            DAY'S SCHEDULE:
+            - Shift: ${dayContext.poste}
             - Sport: ${dayContext.sport} (${sportImpact})
             - ${posteImpact}
 
-            TYPE DE REPAS À CRÉER : ${mealContextDescription.toUpperCase()}
+            MEAL TYPE TO CREATE: ${mealContextDescription.toUpperCase()}
 
-            CONTRAINTES SPÉCIFIQUES :
+            SPECIFIC CONSTRAINTS:
             ${mealSpecificConstraints.map(c => `- ${c}`).join('\n')}
-            - Les ingrédients doivent inclure les quantités précises et EXPLICITEMENT ADAPTÉES pour ${finalNumberOfPeople} personne(s). Chaque ingrédient doit avoir une quantité et une unité claires et réalistes.
-            - Les étapes de préparation doivent être TRÈS DÉTAILLÉES, numérotées, et facilement reproductibles par un débutant complet en cuisine. Chaque étape doit être claire, concise et fournir suffisamment de détails pour l'exécution.
-            - La portion de Waeky doit être spécifiquement adaptée à son IMC (${userProfileForPrompt.imcCategory}) et ses besoins en protéines (${userProfileForPrompt.proteinNeeds} g/jour), pour 1 personne.
+            - Ingredients must include precise and EXPLICITLY ADAPTED quantities for ${finalNumberOfPeople} person(s). Each ingredient must have a clear and realistic quantity and unit.
+            - Preparation steps must be VERY DETAILED, numbered, and easily reproducible by a complete beginner in cooking. Each step must be clear, concise and provide enough detail for execution.
+            - Waeky's portion must be specifically adapted to their IMC (${userProfileForPrompt.imcCategory}) and protein needs (${userProfileForPrompt.proteinNeeds} g/day), for 1 person.
 
-            FORMAT DE RÉPONSE ATTENDU (STRICTEMENT EN JSON) :
+            EXPECTED RESPONSE FORMAT (STRICTLY IN JSON):
             {
-              "title": "TITRE DE LA RECETTE (EN MAJUSCULES)",
-              "description_du_plat": "DESCRIPTION DU PLAT ADAPTÉE AU CONTEXTE (EN MAJUSCULES)",
-              "ingredients_label": "INGRÉDIENTS (POUR X PERS)",
-              "ingredients_list": ["QUANTITÉ UNITÉ INGRÉDIENT", "QUANTITÉ UNITÉ INGRÉDIENT", ...],
-              "preparation_steps": ["ÉTAPE 1. DESCRIPTION DÉTAILLÉE.", "ÉTAPE 2. DESCRIPTION DÉTAILLÉE.", ...],
-              "ma_portion_waeky": "TA PORTION (POUR WAEKY) : QUANTITÉ PROTÉINE, QUANTITÉ GLUCIDE, ET UNE GRANDE PORTION DE LÉGUMES/FRUITS VARIES, POUR 1 PERSONNE.",
-              "conseils_reutilisation_economie": "CONSEILS POUR FAIRE DES RESTES OU ÉCONOMISER (EN MAJUSCULES).",
-              "notes": "NOTES SUPPLÉMENTAIRES (ALLERGÈNES, ASTUCES, ETC.) (EN MAJUSCULES)."
+              "title": "RECIPE TITLE (IN CAPITAL LETTERS)",
+              "description_du_plat": "DISH DESCRIPTION ADAPTED TO CONTEXT (IN CAPITAL LETTERS)",
+              "ingredients_label": "INGREDIENTS (FOR X PERSONS)",
+              "ingredients_list": ["QUANTITY UNIT INGREDIENT", "QUANTITY UNIT INGREDIENT", ...],
+              "preparation_steps": ["STEP 1. DETAILED DESCRIPTION.", "STEP 2. DETAILED DESCRIPTION.", ...],
+              "ma_portion_waeky": "YOUR PORTION (FOR WAEKY): PROTEIN QUANTITY, CARBOHYDRATE QUANTITY, AND A LARGE PORTION OF VARIED VEGETABLES/FRUITS, FOR 1 PERSON.",
+              "conseils_reutilisation_economie": "TIPS FOR LEFTOVERS OR SAVINGS (IN CAPITAL LETTERS).",
+              "notes": "ADDITIONAL NOTES (ALLERGENS, TIPS, ETC.) (IN CAPITAL LETTERS)."
             }
 
-            GÉNÈRE LA RECETTE DÉTAILLÉE :
+            GENERATE THE DETAILED RECIPE:
             `.trim();
 
             try {
@@ -2140,8 +2227,8 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    let errorMessage = `Erreur HTTP: ${response.status} ${response.statusText}`;
-                    if (response.status === 401 || response.status === 403) errorMessage += " - PROBLÈME D'AUTHENTIFICATION API. VÉRIFIEZ L'ACCÈS À L'API GEMINI. (CODE 401/403)";
+                    let errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
+                    if (response.status === 401 || response.status === 403) errorMessage += " - API AUTHENTICATION PROBLEM. CHECK GEMINI API ACCESS. (CODE 401/403)";
                     else if (errorText) errorMessage += ` - ${errorText}`;
                     throw new Error(errorMessage);
                 }
@@ -2153,26 +2240,26 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
                         parsedContent = JSON.parse(result.candidates[0].content.parts[0].text);
                     } else {
-                        throw new Error("Réponse de l'IA mal formée ou vide.");
+                        throw new Error("Malformed or empty AI response.");
                     }
                 } catch (parseError) {
-                    console.error("Erreur d'analyse du JSON de la réponse LLM ou de la structure des candidats:", parseError);
-                    console.error("JSON brut causant l'erreur:", rawResult);
-                    const fallbackTitle = `${mealContextDescription.toUpperCase()} SIMPLIFIÉ (ERREUR IA)`;
-                    const fallbackDesc = `UNE ERREUR EST SURVENUE LORS DE LA GÉNÉRATION. VOICI UNE RECETTE BASIQUE.`;
-                    const fallbackIngredients = [`QUANTITÉS À DÉFINIR SELON TON APPÉTIT`, `PROTÉINES VARIÉES`, `GLUCIDES COMPLÈXES`, `LÉGUMES DE SAISON`];
-                    const fallbackPreparation = ["1. PRÉPARE LES INGRÉDIENTS. 2. CUISINE SELON TES MÉTHODES HABITUELLES."];
-                    const fallbackPortion = "TA PORTION (POUR WAEKY) : PROTÉINES, GLUCIDES, ET LÉGUMES ADAPTÉS. POUR 1 PERSONNE.";
-                    const fallbackConseils = "AJUSTE LES QUANTITÉS SELON TES BESOINS. ESSAIE DE RÉUTILISER LES RESTES.";
-                    const fallbackNotes = "LA RECETTE A ÉTÉ SIMPLIFIÉE EN RAISON D'UN PROBLÈME DE COMMUNICATION AVEC L'IA. VÉRIFIEZ LE PROMPT OU L'API.";
-                    parsedContent = { title: fallbackTitle, description_du_plat: fallbackDesc, ingredients_label: `INGRÉDIENTS (POUR ${finalNumberOfPeople} PERS)`, ingredients_list: fallbackIngredients, preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion, conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes };
+                    console.error("Error parsing LLM response JSON or candidate structure:", parseError);
+                    console.error("Raw JSON causing the error:", rawResult);
+                    const fallbackTitle = `${mealContextDescription.toUpperCase()} SIMPLIFIED (IA ERROR)`;
+                    const fallbackDesc = `AN ERROR OCCURRED DURING GENERATION. HERE IS A BASIC RECIPE.`;
+                    const fallbackIngredients = [`QUANTITIES TO BE DEFINED ACCORDING TO YOUR APPETITE`, `VARIED PROTEINS`, `COMPLEX CARBOHYDRATES`, `SEASONAL VEGETABLES`];
+                    const fallbackPreparation = ["1. PREPARE INGREDIENTS. 2. COOK ACCORDING TO YOUR USUAL METHODS."];
+                    const fallbackPortion = "YOUR PORTION (FOR WAEKY): PROTEINS, CARBOHYDRATES, AND VARIED VEGETABLES/FRUITS ADAPTED. FOR 1 PERSON.";
+                    const fallbackConseils = "ADJUST QUANTITIES ACCORDING TO YOUR NEEDS. TRY TO REUSE LEFTOVERS.";
+                    const fallbackNotes = "RECIPE WAS SIMPLIFIED DUE TO A COMMUNICATION PROBLEM WITH THE AI. CHECK PROMPT OR API.";
+                    parsedContent = { title: fallbackTitle, description_du_plat: fallbackDesc, ingredients_label: `INGREDIENTS (FOR ${finalNumberOfPeople} PERS)`, ingredients_list: fallbackIngredients, preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion, conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes };
                 }
 
                 return {
                     id: generateUniqueId(),
                     title: String(parsedContent.title || '').toUpperCase(),
                     description_du_plat: String(parsedContent.description_du_plat || '').toUpperCase(),
-                    ingredients_label: String(parsedContent.ingredients_label || `INGRÉDIENTS (POUR ${finalNumberOfPeople} PERS)`).toUpperCase(), // Ensure label is present and scaled
+                    ingredients_label: String(parsedContent.ingredients_label || `INGREDIENTS (FOR ${finalNumberOfPeople} PERS)`).toUpperCase(), // Ensure label is present and scaled
                     ingredients_list: (parsedContent.ingredients_list || []).map(item => String(item).toUpperCase()),
                     preparation_steps: (parsedContent.preparation_steps || []).map(step => String(step).toUpperCase()),
                     ma_portion_waeky: String(parsedContent.ma_portion_waeky || '').toUpperCase(),
@@ -2181,18 +2268,18 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                 };
 
             } catch (error) {
-                console.error("Erreur fatale lors de l'appel LLM ou de l'analyse JSON générale:", error);
-                const fallbackTitle = `${mealContextDescription.toUpperCase()} (ERREUR SYSTÈME)`;
-                const fallbackDesc = `UNE ERREURE CRITIQUE EST SURVENUE. VEUILLEZ RÉESSAYER.`;
-                const fallbackIngredients = [`VÉRIFIEZ VOTRE CONNEXION INTERNET`, `CONTACTEZ LE SUPPORT SI LE PROBLÈME PERSISTE`];
-                const fallbackPreparation = ["1. ESSAYEZ DE RE-GÉNÉRER LE PLAN.", "2. ASSUREZ-VOUS QUE VOTRE PROFIL EST COMPLET."];
-                const fallbackPortion = "INDISPONIBLE EN RAISON D'UNE ERREUR.";
-                const fallbackConseils = "PAS DE CONSEILS DISPONIBLES.";
-                const fallbackNotes = "ERREUR DE COMMUNICATION MAJEURE AVEC L'IA. VEUILLEZ VÉRIFIER VOTRE CONNEXION.";
+                console.error("Fatal error during LLM call or general JSON parsing:", error);
+                const fallbackTitle = `${mealContextDescription.toUpperCase()} (SYSTEM ERROR)`;
+                const fallbackDesc = `A CRITICAL ERROR HAS OCCURRED. PLEASE TRY AGAIN.`;
+                const fallbackIngredients = [`CHECK YOUR INTERNET CONNECTION`, `CONTACT SUPPORT IF THE PROBLEM PERSISTS`];
+                const fallbackPreparation = ["1. TRY RE-GENERATING THE PLAN.", "2. MAKE SURE YOUR PROFILE IS COMPLETE."];
+                const fallbackPortion = "UNAVAILABLE DUE TO AN ERROR.";
+                const fallbackConseils = "NO TIPS AVAILABLE.";
+                const fallbackNotes = "MAJOR COMMUNICATION ERROR WITH THE AI. PLEASE CHECK YOUR CONNECTION.";
 
                 return {
                     id: generateUniqueId(), title: fallbackTitle, description_du_plat: fallbackDesc,
-                    ingredients_label: `INGRÉDIENTS (POUR ${finalNumberOfPeople} PERS)`, ingredients_list: fallbackIngredients,
+                    ingredients_label: `INGREDIENTS (FOR ${finalNumberOfPeople} PERS)`, ingredients_list: fallbackIngredients,
                     preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion,
                     conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes
                 };
@@ -2217,7 +2304,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                         </div>
                         <button id="generate-plan-btn" class="btn-retro-purple w-full flex items-center justify-center">
                             <span id="generate-plan-spinner" class="spinner mr-2 hidden"></span>
-                            <span id="generate-plan-text">GÉNÉRER PLAN DE REPAS</span>
+                            <span id="generate-plan-text">GÉNÉRATION...</span>
                         </button>
                         <p class="text-xs text-gray-400 mt-2 text-center">LE PLAN SERA GÉNÉRÉ UNIQUEMENT POUR LES JOURS AVEC DES POSTES ENREGISTRÉS DANS L'ONGLET "PLANNING".</p>
                     </div>
@@ -2298,7 +2385,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                     renderRecipeView(container);
 
                 } catch (error) {
-                    console.error("Erreur lors de la génération du plan de repas:", error);
+                    console.error("Error generating meal plan:", error);
                     showMessage(`ERREUR: Échec de la génération du plan. ${error.message}`, 'error');
                 } finally {
                     generatePlanBtn.disabled = false; generatePlanSpinner.classList.add('hidden'); generatePlanText.textContent = 'GÉNÉRER PLAN DE REPAS';
@@ -2314,10 +2401,18 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                 let mealsHtml = `<div class="space-y-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3 text-center">TON PLAN DE REPAS :</h3>`;
 
                 weeklyMealPlan.semaine.forEach((dayData) => {
+                    const dateString = new Date(dayData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
+                    const dayContextString = getDayContextString(dayData.dayContext.poste, dayData.dayContext.sport);
+
                     mealsHtml += `
-                        <div class="bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg">
-                            <h4 class="text-lg sm:text-xl font-bold text-yellow-300 mb-3">${new Date(dayData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()} - ${getDayContextString(dayData.dayContext.poste, dayData.dayContext.sport)}</h4>
-                            <div class="space-y-4">`;
+                        <div class="bg-gray-700 p-0 rounded-lg border-4 border-purple-500 shadow-lg">
+                            <div class="collapsible-header" data-target="day-content-${dayData.date}">
+                                <h4 class="text-lg sm:text-xl font-bold text-yellow-300">${dateString} - ${dayContextString}</h4>
+                                <i data-lucide="chevron-right" class="text-yellow-300" style="width:24px; height:24px;"></i>
+                            </div>
+                            <div id="day-content-${dayData.date}" class="collapsible-content">
+                                <div class="space-y-4">`;
+
                     const mealOrder = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation_apresmidi', 'diner', 'collation_unique'];
                     mealOrder.forEach(mealType => {
                         const meal = dayData[mealType];
@@ -2331,32 +2426,56 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                             const isRegeneratingCurrentMeal = regeneratingMeal && regeneratingMeal.dateKey === dayData.date && regeneratingMeal.mealType === mealType;
 
                             mealsHtml += `
-                                <div class="bg-gray-800 p-3 rounded-md border-2 border-blue-700 shadow-md">
-                                    <div class="flex justify-between items-center mb-2">
+                                <div class="bg-gray-800 p-0 rounded-md border-2 border-blue-700 shadow-md">
+                                    <div class="sub-collapsible-header" data-target="meal-content-${dayData.date}-${mealType}">
                                         <h5 class="font-semibold text-base sm:text-lg text-blue-400">${momentContext} : ${String(meal.title || 'RECETTE NON DÉFINIE').toUpperCase()}</h5>
-                                        <button class="btn-retro-red text-sm px-2 py-1 ml-2 flex items-center justify-center regenerate-meal-btn" data-date="${dayData.date}" data-meal-type="${mealType}" ${isRegeneratingCurrentMeal ? 'disabled' : ''}>
+                                        <i data-lucide="chevron-right" class="text-blue-200" style="width:20px; height:20px;"></i>
+                                    </div>
+                                    <div id="meal-content-${dayData.date}-${mealType}" class="sub-collapsible-content">
+                                        <p class="text-gray-300 text-sm italic mb-2">${String(meal.description_du_plat || 'DESCRIPTION INDISPONIBLE').toUpperCase()}</p>
+                                        <p class="text-sm font-medium text-yellow-300">${String(meal.ingredients_label || 'INGRÉDIENTS').toUpperCase()} :</p>
+                                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.ingredients_list || []).map(ingredient => `<li>${String(ingredient).toUpperCase()}</li>`).join('')}</ul>
+                                        <p class="text-sm font-medium text-yellow-300 mt-2">PRÉPARATION :</p>
+                                        <ol class="list-decimal list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.preparation_steps || []).map(step => `<li>${String(step).toUpperCase()}</li>`).join('')}</ol>
+                                        <p class="text-sm font-medium text-yellow-300 mt-2">PORTION WAEKY :</p>
+                                        <p class="text-gray-300 text-xs">${String(meal.ma_portion_waeky || 'PORTION INDISPONIBLE').toUpperCase()}</p>
+                                        <p class="text-sm font-medium text-yellow-300 mt-2">CONSEILS ÉCONOMIE :</p>
+                                        <p class="text-gray-300 text-xs">${String(meal.conseils_reutilisation_economie || 'CONSEILS INDISPONIBLES').toUpperCase()}</p>
+                                        <p class="text-blue-200 text-xs mt-3">${advice}</p>
+                                        <button class="btn-retro-red text-sm px-2 py-1 mt-4 flex items-center justify-center regenerate-meal-btn" data-date="${dayData.date}" data-meal-type="${mealType}" ${isRegeneratingCurrentMeal ? 'disabled' : ''}>
                                             ${isRegeneratingCurrentMeal ? `<span class="spinner w-4 h-4"></span>` : `<i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>`}
                                             <span class="ml-1 hidden sm:inline">RÉGÉNÉRER</span>
                                         </button>
                                     </div>
-                                    <p class="text-gray-300 text-sm italic mb-2">${String(meal.description_du_plat || 'DESCRIPTION INDISPONIBLE').toUpperCase()}</p>
-                                    <p class="text-sm font-medium text-yellow-300">${String(meal.ingredients_label || 'INGRÉDIENTS').toUpperCase()} :</p>
-                                    <ul class="list-disc list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.ingredients_list || []).map(ingredient => `<li>${String(ingredient).toUpperCase()}</li>`).join('')}</ul>
-                                    <p class="text-sm font-medium text-yellow-300 mt-2">PRÉPARATION :</p>
-                                    <ol class="list-decimal list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.preparation_steps || []).map(step => `<li>${String(step).toUpperCase()}</li>`).join('')}</ol>
-                                    <p class="text-sm font-medium text-yellow-300 mt-2">PORTION WAEKY :</p>
-                                    <p class="text-gray-300 text-xs">${String(meal.ma_portion_waeky || 'PORTION INDISPONIBLE').toUpperCase()}</p>
-                                    <p class="text-sm font-medium text-yellow-300 mt-2">CONSEILS ÉCONOMIE :</p>
-                                    <p class="text-gray-300 text-xs">${String(meal.conseils_reutilisation_economie || 'CONSEILS INDISPONIBLES').toUpperCase()}</p>
-                                    <p class="text-blue-200 text-xs mt-3">${advice}</p>
                                 </div>`;
                         }
                     });
-                    mealsHtml += `</div></div>`;
+                    mealsHtml += `</div></div></div>`;
                 });
                 mealsHtml += `</div>`;
                 weeklyMealPlanContentDiv.innerHTML = mealsHtml;
                 renderLucideIcons();
+
+                // Add event listeners for collapsible sections
+                weeklyMealPlanContentDiv.querySelectorAll('.collapsible-header').forEach(header => {
+                    header.onclick = (event) => {
+                        const targetId = event.currentTarget.dataset.target;
+                        const content = document.getElementById(targetId);
+                        event.currentTarget.classList.toggle('expanded');
+                        content.classList.toggle('expanded');
+                        renderLucideIcons(); // Re-render icons to update chevron direction
+                    };
+                });
+
+                weeklyMealPlanContentDiv.querySelectorAll('.sub-collapsible-header').forEach(header => {
+                    header.onclick = (event) => {
+                        const targetId = event.currentTarget.dataset.target;
+                        const content = document.getElementById(targetId);
+                        event.currentTarget.classList.toggle('expanded');
+                        content.classList.toggle('expanded');
+                        renderLucideIcons(); // Re-render icons to update chevron direction
+                    };
+                });
 
                 weeklyMealPlanContentDiv.querySelectorAll('.regenerate-meal-btn').forEach(button => {
                     button.onclick = async (event) => {
@@ -2367,7 +2486,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                         if (!dayContext) { showMessage("ERREUR: Contexte de jour non trouvé pour la régénération du repas.", 'error'); return; }
 
                         regeneratingMeal = { dateKey, mealType };
-                        renderRecipeView(container);
+                        renderRecipeView(container); // Re-render to show spinner
 
                         try {
                             const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds };
@@ -2380,13 +2499,13 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                                 showMessage(`SUCCÈS: Repas "${regeneratedMeal.title}" régénéré pour le ${dateKey} !`, 'success');
                                 speak("Repas régénéré !");
                                 regeneratingMeal = null;
-                                renderRecipeView(container);
+                                renderRecipeView(container); // Re-render to update content and remove spinner
                             }
                         } catch (error) {
-                            console.error("Erreur lors de la régénération du repas:", error);
+                            console.error("Error regenerating meal:", error);
                             showMessage(`ERREUR: Échec de la régénération du repas. ${error.message}`, 'error');
                             regeneratingMeal = null;
-                            renderRecipeView(container);
+                            renderRecipeView(container); // Re-render to remove spinner
                         }
                     };
                 });
@@ -2396,7 +2515,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
         }
 
 
-        // --- Vue du Chronomètre d'Intervalles ---
+        // --- Interval Timer View ---
         function renderChronoIntervalleView(container) {
             let html = `
                 <div class="card-retro mb-6">
@@ -2507,7 +2626,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                     if (chronoCurrentTime <= 0) {
                         chronoCurrentIntervalIndex = 0;
                         chronoCurrentTime = chronoIntervals[0].duration;
-                        speak(String(chronoIntervals[0].instruction).toUpperCase()); // Appelle speak() pour Kodular
+                        speak(String(chronoIntervals[0].instruction).toUpperCase()); // Calls speak() for Kodular
                         showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono');
                     } else if (chronoCurrentTime <= 3 && chronoCurrentTime > 0) {
                         playMarioKartStartSound(); // Changed to Mario Kart sound
@@ -2518,7 +2637,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                         if (nextIndex < chronoIntervals.length) {
                             chronoCurrentIntervalIndex = nextIndex;
                             chronoCurrentTime = chronoIntervals[nextIndex].duration;
-                            speak(String(chronoIntervals[nextIndex].instruction).toUpperCase()); // Appelle speak() pour Kodular
+                            speak(String(chronoIntervals[nextIndex].instruction).toUpperCase()); // Calls speak() for Kodular
                             showMessage(String(chronoIntervals[nextIndex].instruction).toUpperCase(), 'chrono');
                             playBeep(1000, 0.2);
                         } else {
@@ -2662,7 +2781,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
         }
 
 
-        // --- Vue de Progression ---
+        // --- Progress View ---
         function renderProgressView(container) {
             let selectedExerciseForChart = loadFromLocalStorage('selectedExerciseForChart', 'SÉLECTIONNER UN EXERCICE');
             let selectedExerciseMetrics = loadFromLocalStorage('selectedExerciseMetrics', ['Volume']);
@@ -2868,7 +2987,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
         }
 
 
-        // --- Vue des Trophées ---
+        // --- Trophies View ---
         function renderTrophyRoomView(container) {
             const currentLevel = calculateLevelAndXP(userProfile.currentXP).level;
             const earnedTrophies = allTrophies.filter(trophy => currentLevel >= trophy.levelRequired);
@@ -2906,7 +3025,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
         }
 
 
-        // --- Vue des Options ---
+        // --- Options View ---
         function renderOptionsView(container) {
             let html = `
                 <div class="card-retro mb-6">
@@ -3029,7 +3148,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                     speak("Programme sportif mis à jour !");
                     renderPage('workout'); // Re-render the workout page with the new program
                 } catch (e) {
-                    console.error("Erreur lors de l'importation du programme sportif:", e);
+                    console.error("Error importing workout program:", e);
                     showMessage(`ERREUR: FORMAT JSON INVALIDE. VÉRIFIEZ VOTRE PROGRAMME. ${e.message}`, 'error');
                 }
             }
@@ -3049,7 +3168,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
                     URL.revokeObjectURL(url);
                     showMessage("SUCCÈS: PROGRAMME SPORTIF EXPORTÉ !", 'success');
                 } catch (e) {
-                    console.error("Erreur lors de l'exportation du programme sportif:", e);
+                    console.error("Error exporting workout program:", e);
                     showMessage(`ERREUR: ÉCHEC DE L'EXPORTATION DU PROGRAMME. ${e.message}`, 'error');
                 }
             }
@@ -3068,7 +3187,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
             }
         }
 
-        // --- Modales Globales (Boîte de dialogue de confirmation) ---
+        // --- Global Modals (Confirmation Dialog Box) ---
         function showConfirmModal(message) {
             return new Promise(resolve => {
                 const modal = document.createElement('div');
@@ -3089,7 +3208,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
         }
 
 
-        // --- Écouteurs d'événements pour la Navigation ---
+        // --- Event Listeners for Navigation ---
         function attachEventListeners() {
             document.querySelectorAll('.nav-item').forEach(button => {
                 button.onclick = (event) => renderPage(event.currentTarget.dataset.page);
@@ -3100,7 +3219,7 @@ new Tone.Synth().toDestination().triggerAttackRelease("C4", "1n", now + 2.5);
         }
 
 
-        // --- Chargement Initial ---
+        // --- Initial Load ---
         window.onload = initializeApp;
     </script>
 </body>
