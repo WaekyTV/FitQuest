@@ -309,48 +309,30 @@
         }
 
         /* Adaptations pour écrans de petite taille (téléphones) */
-        @media (max-width: 440px) {
+        @media (max-width: 640px) {
             .notification-container-top-left,
             .notification-container-bottom-right {
-                left: 0;
-                right: 0; /* Prend toute la largeur disponible */
+                left: 50%;
+                transform: translateX(-50%); /* Centre horizontalement le conteneur */
+                right: auto; /* Annule le right: 20px; */
+                width: 100%; /* Prend toute la largeur disponible */
                 align-items: center; /* Centre les notifications à l'intérieur du conteneur */
             }
 
             .notification {
-                max-width: calc(100% - 40px); /* Laisse 20px de marge de chaque côté */
-                padding: 0.25rem; /* Réduit le padding pour plus de compacité */
-                margin: 0 auto; /* Centre la notification elle-même dans le conteneur */
+                width: 90%; /* Prend 90% de la largeur du conteneur */
+                margin: 0 auto; /* Centre la notification elle-même */
                 border-radius: 0.5rem; /* Coins arrondis complets */
                 text-align: center; /* Centre le texte */
                 flex-direction: column; /* Empile icône et texte verticalement */
-                gap: 0.1rem; /* Réduit l'espacement entre icône et texte */
-                min-width: unset; /* Supprime la min-width pour permettre un meilleur ajustement */
-                align-items: center; /* Centre les éléments flex (icône et texte) */
+                gap: 0.25rem; /* Réduit l'espacement */
             }
 
-            .notification.trophy .text-4xl {
-                font-size: 1.6rem; /* Réduit la taille de l'icône de trophée */
-            }
-            .notification.general .text-2xl {
-                font-size: 1rem; /* Réduit la taille des icônes générales */
-            }
-
-            .notification.trophy .font-bold.text-lg.sm\:text-xl {
-                font-size: 0.8rem; /* Réduit la taille du titre de trophée */
-            }
-            .notification.trophy .text-sm.sm\:text-base {
-                font-size: 0.65rem; /* Réduit la taille de la description de trophée */
-            }
-            .notification.general .font-bold.text-sm.sm\:text-base {
-                font-size: 0.65rem; /* Réduit la taille du texte général */
-            }
-
-            /* Remove specific transforms as margin: auto handles centering */
             .notification.trophy,
             .notification.general,
             .notification.tip {
-                transform: none !important; /* Retire les transformations pour le centrage par margin:auto */
+                /* Réinitialise les transformations spécifiques pour les centrer */
+                transform: translateX(-50%) !important;
                 border-top-left-radius: 0.5rem;
                 border-bottom-left-radius: 0.5rem;
                 border-top-right-radius: 0.5rem;
@@ -358,11 +340,11 @@
             }
 
             .notification-container-top-left {
-                top: 20px; /* Maintient l'espace en haut pour les trophées */
+                top: 10px; /* Moins d'espace en haut */
             }
 
             .notification-container-bottom-right {
-                bottom: 50px; /* Maintient l'espace en bas pour les autres notifications */
+                bottom: 10px; /* Moins d'espace en bas */
             }
 
             /* Navigation menu for small screens */
@@ -389,8 +371,7 @@
             .main-content-area {
                 padding-bottom: 6rem; /* Adjust for footer on mobile */
             }
-        }
-    </style>
+        </style>
 </head>
 <body class="font-vt323 text-white bg-gray-900 min-h-screen flex flex-col">
     <!-- Loading Screen -->
@@ -1231,14 +1212,31 @@
             }
         }
 
+        // MODIFICATION ICI : La fonction speak envoie maintenant le texte à Kodular
         function speak(text) {
-            if (isAudioActive && synth) {
-                synth.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'fr-FR';
-                synth.speak(utterance);
+            if (isAudioActive) {
+                // Utilise la synthèse vocale du navigateur si disponible et active
+                if (synth) {
+                    synth.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'fr-FR';
+                    synth.speak(utterance);
+                }
+                // Envoie le texte à Kodular via la fonction parlerAvecKodular
+                parlerAvecKodular(text);
             }
         }
+
+        // La fonction parlerAvecKodular doit maintenant accepter un argument texte
+        function parlerAvecKodular(texte) {
+          if (window.AppInventor && window.AppInventor.setWebViewString) {
+            window.AppInventor.setWebViewString(texte);
+          } else {
+            // Replaced alert with showMessage for consistency and better UX
+            // showMessage("KODULAR NON DÉTECTÉ, TEXTE : " + texte, 'warning'); // Commenté pour éviter double notification si Kodular n'est pas là
+          }
+        }
+
 
         // --- Fonctions Utilitaires Générales ---
         function generateUniqueId() {
@@ -1787,7 +1785,7 @@
             let selectedPhase = loadFromLocalStorage('selectedWorkoutPhase', 'phase1');
             // Assurer que la phase sélectionnée existe dans le nouveau programme
             if (!workoutProgram[selectedPhase]) {
-                selectedPhase = 'phase1'; // Revenir à la phase 1 par défaut si la phase precedente n'existe plus
+                selectedPhase = 'phase1'; // Revenir à la phase 1 par défaut si la phase précédente n'existe plus
                 saveToLocalStorage('selectedWorkoutPhase', selectedPhase);
             }
             phaseSelect.value = selectedPhase;
@@ -1810,8 +1808,8 @@
 
                 let phaseHtml = `
                     <h3 class="text-xl sm:text-2xl font-bold text-blue-400">${String(currentPhaseData.name).toUpperCase()}</h3>
-                    <div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mt-4">
-                        <h4 class="font-semibold text-xl text-yellow-300 mb-3">PRINCIPES GÉNÉRAUX DE L'ENTRAÎNEMENT :</h4>
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">PRINCIPES GÉNÉRAUX DE L'ENTRAÎNEMENT :</h4>
                         <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1">
                             <li>ÉCOUTEZ VOTRE CORPS : NE JAMAIS FORCER SI VOUS AVEZ MAL.</li><li>LA FORME AVANT LA CHARGE : CONCENTREZ-VOUS SUR L'EXÉCUTION CORRECTE.</li>
                             <li>SURCHARGE PROGRESSIVE : AUGMENTEZ LA CHARGE OU LES RÉPÉTITIONS LORSQUE VOUS ÊTES À L'AISE.</li><li>HYDRATATION : BUVEZ DE L'EAU AVANT, PENDANT ET APRÈS CHAQUE SÉANCE.</li>
@@ -2504,7 +2502,7 @@
                     if (chronoCurrentTime <= 0) {
                         chronoCurrentIntervalIndex = 0;
                         chronoCurrentTime = chronoIntervals[0].duration;
-                        speak(String(chronoIntervals[0].instruction).toUpperCase());
+                        speak(String(chronoIntervals[0].instruction).toUpperCase()); // Appelle speak() pour Kodular
                         showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono');
                     } else if (chronoCurrentTime <= 3 && chronoCurrentTime > 0) {
                         playMarioKartStartSound(); // Changed to Mario Kart sound
@@ -2515,7 +2513,7 @@
                         if (nextIndex < chronoIntervals.length) {
                             chronoCurrentIntervalIndex = nextIndex;
                             chronoCurrentTime = chronoIntervals[nextIndex].duration;
-                            speak(String(chronoIntervals[nextIndex].instruction).toUpperCase());
+                            speak(String(chronoIntervals[nextIndex].instruction).toUpperCase()); // Appelle speak() pour Kodular
                             showMessage(String(chronoIntervals[nextIndex].instruction).toUpperCase(), 'chrono');
                             playBeep(1000, 0.2);
                         } else {
@@ -2623,7 +2621,6 @@
                     </div>`;
                 document.getElementById('global-modals-container').appendChild(modalDiv);
 
-                document.getElementById('close-load-sequence-btn').onclick = () => modalDiv.remove();
                 modalDiv.querySelectorAll('.load-sequence-item-btn').forEach(button => {
                     button.onclick = (event) => {
                         const idToLoad = event.target.dataset.id;
@@ -2649,6 +2646,7 @@
                         }
                     };
                 });
+                document.getElementById('close-load-sequence-btn').onclick = () => modalDiv.remove();
             };
 
             renderIntervalsList();
@@ -3100,16 +3098,5 @@
         // --- Chargement Initial ---
         window.onload = initializeApp;
     </script>
-
-function parlerAvecKodular() {
-  const texte = document.getElementById("texte").innerText;
-  if (window.AppInventor && window.AppInventor.setWebViewString) {
-    window.AppInventor.setWebViewString(texte);
-  } else {
-    // Replaced alert with showMessage for consistency and better UX
-    showMessage("KODULAR NON DÉTECTÉ, TEXTE : " + texte, 'warning');
-  }
-}
-</script>
 </body>
 </html>
