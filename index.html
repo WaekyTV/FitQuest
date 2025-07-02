@@ -312,17 +312,15 @@
         @media (max-width: 440px) {
             .notification-container-top-left,
             .notification-container-bottom-right {
-                left: 50%;
-                transform: translateX(-50%); /* Centre horizontalement le conteneur */
-                right: auto; /* Annule le right: 20px; */
-                width: 90%; /* Prend 90% de la largeur disponible pour laisser des marges */
+                left: 0;
+                right: 0; /* Prend toute la largeur disponible */
                 align-items: center; /* Centre les notifications à l'intérieur du conteneur */
             }
 
             .notification {
-                width: 100%; /* Prend toute la largeur de son conteneur (qui est 90% de l'écran) */
+                max-width: calc(100% - 40px); /* Laisse 20px de marge de chaque côté */
                 padding: 0.25rem; /* Réduit le padding pour plus de compacité */
-                margin: 0 auto; /* Centre la notification elle-même */
+                margin: 0 auto; /* Centre la notification elle-même dans le conteneur */
                 border-radius: 0.5rem; /* Coins arrondis complets */
                 text-align: center; /* Centre le texte */
                 flex-direction: column; /* Empile icône et texte verticalement */
@@ -332,27 +330,27 @@
             }
 
             .notification.trophy .text-4xl {
-                font-size: 1.8rem; /* Réduit la taille de l'icône de trophée */
+                font-size: 1.6rem; /* Réduit la taille de l'icône de trophée */
             }
             .notification.general .text-2xl {
-                font-size: 1.2rem; /* Réduit la taille des icônes générales */
+                font-size: 1rem; /* Réduit la taille des icônes générales */
             }
 
             .notification.trophy .font-bold.text-lg.sm\:text-xl {
-                font-size: 0.9rem; /* Réduit la taille du titre de trophée */
+                font-size: 0.8rem; /* Réduit la taille du titre de trophée */
             }
             .notification.trophy .text-sm.sm\:text-base {
-                font-size: 0.7rem; /* Réduit la taille de la description de trophée */
+                font-size: 0.65rem; /* Réduit la taille de la description de trophée */
             }
             .notification.general .font-bold.text-sm.sm\:text-base {
-                font-size: 0.7rem; /* Réduit la taille du texte général */
+                font-size: 0.65rem; /* Réduit la taille du texte général */
             }
 
+            /* Remove specific transforms as margin: auto handles centering */
             .notification.trophy,
             .notification.general,
             .notification.tip {
-                /* Réinitialise les transformations spécifiques pour les centrer */
-                transform: translateX(-50%) !important;
+                transform: none !important; /* Retire les transformations pour le centrage par margin:auto */
                 border-top-left-radius: 0.5rem;
                 border-bottom-left-radius: 0.5rem;
                 border-top-right-radius: 0.5rem;
