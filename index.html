@@ -58,7 +58,7 @@
             padding: 0.75rem 1rem;
             border-radius: 0.375rem;
             border: 2px solid #6b21a8; /* border-purple-800 */
-            box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5);
+            box-shadow: 4px 44px 0 0 rgba(0,0,0,0.5);
             transition: all 0.1s ease-in-out;
             cursor: pointer;
         }
@@ -366,8 +366,7 @@
             .main-content-area {
                 padding-bottom: 6rem; /* Adjust for footer on mobile */
             }
-        }
-    </style>
+        </style>
 </head>
 <body class="font-vt323 text-white bg-gray-900 min-h-screen flex flex-col">
     <!-- Loading Screen -->
@@ -921,8 +920,8 @@
             '7h-18h': {
                 name: "ROUTINE JOUR (7H-18H)",
                 details: [
-                    "COUCHER : 22H00 - 23H00.",
-                    "RÉVEIL : 06H00 - 07H00.",
+                    "COUCHER : 22H00 - 22H30.",
+                    "RÉVEIL : 06H00 - 06H15.",
                     "OBJECTIF 7-8H DE SOMMEIL. PRIVILÉGIER UN RITUEL DE DÉTENTE PRÉ-SOMMEIL."
                 ]
             },
@@ -1742,6 +1741,7 @@
                                 ${mealForThisDay.collation_unique ? `<li>**COLLAT. UNIQUE :** ${String(mealForThisDay.collation_unique.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
                             </ul>` : `<p class="text-gray-400">PLAN DE REPAS NON DISPONIBLE POUR CE JOUR. GÉNÉREZ UN PLAN HEBDOMADAIRE DANS L'ONGLET "RECETTES".</p>`}
                     </div>`;
+                // Corrected line: Append shiftDiv to the container, not to itself
                 container.appendChild(shiftDiv);
             });
 
@@ -2063,7 +2063,7 @@
             if (!allowMeatFish) {
                 mealSpecificConstraints.push("Utilisez une source de protéines végétarienne (lentilles, tofu, pois chiches, œufs - si applicable au repas, produits laitiers) ou laitière. NE PROPOSEZ PAS DE VIANDE OU DE POISSON.");
             } else {
-                mealSpecificConstraints.push("Vous pouvez utiliser n'importe quelle source de protéines. Pour des raisons budgétaires, privilégiez les options économiques comme les légumineuses, les œufs (si applicable au repas), ou les produits laitiers, en alternant avec la viande/le poisson.");
+                mealSpecificConstraints.push("Vous pouvez utiliser n'importe quelle source de protéines. Pour des raisons budgétaires, privilégiez les options économiques comme les légumineuses, les œufs (if applicable to the meal), ou les produits laitiers, en alternant avec la viande/le poisson.");
             }
 
             const sportImpact = dayContext.sport !== 'aucun'
@@ -2093,9 +2093,24 @@
             CONTRAINTES SPÉCIFIQUES :
             ${mealSpecificConstraints.map(c => `- ${c}`).join('\n')}
             - Toutes les informations (titre, description, ingrédients, étapes de préparation, conseils, notes) doivent être STRICTEMENT EN FRANÇAIS.
-            - Les ingrédients doivent inclure des quantités précises et EXPLICITEMENT ADAPTÉES pour ${finalNumberOfPeople} personne(s). Chaque ingrédient doit avoir une quantité et une unité claires et réalistes.
-            - Les étapes de préparation doivent être TRÈS DÉTAILLÉES, numérotées et facilement reproductibles par un débutant complet en cuisine. Chaque étape doit être claire, concise et fournir suffisamment de détails pour l'exécution.
-            - La portion de Waeky doit être spécifiquement adaptée à son IMC (${userProfileForPrompt.imcCategory}) et à ses besoins en protéines (${userProfileForPrompt.proteinNeeds} g/jour), pour 1 personne.
+
+            **GUIDELINES POUR LES QUANTITÉS :**
+            - **Pour "ingredients_list" (pour ${finalNumberOfPeople} personne(s)) :**
+                - Les quantités doivent être pour les ingrédients BRUTS/SECS avant cuisson (sauf indication contraire explicite comme "cuites" pour les lentilles si c'est le cas).
+                - Pour les glucides complexes (riz, pâtes, quinoa, flocons d'avoine, légumineuses comme lentilles, pois chiches) : Visez environ 60-80g (poids sec) par personne pour un repas principal. Multipliez cette quantité par ${finalNumberOfPeople}.
+                - Pour les protéines (viande, poisson, tofu) : Visez environ 120-150g (poids cru) par personne pour un repas principal. Multipliez cette quantité par ${finalNumberOfPeople}.
+                - Pour les œufs : Visez 2-3 œufs par personne. Multipliez par ${finalNumberOfPeople}.
+                - Pour les légumes : Indiquez des quantités généreuses, par exemple 150-250g (poids brut) par personne, ou des unités comme "1 grand poivron", "2 carottes". Multipliez par ${finalNumberOfPeople}.
+                - Pour les huiles/matières grasses : Utilisez des quantités modérées (ex: 5-10ml par personne).
+
+            - **Pour "ma_portion_waeky" (pour 1 personne - Waeky) :**
+                - Cette description doit être spécifiquement calculée pour Waeky (1 personne) en tenant compte de son IMC (${userProfileForPrompt.imcCategory}) et de ses besoins en protéines (${userProfileForPrompt.proteinNeeds} g/jour).
+                - **NE DONNEZ PAS UN POIDS TOTAL POUR LE PLAT ENTIER (EX: "500G DE CURRY").**
+                - La portion de protéines pour Waeky devrait viser environ 40-50g de protéines nettes par repas principal (ou l'équivalent pour les collations/petit-déjeuner).
+                - La portion de glucides complexes pour Waeky devrait être l'équivalent de 50-80g de poids sec (ou l'équivalent cuit, ex: 150-250g de riz cuit) pour un repas principal, ajustée selon l'activité sportive du jour.
+                - La portion de légumes doit être généreuse et "à volonté" (ex: 200-300g de légumes variés).
+                - La description doit inclure le type de protéines, de glucides, et la mention des légumes, ainsi qu'une estimation du poids de CHAQUE COMPOSANT (protéines, glucides, légumes) si pertinent, et l'apport protéique estimé.
+                - Exemple de format pour "ma_portion_waeky": "VOTRE PORTION (POUR WAEKY) : UNE PORTION DE [TYPE DE PROTÉINE] (ENVIRON [X]G CUIT), [X]G DE [TYPE DE GLUCIDE] CUIT, ET UNE GRANDE PORTION DE LÉGUMES (ENVIRON [Y]G). CETTE PORTION DEVRAIT FOURNIR ENVIRON [Z]G DE PROTÉINES."
 
             FORMAT DE RÉPONSE ATTENDU (STRICTEMENT EN JSON) :
             {
@@ -2985,13 +3000,12 @@
                         <div class="mb-4"><label for="apiKeyInput" class="block text-gray-200 text-sm font-bold mb-2">CLÉ API :</label><input type="text" id="apiKeyInput" class="input-retro" placeholder="ENTREZ VOTRE CLÉ API ICI" value="${userProfile.apiKey}" /></div>
                         <button id="save-api-key-btn" class="btn-retro-green w-full">ENREGISTRER LA CLÉ API</button>
                         <p class="text-xs text-gray-400 mt-2 text-center">STATUT API: <span id="api-status" class="font-bold ${userProfile.apiKey ? 'text-green-400' : 'text-red-400'}">${userProfile.apiKey ? 'CONNECTÉ' : 'DÉCONNECTÉ'}</span></p>
-                        <p class="text-xs text-gray-400 mt-1 text-center">LA CLÉ API EST NÉCESSAIRE POUR LA GÉNÉRATION AVANCÉE DE RECETTES ET D'AUTRES FONCTIONNALITÉS.</p>
+                        <p class="text-xs text-gray-400 mt-2 text-center">LA CLÉ API EST NÉCESSAIRE POUR LA GÉNÉRATION DE CONSEILS PAR L'IA.</p>
                     </div>
-                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700">
-                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">INFORMATIONS :</h3>
-                        <p class="text-gray-300 text-sm sm:text-base">FitQuest est une application conçue pour t'aider à optimiser ton entraînement, ta nutrition et ton sommeil, spécifiquement adaptée aux exigences des agents de sécurité. Ton assistant personnel Waeky te guidera à travers les différentes phases de ton parcours fitness.</p>
-                        <p class="text-gray-300 text-sm sm:text-base mt-3">VERSION : 1.0 (BÊTA)</p>
-                        <p class="text-gray-300 text-sm sm:text-base mt-1">DÉVELOPPÉ PAR : POXEL CORPORATION</p>
+                    <div class="p-4 rounded-lg border-2 border-red-700 bg-gray-700">
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES DONNÉES :</h3>
+                        <button id="reset-all-data-btn" class="btn-retro-red w-full">RÉINITIALISER TOUTES LES DONNÉES</button>
+                        <p class="text-xs text-gray-400 mt-2 text-center">CETTE ACTION SUPPRIMERA TOUTES LES DONNÉES ENREGISTRÉES (PROFIL, PLANS, JOURNAUX, ETC.).</p>
                     </div>
                 </div>`;
             container.innerHTML = html;
@@ -3000,151 +3014,171 @@
             const volumeDisplay = document.getElementById('volume-display');
             const toggleAudioBtn = document.getElementById('toggle-audio-btn');
             const toggleExerciseHistoryCheckbox = document.getElementById('toggleExerciseHistory');
+            const workoutProgramInput = document.getElementById('workoutProgramInput');
+            const importWorkoutProgramBtn = document.getElementById('import-workout-program-btn');
+            const exportWorkoutProgramBtn = document.getElementById('export-workout-program-btn');
+            const resetWorkoutProgramBtn = document.getElementById('reset-workout-program-btn');
             const apiKeyInput = document.getElementById('apiKeyInput');
             const saveApiKeyBtn = document.getElementById('save-api-key-btn');
             const apiStatusSpan = document.getElementById('api-status');
-            const workoutProgramInput = document.getElementById('workoutProgramInput');
-            const importWorkoutProgramBtn = document.getElementById('import-workout-program-btn');
-            const exportWorkoutProgramBtn = document.getElementById('export-workout-program-btn'); // New
-            const resetWorkoutProgramBtn = document.getElementById('reset-workout-program-btn'); // New
+            const resetAllDataBtn = document.getElementById('reset-all-data-btn');
 
             masterVolumeInput.oninput = (e) => {
                 masterVolume = parseFloat(e.target.value);
                 volumeDisplay.textContent = `${(masterVolume * 100).toFixed(0)}%`;
-                if (Tone.Master) Tone.Master.volume.value = masterVolume === 0 ? -Infinity : 20 * Math.log10(masterVolume);
+                if (Tone.context.state === 'running') {
+                    Tone.Master.volume.value = masterVolume === 0 ? -Infinity : 20 * Math.log10(masterVolume);
+                }
+                saveToLocalStorage('masterVolume', masterVolume);
             };
-            toggleAudioBtn.onclick = toggleAudioActive;
+
+            toggleAudioBtn.onclick = () => toggleAudioActive();
 
             toggleExerciseHistoryCheckbox.checked = !userProfile.hideExerciseHistory;
             toggleExerciseHistoryCheckbox.onchange = (e) => {
                 userProfile.hideExerciseHistory = !e.target.checked;
                 saveToLocalStorage('userProfile', userProfile);
-                showMessage(`HISTORIQUE DES EXERCICES : ${userProfile.hideExerciseHistory ? 'MASQUÉ' : 'AFFICHÉ'}`, 'info');
+                showMessage(`HISTORIQUE DES EXERCICES ${userProfile.hideExerciseHistory ? 'MASQUÉ' : 'AFFICHÉ'} !`, 'info');
                 if (currentPage === 'progress') renderProgressView(document.getElementById('main-content'));
             };
 
-            saveApiKeyBtn.onclick = () => {
-                userProfile.apiKey = apiKeyInput.value.trim();
-                saveToLocalStorage('userProfile', userProfile);
-                if (userProfile.apiKey) {
-                    apiStatusSpan.textContent = 'CONNECTÉ'; apiStatusSpan.classList.remove('text-red-400'); apiStatusSpan.classList.add('text-green-400');
-                    showMessage("CLÉ API ENREGISTRÉE !", 'success');
-                } else {
-                    apiStatusSpan.textContent = 'DÉCONNECTÉ'; apiStatusSpan.classList.remove('text-green-400'); apiStatusSpan.classList.add('text-red-400');
-                    showMessage("CLÉ API EFFACÉE.", 'warning');
+            importWorkoutProgramBtn.onclick = async () => {
+                const jsonText = workoutProgramInput.value;
+                if (!jsonText) { showMessage("ERREUR: VEUILLEZ COLLER LE JSON DU PROGRAMME.", 'error'); return; }
+                try {
+                    const importedProgram = JSON.parse(jsonText);
+                    // Basic validation to ensure it's a valid program structure
+                    if (!importedProgram.phase1 || !importedProgram.phase1.sessions || !importedProgram.phase2 || !importedProgram.phase2.sessions) {
+                        showMessage("ERREUR: LE JSON N'EST PAS UN PROGRAMME SPORTIF VALIDE.", 'error');
+                        return;
+                    }
+                    workoutProgram = importedProgram;
+                    saveToLocalStorage('savedWorkoutProgram', workoutProgram);
+                    showMessage("SUCCÈS: PROGRAMME SPORTIF IMPORTÉ !", 'success');
+                    workoutProgramInput.value = ''; // Clear textarea after successful import
+                } catch (e) {
+                    console.error("Error importing workout program:", e);
+                    showMessage("ERREUR: JSON INVALIDE. VÉRIFIEZ LE FORMAT.", 'error');
                 }
             };
 
-            importWorkoutProgramBtn.onclick = handleImportWorkoutProgram;
-            exportWorkoutProgramBtn.onclick = handleExportWorkoutProgram; // New
-            resetWorkoutProgramBtn.onclick = handleResetWorkoutProgram; // New
+            exportWorkoutProgramBtn.onclick = () => {
+                const programJson = JSON.stringify(workoutProgram, null, 2);
+                const blob = new Blob([programJson], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'fitquest_workout_program.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showMessage("SUCCÈS: PROGRAMME EXPORTÉ !", 'success');
+            };
 
-            async function handleImportWorkoutProgram() {
-                const jsonString = workoutProgramInput.value.trim();
-                if (!jsonString) {
-                    showMessage("ERREUR: LE CHAMP D'IMPORTATION EST VIDE.", 'error');
-                    return;
+            resetWorkoutProgramBtn.onclick = async () => {
+                if (await showConfirmModal("CONFIRMER LA RÉINITIALISATION DU PROGRAMME SPORTIF PAR DÉFAUT ?")) {
+                    workoutProgram = JSON.parse(JSON.stringify(defaultWorkoutProgramStructure));
+                    saveToLocalStorage('savedWorkoutProgram', workoutProgram);
+                    showMessage("SUCCÈS: PROGRAMME SPORTIF RÉINITIALISÉ !", 'success');
+                    // Re-render workout view to show default program
+                    if (currentPage === 'workout') renderWorkoutView(document.getElementById('main-content'));
                 }
+            };
 
-                try {
-                    const importedProgram = JSON.parse(jsonString);
+            saveApiKeyBtn.onclick = () => {
+                const newApiKey = apiKeyInput.value.trim();
+                userProfile.apiKey = newApiKey;
+                saveToLocalStorage('userProfile', userProfile);
+                apiStatusSpan.textContent = newApiKey ? 'CONNECTÉ' : 'DÉCONNECTÉ';
+                apiStatusSpan.className = `font-bold ${newApiKey ? 'text-green-400' : 'text-red-400'}`;
+                showMessage(`CLÉ API ${newApiKey ? 'ENREGISTRÉE' : 'SUPPRIMÉE'} !`, 'success');
+            };
 
-                    // Basic validation: check for 'phase1' and 'phase2' structure
-                    if (!importedProgram.phase1 || !importedProgram.phase2 ||
-                        !importedProgram.phase1.sessions || !importedProgram.phase2.sessions ||
-                        !importedProgram.phase1.sessions.main || !importedProgram.phase2.sessions.main) {
-                        showMessage("ERREUR: LE PROGRAMME IMPORTÉ N'A PAS LE FORMAT ATTENDU (DOIT CONTENIR 'phase1' ET 'phase2' AVEC DES SESSIONS).", 'error');
-                        return;
-                    }
+            resetAllDataBtn.onclick = async () => {
+                if (await showConfirmModal("ATTENTION: VOULEZ-VOUS VRAIMENT RÉINITIALISER TOUTES LES DONNÉES ? CELA EST IRRÉVERSIBLE.")) {
+                    localStorage.clear();
+                    // Re-initialize all state variables to their defaults
+                    userProfile = {
+                        height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A',
+                        currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: ''
+                    };
+                    weeklyMealPlan = { semaine: [] };
+                    workoutLogs = [];
+                    weightHistory = [];
+                    intervalSequences = [];
+                    shifts = [];
+                    workoutProgram = JSON.parse(JSON.stringify(defaultWorkoutProgramStructure));
+                    previousLevel = 0;
+                    isAudioActive = true;
+                    masterVolume = 0.5;
+                    chronoIntervals = [];
+                    chronoCurrentTime = 0;
+                    chronoCurrentIntervalIndex = -1;
+                    isChronoRunning = false;
+                    isChronoPaused = false;
+                    enableChronoPreCountdown = true;
+                    chronoPreCountdownDuration = 10;
+                    clearInterval(chronoIntervalTimerRef);
+                    chronoIntervalTimerRef = null;
 
-                    // Replace the global workoutProgram
-                    workoutProgram = importedProgram;
-                    saveToLocalStorage('savedWorkoutProgram', workoutProgram); // Save the new program
-
-                    // Reset selected phase to default if the current one doesn't exist in the new program
-                    let currentSelectedPhase = loadFromLocalStorage('selectedWorkoutPhase', 'phase1');
-                    if (!workoutProgram[currentSelectedPhase]) {
-                        saveToLocalStorage('selectedWorkoutPhase', 'phase1');
-                    }
-
-                    showMessage("SUCCÈS: PROGRAMME SPORTIF IMPORTÉ ET MIS À JOUR !", 'success');
-                    speak("Programme sportif mis à jour !");
-                    renderPage('workout'); // Re-render the workout page with the new program
+                    showMessage("SUCCÈS: TOUTES LES DONNÉES ONT ÉTÉ RÉINITIALISÉES. L'APPLICATION VA SE RECHARGER.", 'success');
+                    setTimeout(() => window.location.reload(), 2000);
                 }
-                catch (e) {
-                    console.error("Error importing workout program:", e);
-                    showMessage(`ERREUR: FORMAT JSON INVALIDE. VÉRIFIEZ VOTRE PROGRAMME. ${e.message}`, 'error');
-                }
-            }
-
-            // New function to export the current workout program
-            function handleExportWorkoutProgram() {
-                try {
-                    const programJson = JSON.stringify(workoutProgram, null, 2); // Pretty print JSON
-                    const blob = new Blob([programJson], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'poxel_workout_program.json';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    showMessage("SUCCÈS: PROGRAMME SPORTIF EXPORTÉ !", 'success');
-                } catch (e) {
-                    console.error("Error exporting workout program:", e);
-                    showMessage(`ERREUR: ÉCHEC DE L'EXPORTATION DU PROGRAMME. ${e.message}`, 'error');
-                }
-            }
-
-            // New function to reset the workout program to default
-            async function handleResetWorkoutProgram() {
-                if (await showConfirmModal("CONFIRMER LA RÉINITIALISATION DU PROGRAMME SPORTIF ? TOUTES LES MODIFICATIONS SERONT PERDUES.")) {
-                    workoutProgram = JSON.parse(JSON.stringify(defaultWorkoutProgramStructure)); // Deep copy the default structure
-                    removeFromLocalStorage('savedWorkoutProgram'); // Remove custom program from localStorage
-                    saveToLocalStorage('selectedWorkoutPhase', 'phase1'); // Ensure default phase is selected
-
-                    showMessage("SUCCÈS: PROGRAMME SPORTIF RÉINITIALISÉ AUX VALEURS PAR DÉFAUT !", 'success');
-                    speak("Programme sportif réinitialisé !");
-                    renderPage('workout'); // Re-render the workout page with the default program
-                }
-            }
+            };
         }
 
-        // --- Global Modals (Confirmation Dialog Box) ---
+        // --- Global Confirmation Modal ---
         function showConfirmModal(message) {
             return new Promise(resolve => {
-                const modal = document.createElement('div');
-                modal.className = "fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 font-vt323";
-                modal.innerHTML = `
-                    <div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-sm text-white text-center">
-                        <p class="text-xl sm:text-2xl mb-4 text-yellow-300">${message}</p>
+                const modalDiv = document.createElement('div');
+                modalDiv.id = 'confirm-modal';
+                modalDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-[1000] font-vt323';
+                modalDiv.innerHTML = `
+                    <div class="bg-gray-800 p-6 rounded-lg border-4 border-yellow-500 shadow-xl w-full max-w-sm text-white text-center">
+                        <h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-4">CONFIRMATION</h3>
+                        <p class="text-lg mb-6">${String(message).toUpperCase()}</p>
                         <div class="flex justify-center space-x-4">
-                            <button id="confirm-no" class="btn-retro-green px-4 py-2">ANNULER</button>
-                            <button id="confirm-yes" class="btn-retro-red px-4 py-2">CONFIRMER</button>
+                            <button id="confirm-no-btn" class="btn-retro-red w-1/2">NON</button>
+                            <button id="confirm-yes-btn" class="btn-retro-green w-1/2">OUI</button>
                         </div>
                     </div>`;
-                document.getElementById('global-modals-container').appendChild(modal);
+                document.getElementById('global-modals-container').appendChild(modalDiv);
 
-                document.getElementById('confirm-yes').onclick = () => { modal.remove(); resolve(true); };
-                document.getElementById('confirm-no').onclick = () => { modal.remove(); resolve(false); };
+                document.getElementById('confirm-yes-btn').onclick = () => {
+                    modalDiv.remove();
+                    resolve(true);
+                };
+                document.getElementById('confirm-no-btn').onclick = () => {
+                    modalDiv.remove();
+                    resolve(false);
+                };
             });
         }
 
 
-        // --- Event Listeners for Navigation ---
+        // =====================================================================
+        // SECTION 5: EVENT LISTENERS AND INITIALIZATION
+        // =====================================================================
+
         function attachEventListeners() {
+            // Navigation buttons
             document.querySelectorAll('.nav-item').forEach(button => {
-                button.onclick = (event) => renderPage(event.currentTarget.dataset.page);
+                button.onclick = (event) => {
+                    const page = event.currentTarget.dataset.page;
+                    renderPage(page);
+                };
             });
 
-            const saveProfileBtn = document.getElementById('save-profile-btn');
-            if (saveProfileBtn) saveProfileBtn.onclick = handleSaveProfile;
+            // Profile save button
+            document.getElementById('save-profile-btn').onclick = handleSaveProfile;
+
+            // Initial render of the current page
+            renderPage(currentPage);
         }
 
-
-        // --- Initial Load ---
-        window.onload = initializeApp;
+        // Initialize the app when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>
