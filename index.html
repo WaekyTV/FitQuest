@@ -367,93 +367,6 @@
                 padding-bottom: 6rem; /* Adjust for footer on mobile */
             }
         }
-
-        /* Collapsible content styles */
-        .collapsible-header {
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            background-color: #4a5568; /* bg-gray-700 */
-            border-radius: 0.375rem;
-            border: 2px solid #2563eb;
-            box-shadow: 2px 2px 0 0 rgba(0,0,0,0.3);
-            transition: background-color 0.2s ease-in-out;
-        }
-        .collapsible-header:hover {
-            background-color: #2d3748; /* hover:bg-gray-800 */
-        }
-        .collapsible-header.expanded {
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-        .collapsible-header .lucide {
-            transition: transform 0.3s ease-in-out;
-        }
-        .collapsible-header.expanded .lucide {
-            transform: rotate(90deg);
-        }
-
-        .collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-in-out; /* Smooth transition */
-            background-color: #2d3748; /* bg-gray-800 */
-            border-left: 2px solid #2563eb;
-            border-right: 2px solid #2563eb;
-            border-bottom: 2px solid #2563eb;
-            border-bottom-left-radius: 0.375rem;
-            border-bottom-right-radius: 0.375rem;
-            padding: 0 1rem; /* Padding applied when expanded */
-        }
-        .collapsible-content.expanded {
-            max-height: 2000px; /* Sufficiently large value */
-            padding: 1rem; /* Apply padding when expanded */
-        }
-
-        .sub-collapsible-header {
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0.75rem;
-            background-color: #2563eb; /* bg-blue-600 */
-            border-radius: 0.375rem;
-            border: 1px solid #1e40af;
-            margin-top: 0.5rem;
-            transition: background-color 0.2s ease-in-out;
-        }
-        .sub-collapsible-header:hover {
-            background-color: #1d4ed8; /* hover:bg-blue-700 */
-        }
-        .sub-collapsible-header.expanded {
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-        .sub-collapsible-header .lucide {
-            transition: transform 0.3s ease-in-out;
-        }
-        .sub-collapsible-header.expanded .lucide {
-            transform: rotate(90deg);
-        }
-
-        .sub-collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-in-out;
-            background-color: #1e40af; /* bg-blue-800 */
-            border-left: 1px solid #1e40af;
-            border-right: 1px solid #1e40af;
-            border-bottom: 1px solid #1e40af;
-            border-bottom-left-radius: 0.375rem;
-            border-bottom-right-radius: 0.375rem;
-            padding: 0 0.75rem; /* Padding applied when expanded */
-        }
-        .sub-collapsible-content.expanded {
-            max-height: 1000px; /* Sufficiently large value */
-            padding: 0.75rem; /* Apply padding when expanded */
-        }
     </style>
 </head>
 <body class="font-vt323 text-white bg-gray-900 min-h-screen flex flex-col">
@@ -1609,7 +1522,7 @@
                 userProfile.earnedTrophies = earnedTrophies;
                 saveToLocalStorage('userProfile', userProfile);
 
-                newTrophiesEarned.forEach(trophy => showTrophyNotification(trorophy.name, trophy.description));
+                newTrophiesEarned.forEach(trophy => showTrophyNotification(trophy.name, trophy.description));
                 if (currentPage === 'trophies') renderTrophyRoomView(document.getElementById('main-content'));
             }
         }
@@ -1970,7 +1883,7 @@
                 Waeky just logged an exercise: "${exerciseName.toUpperCase()}" with a difficulty feeling: "${feeling.toUpperCase()}".
 
                 Generate a short (maximum 2 sentences) and motivating tip, adapted to this feeling.
-                - If "FACILE" (Easy), encourage increasing difficulty (weight, repetitions, speed, duration, etc.) or varying exercises.
+                - If "FACILE" (Easy), encourage increasing difficulty (weight, repetitions, speed, duration) or varying.
                 - If "MOYEN" (Medium), encourage maintaining effort and consistency, or considering slight progression.
                 - If "DIFFICILE" (Difficult), encourage perseverance, rest, or adjusting load/intensity to avoid overtraining.
 
@@ -2304,7 +2217,7 @@
                         </div>
                         <button id="generate-plan-btn" class="btn-retro-purple w-full flex items-center justify-center">
                             <span id="generate-plan-spinner" class="spinner mr-2 hidden"></span>
-                            <span id="generate-plan-text">GÉNÉRATION...</span>
+                            <span id="generate-plan-text">GÉNÉRER PLAN DE REPAS</span>
                         </button>
                         <p class="text-xs text-gray-400 mt-2 text-center">LE PLAN SERA GÉNÉRÉ UNIQUEMENT POUR LES JOURS AVEC DES POSTES ENREGISTRÉS DANS L'ONGLET "PLANNING".</p>
                     </div>
@@ -2401,18 +2314,14 @@
                 let mealsHtml = `<div class="space-y-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3 text-center">TON PLAN DE REPAS :</h3>`;
 
                 weeklyMealPlan.semaine.forEach((dayData) => {
-                    const dateString = new Date(dayData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
-                    const dayContextString = getDayContextString(dayData.dayContext.poste, dayData.dayContext.sport);
-
                     mealsHtml += `
-                        <div class="bg-gray-700 p-0 rounded-lg border-4 border-purple-500 shadow-lg">
-                            <div class="collapsible-header" data-target="day-content-${dayData.date}">
-                                <h4 class="text-lg sm:text-xl font-bold text-yellow-300">${dateString} - ${dayContextString}</h4>
-                                <i data-lucide="chevron-right" class="text-yellow-300" style="width:24px; height:24px;"></i>
+                        <div class="bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg">
+                            <div class="flex justify-between items-center cursor-pointer py-2" data-toggle="day-content-${dayData.date}">
+                                <h4 class="text-lg sm:text-xl font-bold text-yellow-300">${new Date(dayData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()} - ${getDayContextString(dayData.dayContext.poste, dayData.dayContext.sport)}</h4>
+                                <i data-lucide="chevron-down" class="text-yellow-300 transition-transform duration-300"></i>
                             </div>
-                            <div id="day-content-${dayData.date}" class="collapsible-content">
-                                <div class="space-y-4">`;
-
+                            <div id="day-content-${dayData.date}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0">
+                                <div class="space-y-4 pt-2">`;
                     const mealOrder = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation_apresmidi', 'diner', 'collation_unique'];
                     mealOrder.forEach(mealType => {
                         const meal = dayData[mealType];
@@ -2426,12 +2335,18 @@
                             const isRegeneratingCurrentMeal = regeneratingMeal && regeneratingMeal.dateKey === dayData.date && regeneratingMeal.mealType === mealType;
 
                             mealsHtml += `
-                                <div class="bg-gray-800 p-0 rounded-md border-2 border-blue-700 shadow-md">
-                                    <div class="sub-collapsible-header" data-target="meal-content-${dayData.date}-${mealType}">
+                                <div class="bg-gray-800 p-3 rounded-md border-2 border-blue-700 shadow-md">
+                                    <div class="flex justify-between items-center cursor-pointer py-2" data-toggle="meal-content-${meal.id}">
                                         <h5 class="font-semibold text-base sm:text-lg text-blue-400">${momentContext} : ${String(meal.title || 'RECETTE NON DÉFINIE').toUpperCase()}</h5>
-                                        <i data-lucide="chevron-right" class="text-blue-200" style="width:20px; height:20px;"></i>
+                                        <div class="flex items-center">
+                                            <button class="btn-retro-red text-sm px-2 py-1 ml-2 flex items-center justify-center regenerate-meal-btn" data-date="${dayData.date}" data-meal-type="${mealType}" ${isRegeneratingCurrentMeal ? 'disabled' : ''}>
+                                                ${isRegeneratingCurrentMeal ? `<span class="spinner w-4 h-4"></span>` : `<i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>`}
+                                                <span class="ml-1 hidden sm:inline">RÉGÉNÉRER</span>
+                                            </button>
+                                            <i data-lucide="chevron-down" class="text-blue-400 transition-transform duration-300 ml-2"></i>
+                                        </div>
                                     </div>
-                                    <div id="meal-content-${dayData.date}-${mealType}" class="sub-collapsible-content">
+                                    <div id="meal-content-${meal.id}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0">
                                         <p class="text-gray-300 text-sm italic mb-2">${String(meal.description_du_plat || 'DESCRIPTION INDISPONIBLE').toUpperCase()}</p>
                                         <p class="text-sm font-medium text-yellow-300">${String(meal.ingredients_label || 'INGRÉDIENTS').toUpperCase()} :</p>
                                         <ul class="list-disc list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.ingredients_list || []).map(ingredient => `<li>${String(ingredient).toUpperCase()}</li>`).join('')}</ul>
@@ -2442,10 +2357,6 @@
                                         <p class="text-sm font-medium text-yellow-300 mt-2">CONSEILS ÉCONOMIE :</p>
                                         <p class="text-gray-300 text-xs">${String(meal.conseils_reutilisation_economie || 'CONSEILS INDISPONIBLES').toUpperCase()}</p>
                                         <p class="text-blue-200 text-xs mt-3">${advice}</p>
-                                        <button class="btn-retro-red text-sm px-2 py-1 mt-4 flex items-center justify-center regenerate-meal-btn" data-date="${dayData.date}" data-meal-type="${mealType}" ${isRegeneratingCurrentMeal ? 'disabled' : ''}>
-                                            ${isRegeneratingCurrentMeal ? `<span class="spinner w-4 h-4"></span>` : `<i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>`}
-                                            <span class="ml-1 hidden sm:inline">RÉGÉNÉRER</span>
-                                        </button>
                                     </div>
                                 </div>`;
                         }
@@ -2455,27 +2366,7 @@
                 mealsHtml += `</div>`;
                 weeklyMealPlanContentDiv.innerHTML = mealsHtml;
                 renderLucideIcons();
-
-                // Add event listeners for collapsible sections
-                weeklyMealPlanContentDiv.querySelectorAll('.collapsible-header').forEach(header => {
-                    header.onclick = (event) => {
-                        const targetId = event.currentTarget.dataset.target;
-                        const content = document.getElementById(targetId);
-                        event.currentTarget.classList.toggle('expanded');
-                        content.classList.toggle('expanded');
-                        renderLucideIcons(); // Re-render icons to update chevron direction
-                    };
-                });
-
-                weeklyMealPlanContentDiv.querySelectorAll('.sub-collapsible-header').forEach(header => {
-                    header.onclick = (event) => {
-                        const targetId = event.currentTarget.dataset.target;
-                        const content = document.getElementById(targetId);
-                        event.currentTarget.classList.toggle('expanded');
-                        content.classList.toggle('expanded');
-                        renderLucideIcons(); // Re-render icons to update chevron direction
-                    };
-                });
+                attachCollapsibleListeners(); // Attach listeners after content is rendered
 
                 weeklyMealPlanContentDiv.querySelectorAll('.regenerate-meal-btn').forEach(button => {
                     button.onclick = async (event) => {
@@ -2486,7 +2377,7 @@
                         if (!dayContext) { showMessage("ERREUR: Contexte de jour non trouvé pour la régénération du repas.", 'error'); return; }
 
                         regeneratingMeal = { dateKey, mealType };
-                        renderRecipeView(container); // Re-render to show spinner
+                        renderRecipeView(container);
 
                         try {
                             const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds };
@@ -2499,19 +2390,50 @@
                                 showMessage(`SUCCÈS: Repas "${regeneratedMeal.title}" régénéré pour le ${dateKey} !`, 'success');
                                 speak("Repas régénéré !");
                                 regeneratingMeal = null;
-                                renderRecipeView(container); // Re-render to update content and remove spinner
+                                renderRecipeView(container);
                             }
                         } catch (error) {
                             console.error("Error regenerating meal:", error);
                             showMessage(`ERREUR: Échec de la régénération du repas. ${error.message}`, 'error');
                             regeneratingMeal = null;
-                            renderRecipeView(container); // Re-render to remove spinner
+                            renderRecipeView(container);
                         }
                     };
                 });
             }
 
             renderWeeklyMealPlan();
+        }
+
+        // --- New function to handle collapsible sections ---
+        function attachCollapsibleListeners() {
+            document.querySelectorAll('[data-toggle]').forEach(toggleElement => {
+                toggleElement.onclick = () => {
+                    const targetId = toggleElement.dataset.toggle;
+                    const targetContent = document.getElementById(targetId);
+                    const icon = toggleElement.querySelector('i[data-lucide]');
+
+                    if (targetContent) {
+                        if (targetContent.classList.contains('max-h-0')) {
+                            // Open: Set a very large maxHeight to ensure all content is visible
+                            targetContent.classList.remove('max-h-0');
+                            targetContent.style.maxHeight = '9999px'; // Use a large fixed value
+                            if (icon) icon.classList.add('rotate-180');
+                            targetContent.classList.add('open'); // Add 'open' class for state tracking
+                        } else {
+                            // Close: Set current height before transitioning to 0
+                            targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
+                            requestAnimationFrame(() => {
+                                targetContent.classList.add('max-h-0');
+                                targetContent.style.maxHeight = '0';
+                            });
+                            if (icon) icon.classList.remove('rotate-180');
+                            targetContent.classList.remove('open'); // Remove 'open' class
+                        }
+                        // No need for transitionend listener to set maxHeight to 'none' if using a large fixed value
+                    }
+                };
+            });
         }
 
 
@@ -3147,7 +3069,8 @@
                     showMessage("SUCCÈS: PROGRAMME SPORTIF IMPORTÉ ET MIS À JOUR !", 'success');
                     speak("Programme sportif mis à jour !");
                     renderPage('workout'); // Re-render the workout page with the new program
-                } catch (e) {
+                }
+                catch (e) {
                     console.error("Error importing workout program:", e);
                     showMessage(`ERREUR: FORMAT JSON INVALIDE. VÉRIFIEZ VOTRE PROGRAMME. ${e.message}`, 'error');
                 }
