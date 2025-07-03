@@ -58,7 +58,7 @@
             padding: 0.75rem 1rem;
             border-radius: 0.375rem;
             border: 2px solid #6b21a8; /* border-purple-800 */
-            box-shadow: 4px 44px 0 0 rgba(0,0,0,0.5);
+            box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5);
             transition: all 0.1s ease-in-out;
             cursor: pointer;
         }
@@ -2049,21 +2049,25 @@
                 mealSpecificConstraints.push("Les œufs ne peuvent être utilisés que s'ils sont intégrés dans des préparations comme des crêpes, des pancakes ou des porridges, PAS comme plat principal (ex: œufs brouillés, omelette).");
                 mealSpecificConstraints.push("PAS DE PÂTES, SEMOULE OU SAUCE TOMATE.");
                 mealSpecificConstraints.push("Privilégiez les fruits, les flocons d'avoine, le yaourt grec ou la protéine de lactosérum pour les bases.");
+                mealSpecificConstraints.push("Pour ce type de repas, privilégiez des recettes simples et des ingrédients qui peuvent être facilement répétés ou préparés en grande quantité pour plusieurs jours, afin de minimiser les achats variés et la complexité de la préparation, surtout si d'autres jours ont un contexte similaire."); // Added for less variety
             } else if (mealType === 'dejeuner') {
                 mealContextDescription = "Déjeuner";
                 mealSpecificConstraints.push("Doit être un repas équilibré pour maintenir l'énergie tout au long de la journée.");
+                mealSpecificConstraints.push("Assurez une grande variété dans les recettes, en alternant les types de protéines, les glucides (riz, quinoa, patate douce, pâtes complètes) et les légumes. Proposez des saveurs différentes pour éviter la monotonie et maintenir l'intérêt."); // Added for more variety
             } else if (mealType === 'diner') {
                 mealContextDescription = "Dîner";
                 mealSpecificConstraints.push("Doit être un repas facilement digestible favorisant un bon sommeil.");
+                mealSpecificConstraints.push("Assurez une grande variété dans les recettes, en alternant les types de protéines, les glucides (riz, quinoa, patate douce, pâtes complètes) et les légumes. Proposez des saveurs différentes pour éviter la monotonie et maintenir l'intérêt."); // Added for more variety
             } else if (mealType.startsWith('collation')) {
                 mealContextDescription = "Collation";
                 mealSpecificConstraints.push("Doit être rapide, facile à transporter et énergisante.");
+                mealSpecificConstraints.push("Pour ce type de repas, privilégiez des recettes simples et des ingrédients qui peuvent être facilement répétés ou préparés en grande quantité pour plusieurs jours, afin de minimiser les achats variés et la complexité de la préparation, surtout si d'autres jours ont un contexte similaire."); // Added for less variety
             }
 
             if (!allowMeatFish) {
-                mealSpecificConstraints.push("Utilisez une source de protéines végétarienne (lentilles, tofu, pois chiches, œufs - si applicable au repas, produits laitiers) ou laitière. NE PROPOSEZ PAS DE VIANDE OU DE POISSON.");
+                mealSpecificConstraints.push("Utilisez une source de protéines végétarienne (lentilles, tofu, pois chiches, œufs - si applicable au repas, produits laitiers) ou laitière. NE PROPOSEZ PAS DE VIANDE, DE POISSON NI DE WHEY PROTEIN.");
             } else {
-                mealSpecificConstraints.push("Vous pouvez utiliser n'importe quelle source de protéines. Pour des raisons budgétaires, privilégiez les options économiques comme les légumineuses, les œufs (if applicable to the meal), ou les produits laitiers, en alternant avec la viande/le poisson.");
+                mealSpecificConstraints.push("Incluez une variété de sources de protéines, y compris la VIANDE (maigre ou rouge), le POISSON (gras ou maigre), les LÉGUMINEUSES, les OEUFS, le TOFU, les PRODUITS LAITIERS, et la WHEY PROTEIN (si applicable au repas). Variez ces sources pour un profil nutritionnel complet et pour éviter la monotonie.");
             }
 
             const sportImpact = dayContext.sport !== 'aucun'
