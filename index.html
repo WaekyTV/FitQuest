@@ -2034,81 +2034,82 @@
             const mealSpecificConstraints = [];
             let imcAdaptation = "";
             if (userProfileForPrompt.imcCategory.includes('INSUFFISANCE PONDÉRALE')) {
-                imcAdaptation = "Waeky is underweight. Ensure a sufficient caloric intake and nutrient-dense foods to promote healthy weight gain.";
+                imcAdaptation = "Waeky est en insuffisance pondérale. Assurez un apport calorique suffisant et des aliments riches en nutriments pour favoriser une prise de poids saine.";
             } else if (userProfileForPrompt.imcCategory.includes('SURPOIDS') || userProfileForPrompt.imcCategory.includes('OBÉSITÉ')) {
-                imcAdaptation = `Waeky is in the IMC category "${userProfileForPrompt.imcCategory}". Prioritize lower-calorie recipes, richer in fiber and lean protein to promote weight loss and satiety. Reduce carbohydrate and lipid portions if necessary.`;
+                imcAdaptation = `Waeky est dans la catégorie IMC "${userProfileForPrompt.imcCategory}". Privilégiez des recettes moins caloriques, plus riches en fibres et en protéines maigres pour favoriser la perte de poids et la satiété. Réduisez les portions de glucides et de lipides si nécessaire.`;
             } else {
-                imcAdaptation = "Waeky has a normal weight. Maintain a macro-nutritional balance to support their activity level without excess.";
+                imcAdaptation = "Waeky a un poids normal. Maintenez un équilibre macro-nutritionnel pour soutenir son niveau d'activité sans excès.";
             }
             mealSpecificConstraints.push(imcAdaptation);
 
             let mealContextDescription = "";
             if (mealType === 'petit_dejeuner') {
-                mealContextDescription = "Breakfast";
-                mealSpecificConstraints.push("Must be sweet, avoiding savory flavors.");
-                mealSpecificConstraints.push("Eggs can ONLY be used if integrated into preparations like pancakes, crepes or porridges, NOT as a main dish (e.g. scrambled eggs, omelet).");
-                mealSpecificConstraints.push("NO PASTA, SEMOLINA, OR TOMATO SAUCE.");
-                mealSpecificConstraints.push("Prioritize fruits, oatmeal, Greek yogurt, or whey protein for bases.");
+                mealContextDescription = "Petit-déjeuner";
+                mealSpecificConstraints.push("Doit être sucré, en évitant les saveurs salées.");
+                mealSpecificConstraints.push("Les œufs ne peuvent être utilisés que s'ils sont intégrés dans des préparations comme des crêpes, des pancakes ou des porridges, PAS comme plat principal (ex: œufs brouillés, omelette).");
+                mealSpecificConstraints.push("PAS DE PÂTES, SEMOULE OU SAUCE TOMATE.");
+                mealSpecificConstraints.push("Privilégiez les fruits, les flocons d'avoine, le yaourt grec ou la protéine de lactosérum pour les bases.");
             } else if (mealType === 'dejeuner') {
-                mealContextDescription = "Lunch";
-                mealSpecificConstraints.push("Must be a balanced meal to sustain energy throughout the day.");
+                mealContextDescription = "Déjeuner";
+                mealSpecificConstraints.push("Doit être un repas équilibré pour maintenir l'énergie tout au long de la journée.");
             } else if (mealType === 'diner') {
-                mealContextDescription = "Dinner";
-                mealSpecificConstraints.push("Must be an easily digestible meal promoting good sleep.");
+                mealContextDescription = "Dîner";
+                mealSpecificConstraints.push("Doit être un repas facilement digestible favorisant un bon sommeil.");
             } else if (mealType.startsWith('collation')) {
-                mealContextDescription = "Snack";
-                mealSpecificConstraints.push("Must be quick, easy to transport, and energizing.");
+                mealContextDescription = "Collation";
+                mealSpecificConstraints.push("Doit être rapide, facile à transporter et énergisante.");
             }
 
             if (!allowMeatFish) {
-                mealSpecificConstraints.push("Use a vegetarian protein source (lentils, tofu, chickpeas, eggs - if applicable to the meal, dairy products) or dairy. Do NOT offer meat or fish.");
+                mealSpecificConstraints.push("Utilisez une source de protéines végétarienne (lentilles, tofu, pois chiches, œufs - si applicable au repas, produits laitiers) ou laitière. NE PROPOSEZ PAS DE VIANDE OU DE POISSON.");
             } else {
-                mealSpecificConstraints.push("You can use any protein source. For budget reasons, prioritize economical options like legumes, eggs (if applicable to the meal), or dairy products, alternating with meat/fish.");
+                mealSpecificConstraints.push("Vous pouvez utiliser n'importe quelle source de protéines. Pour des raisons budgétaires, privilégiez les options économiques comme les légumineuses, les œufs (si applicable au repas), ou les produits laitiers, en alternant avec la viande/le poisson.");
             }
 
             const sportImpact = dayContext.sport !== 'aucun'
-                ? `Waeky has a '${dayContext.sport}' type sports session planned. Complex carbohydrates and proteins are important for energy and recovery.`
-                : `Waeky has no sport planned for this day. Meals should remain balanced.`;
+                ? `Waeky a une séance de sport de type '${dayContext.sport}' prévue. Les glucides complexes et les protéines sont importants pour l'énergie et la récupération.`
+                : `Waeky n'a pas de sport prévu pour cette journée. Les repas doivent rester équilibrés.`;
 
-            const posteImpact = `Waeky is on a '${dayContext.poste}' type shift. Remember to adapt digestion and energy based on this schedule.`;
+            const posteImpact = `Waeky est sur un poste de type '${dayContext.poste}'. N'oubliez pas d'adapter la digestion et l'énergie en fonction de cet horaire.`;
 
 
             const LLM_PROMPT = `
-            You are an expert nutritionist and culinary chef, working for 'FitQuest'.
-            Your mission is to create a detailed and adapted recipe for Waeky, a security guard with a demanding schedule.
+            Vous êtes un nutritionniste expert et un chef cuisinier, travaillant pour 'FitQuest'.
+            Votre mission est de créer une recette détaillée et adaptée pour Waeky, un agent de sécurité avec un emploi du temps exigeant.
 
-            WAEKY'S CONTEXT:
-            - IMC: ${userProfileForPrompt.imc} (Category: ${userProfileForPrompt.imcCategory})
-            - Weight: ${userProfileForPrompt.weight} kg
-            - Estimated protein needs: ${userProfileForPrompt.proteinNeeds} g/day
-            - This meal is for ${finalNumberOfPeople} person(s).
+            LE CONTEXTE DE WAEKY :
+            - IMC : ${userProfileForPrompt.imc} (Catégorie : ${userProfileForPrompt.imcCategory})
+            - Poids : ${userProfileForPrompt.weight} kg
+            - Besoins en protéines estimés : ${userProfileForPrompt.proteinNeeds} g/jour
+            - Ce repas est pour ${finalNumberOfPeople} personne(s).
 
-            DAY'S SCHEDULE:
-            - Shift: ${dayContext.poste}
-            - Sport: ${dayContext.sport} (${sportImpact})
+            L'EMPLOI DU TEMPS DU JOUR :
+            - Poste : ${dayContext.poste}
+            - Sport : ${dayContext.sport} (${sportImpact})
             - ${posteImpact}
 
-            MEAL TYPE TO CREATE: ${mealContextDescription.toUpperCase()}
+            TYPE DE REPAS À CRÉER : ${mealContextDescription.toUpperCase()}
 
-            SPECIFIC CONSTRAINTS:
+            CONTRAINTES SPÉCIFIQUES :
             ${mealSpecificConstraints.map(c => `- ${c}`).join('\n')}
-            - Ingredients must include precise and EXPLICITLY ADAPTED quantities for ${finalNumberOfPeople} person(s). Each ingredient must have a clear and realistic quantity and unit.
-            - Preparation steps must be VERY DETAILED, numbered, and easily reproducible by a complete beginner in cooking. Each step must be clear, concise and provide enough detail for execution.
-            - Waeky's portion must be specifically adapted to their IMC (${userProfileForPrompt.imcCategory}) and protein needs (${userProfileForPrompt.proteinNeeds} g/day), for 1 person.
+            - Toutes les informations (titre, description, ingrédients, étapes de préparation, conseils, notes) doivent être STRICTEMENT EN FRANÇAIS.
+            - Les ingrédients doivent inclure des quantités précises et EXPLICITEMENT ADAPTÉES pour ${finalNumberOfPeople} personne(s). Chaque ingrédient doit avoir une quantité et une unité claires et réalistes.
+            - Les étapes de préparation doivent être TRÈS DÉTAILLÉES, numérotées et facilement reproductibles par un débutant complet en cuisine. Chaque étape doit être claire, concise et fournir suffisamment de détails pour l'exécution.
+            - La portion de Waeky doit être spécifiquement adaptée à son IMC (${userProfileForPrompt.imcCategory}) et à ses besoins en protéines (${userProfileForPrompt.proteinNeeds} g/jour), pour 1 personne.
 
-            EXPECTED RESPONSE FORMAT (STRICTLY IN JSON):
+            FORMAT DE RÉPONSE ATTENDU (STRICTEMENT EN JSON) :
             {
-              "title": "RECIPE TITLE (IN CAPITAL LETTERS)",
-              "description_du_plat": "DISH DESCRIPTION ADAPTED TO CONTEXT (IN CAPITAL LETTERS)",
-              "ingredients_label": "INGREDIENTS (FOR X PERSONS)",
-              "ingredients_list": ["QUANTITY UNIT INGREDIENT", "QUANTITY UNIT INGREDIENT", ...],
-              "preparation_steps": ["STEP 1. DETAILED DESCRIPTION.", "STEP 2. DETAILED DESCRIPTION.", ...],
-              "ma_portion_waeky": "YOUR PORTION (FOR WAEKY): PROTEIN QUANTITY, CARBOHYDRATE QUANTITY, AND A LARGE PORTION OF VARIED VEGETABLES/FRUITS, FOR 1 PERSON.",
-              "conseils_reutilisation_economie": "TIPS FOR LEFTOVERS OR SAVINGS (IN CAPITAL LETTERS).",
-              "notes": "ADDITIONAL NOTES (ALLERGENS, TIPS, ETC.) (IN CAPITAL LETTERS)."
+              "title": "TITRE DE LA RECETTE (EN MAJUSCULES)",
+              "description_du_plat": "DESCRIPTION DU PLAT ADAPTÉE AU CONTEXTE (EN MAJUSCULES)",
+              "ingredients_label": "INGRÉDIENTS (POUR X PERSONNES)",
+              "ingredients_list": ["QUANTITÉ UNITÉ INGRÉDIENT", "QUANTITÉ UNITÉ INGRÉDIENT", ...],
+              "preparation_steps": ["ÉTAPE 1. DESCRIPTION DÉTAILLÉE.", "ÉTAPE 2. DESCRIPTION DÉTAILLÉE.", ...],
+              "ma_portion_waeky": "VOTRE PORTION (POUR WAEKY) : QUANTITÉ DE PROTÉINES, QUANTITÉ DE GLUCIDES, ET UNE GRANDE PORTION DE LÉGUMES/FRUITS VARIÉS, POUR 1 PERSONNE.",
+              "conseils_reutilisation_economie": "CONSEILS POUR LES RESTES OU LES ÉCONOMIES (EN MAJUSCULES).",
+              "notes": "NOTES SUPPLÉMENTAIRES (ALLERGÈNES, CONSEILS, ETC.) (EN MAJUSCULES)."
             }
 
-            GENERATE THE DETAILED RECIPE:
+            GÉNÉRER LA RECETTE DÉTAILLÉE :
             `.trim();
 
             try {
@@ -2158,21 +2159,21 @@
                 } catch (parseError) {
                     console.error("Error parsing LLM response JSON or candidate structure:", parseError);
                     console.error("Raw JSON causing the error:", rawResult);
-                    const fallbackTitle = `${mealContextDescription.toUpperCase()} SIMPLIFIED (IA ERROR)`;
-                    const fallbackDesc = `AN ERROR OCCURRED DURING GENERATION. HERE IS A BASIC RECIPE.`;
-                    const fallbackIngredients = [`QUANTITIES TO BE DEFINED ACCORDING TO YOUR APPETITE`, `VARIED PROTEINS`, `COMPLEX CARBOHYDRATES`, `SEASONAL VEGETABLES`];
-                    const fallbackPreparation = ["1. PREPARE INGREDIENTS. 2. COOK ACCORDING TO YOUR USUAL METHODS."];
-                    const fallbackPortion = "YOUR PORTION (FOR WAEKY): PROTEINS, CARBOHYDRATES, AND VARIED VEGETABLES/FRUITS ADAPTED. FOR 1 PERSON.";
-                    const fallbackConseils = "ADJUST QUANTITIES ACCORDING TO YOUR NEEDS. TRY TO REUSE LEFTOVERS.";
-                    const fallbackNotes = "RECIPE WAS SIMPLIFIED DUE TO A COMMUNICATION PROBLEM WITH THE AI. CHECK PROMPT OR API.";
-                    parsedContent = { title: fallbackTitle, description_du_plat: fallbackDesc, ingredients_label: `INGREDIENTS (FOR ${finalNumberOfPeople} PERS)`, ingredients_list: fallbackIngredients, preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion, conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes };
+                    const fallbackTitle = `${mealContextDescription.toUpperCase()} SIMPLIFIÉ (ERREUR IA)`;
+                    const fallbackDesc = `UNE ERREUR S'EST PRODUITE LORS DE LA GÉNÉRATION. VOICI UNE RECETTE DE BASE.`;
+                    const fallbackIngredients = [`QUANTITÉS À DÉFINIR SELON VOTRE APPÉTIT`, `PROTÉINES VARIÉES`, `GLUCIDES COMPLEXES`, `LÉGUMES DE SAISON`];
+                    const fallbackPreparation = ["1. PRÉPAREZ LES INGRÉDIENTS. 2. CUISEZ SELON VOS MÉTHODES HABITUELLES."];
+                    const fallbackPortion = "VOTRE PORTION (POUR WAEKY) : PROTÉINES, GLUCIDES ET LÉGUMES/FRUITS VARIÉS ADAPTÉS. POUR 1 PERSONNE.";
+                    const fallbackConseils = "AJUSTEZ LES QUANTITÉS SELON VOS BESOINS. ESSAYEZ DE RÉUTILISER LES RESTES.";
+                    const fallbackNotes = "LA RECETTE A ÉTÉ SIMPLIFIÉE EN RAISON D'UN PROBLÈME DE COMMUNICATION AVEC L'IA. VÉRIFIEZ LE PROMPT OU L'API.";
+                    parsedContent = { title: fallbackTitle, description_du_plat: fallbackDesc, ingredients_label: `INGRÉDIENTS (POUR ${finalNumberOfPeople} PERS)`, ingredients_list: fallbackIngredients, preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion, conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes };
                 }
 
                 return {
                     id: generateUniqueId(),
                     title: String(parsedContent.title || '').toUpperCase(),
                     description_du_plat: String(parsedContent.description_du_plat || '').toUpperCase(),
-                    ingredients_label: String(parsedContent.ingredients_label || `INGREDIENTS (FOR ${finalNumberOfPeople} PERS)`).toUpperCase(), // Ensure label is present and scaled
+                    ingredients_label: String(parsedContent.ingredients_label || `INGRÉDIENTS (POUR ${finalNumberOfPeople} PERS)`).toUpperCase(), // Ensure label is present and scaled
                     ingredients_list: (parsedContent.ingredients_list || []).map(item => String(item).toUpperCase()),
                     preparation_steps: (parsedContent.preparation_steps || []).map(step => String(step).toUpperCase()),
                     ma_portion_waeky: String(parsedContent.ma_portion_waeky || '').toUpperCase(),
@@ -2182,17 +2183,17 @@
 
             } catch (error) {
                 console.error("Fatal error during LLM call or general JSON parsing:", error);
-                const fallbackTitle = `${mealContextDescription.toUpperCase()} (SYSTEM ERROR)`;
-                const fallbackDesc = `A CRITICAL ERROR HAS OCCURRED. PLEASE TRY AGAIN.`;
-                const fallbackIngredients = [`CHECK YOUR INTERNET CONNECTION`, `CONTACT SUPPORT IF THE PROBLEM PERSISTS`];
-                const fallbackPreparation = ["1. TRY RE-GENERATING THE PLAN.", "2. MAKE SURE YOUR PROFILE IS COMPLETE."];
-                const fallbackPortion = "UNAVAILABLE DUE TO AN ERROR.";
-                const fallbackConseils = "NO TIPS AVAILABLE.";
-                const fallbackNotes = "MAJOR COMMUNICATION ERROR WITH THE AI. PLEASE CHECK YOUR CONNECTION.";
+                const fallbackTitle = `${mealContextDescription.toUpperCase()} (ERREUR SYSTÈME)`;
+                const fallbackDesc = `UNE ERREUR CRITIQUE S'EST PRODUITE. VEUILLEZ RÉESSAYER.`;
+                const fallbackIngredients = [`VÉRIFIEZ VOTRE CONNEXION INTERNET`, `CONTACTEZ LE SUPPORT SI LE PROBLÈME PERSISTE`];
+                const fallbackPreparation = ["1. ESSAYEZ DE RE-GÉNÉRER LE PLAN.", "2. ASSUREZ-VOUS QUE VOTRE PROFIL EST COMPLET."];
+                const fallbackPortion = "INDISPONIBLE EN RAISON D'UNE ERREUR.";
+                const fallbackConseils = "AUCUN CONSEIL DISPONIBLE.";
+                const fallbackNotes = "ERREUR DE COMMUNICATION MAJEURE AVEC L'IA. VEUILLEZ VÉRIFIER VOTRE CONNEXION.";
 
                 return {
                     id: generateUniqueId(), title: fallbackTitle, description_du_plat: fallbackDesc,
-                    ingredients_label: `INGREDIENTS (FOR ${finalNumberOfPeople} PERS)`, ingredients_list: fallbackIngredients,
+                    ingredients_label: `INGRÉDIENTS (POUR ${finalNumberOfPeople} PERS)`, ingredients_list: fallbackIngredients,
                     preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion,
                     conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes
                 };
