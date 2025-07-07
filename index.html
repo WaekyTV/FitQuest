@@ -74,7 +74,12 @@
     </div>
     <div id="app-container" class="min-h-screen flex flex-col hidden">
         <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-yellow-300 p-5 shadow-md border-b-4 border-purple-500 rounded-b-lg">
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-center tracking-widest leading-tight">FITQUEST</h1>
+            <div class="flex items-center justify-center relative">
+                <button id="home-button" class="absolute left-0 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-blue-600 transition-colors duration-200" title="Retour à l'accueil">
+                    <i data-lucide="home" class="text-yellow-300 text-3xl"></i>
+                </button>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-center tracking-widest leading-tight flex-1">FITQUEST</h1>
+            </div>
             <p class="text-center text-lg sm:text-xl mt-2 opacity-90">TON PROGRAMME PERSONNALISE</p>
             <p class="text-center text-sm sm:text-base mt-1 opacity-80 text-gray-300">GENERE PAR POXEL, TON IA PERSONNELLE</p>
             <p id="user-id-display" class="text-center text-xs sm:text-sm mt-2 opacity-80 text-gray-300 hidden">ID UTILISATEUR: <span id="user-id-value" class="font-mono break-all"></span></p>
@@ -145,12 +150,14 @@
         let trophySoundPlayer, levelUpPlayer, majorLevelUpPlayer, beepPlayer, startSoundPlayer, loadingSoundLoop, synth;
         let chronoIntervals = [], chronoCurrentTime = 0, chronoCurrentIntervalIndex = -1, isChronoRunning = false, isChronoPaused = false, enableChronoPreCountdown = true, chronoPreCountdownDuration = 10, chronoIntervalTimerRef = null;
         let weightChartInstance = null, exerciseChartInstance = null, userId = 'local_user';
+        let editingIntervalIndex = -1; // New variable to track the index of the interval being edited
+        let regeneratingMeal = null; // Global variable to track meal regeneration status
 
         // Cache global pour les petits-déjeuners et collations générés par contexte (type de poste)
         let contextualMealCache = new Map(); // Key: "mealType_poste", Value: meal object
 
         // Liste de tous les trophées disponibles et leurs conditions
-        const allTrophies = [ { id: 't001', name: 'PREMIER PAS', description: 'Atteindre le Niveau 1. Le voyage commence !', levelRequired: 1 }, { id: 't002', name: 'NOVICE EN FORME', description: 'Atteindre le Niveau 2. Vous prenez le rythme.', levelRequired: 2 }, { id: 't003', name: 'INITIE DU FIT', description: 'Atteindre le Niveau 3. Les efforts paient.', levelRequired: 3 }, { id: 't004', name: 'FORME CROISSANTE', description: 'Atteindre le Niveau 4. De mieux en mieux !', levelRequired: 4 }, { id: 't005', name: 'DEBUTANT AVANCE', description: 'Atteindre le Niveau 5. Vous n\'etes plus un debutant.', levelRequired: 5 }, { id: 't006', name: 'CONSTANCE MERITEE', description: 'Atteindre le Niveau 6. La regularite, c\'est la cle.', levelRequired: 6 }, { id: 't007', name: 'ELAN DU PROGRES', description: 'Atteindre le Niveau 7. Vous sentez la progression.', levelRequired: 7 }, { id: 't008', name: 'GAINS ASSURES', description: 'Atteindre le Niveau 8. Les muscles se dessinent.', levelRequired: 8 }, { id: 't009', name: 'AVANCEE RAPIDE', description: 'Atteindre le Niveau 9. Vous brulez les etapes.', levelRequired: 9 }, { id: 't010', name: 'DIXIEME ETAPE', description: 'Atteindre le Niveau 10. Un jalon important !', levelRequired: 10 }, { id: 't011', name: 'MAITRE INTERMEDIAIRE', description: 'Atteindre le Niveau 11. Le fitness devient une habitude.', levelRequired: 11 }, { id: 't012', name: 'FORCE EMERGENTE', description: 'Atteindre le Niveau 12. Vos limites sont repoussees.', levelRequired: 12 }, { id: 't013', name: 'ENDURANCE ACCRUE', description: 'Atteindre le Niveau 13. Le cardio n\'a plus de secret.', levelRequired: 13 }, { id: 't014', name: 'EXCELLENCE EN VUE', description: 'Atteindre le Niveau 14. La performance est a portee.', levelRequired: 14 }, { id: 't015', name: 'DEMI-MAITRE', description: 'Atteindre le Niveau 15. Vous etes sur la bonne voie.', levelRequired: 15 }, { id: 't016', name: 'DISCIPLINE DE FER', description: 'Atteindre le Niveau 16. Votre engagement est fort.', levelRequired: 16 }, { id: 't017', name: 'ENERGIE DECUPLEE', description: 'Atteindre le Niveau 17. Sentez cette vitalite !', levelRequired: 17 }, { id: 't018', name: 'HARMONIE CORPS/ESPRIT', description: 'Atteindre le Niveau 18. L\'equilibre est parfait.', levelRequired: 18 }, { id: 't019', name: 'FORME OPTIMALE', description: 'Atteindre le Niveau 19. Vous rayonnez de sante.', levelRequired: 19 }, { id: 't020', name: 'DEUXIEME DIZAINE', description: 'Atteindre le Niveau 20. Double decennie de fitness !', levelRequired: 20 }, { id: 't021', name: 'EXPERT EN DEVENIR', description: 'Atteindre le Niveau 21. La maitrise approche.', levelRequired: 21 }, { id: 't022', name: 'PUISSANCE REVELEE', description: 'Atteindre le Niveau 22. Une force insoupconnee.', levelRequired: 22 }, { id: 't023', name: 'AGILITE MAXIMALE', description: 'Atteindre le Niveau 23. Votre corps est un temple agile.', levelRequired: 23 }, { id: 't024', name: 'RESISTANCE INEGALEE', description: 'Atteindre le Niveau 24. Rien ne vous arrete.', levelRequired: 24 }, { id: 't025', name: 'QUART DE SIECLE', description: 'Atteindre le Niveau 25. Vous etes une machine !', levelRequired: 25 }, { id: 't026', name: 'PERFECTION EN MARCHE', description: 'Atteindre le Niveau 26. Chaque pas est un succes.', levelRequired: 26 }, { id: 't027', name: 'FORME INCROYABLE', description: 'Atteindre le Niveau 27. Admirez votre progression !', levelRequired: 27 }, { id: 't028', name: 'DETERMINATION ACEREE', description: 'Atteindre le Niveau 28. Votre volonte est sans faille.', levelRequired: 28 }, { id: 't029', name: 'INEPUISABLE', description: 'Atteindre le Niveau 29. L\'energie vous habite.', levelRequired: 29 }, { id: 't030', name: 'LE TREINTIEME', description: 'Atteindre le Niveau 30. Un cap monumental !', levelRequired: 30 }, { id: 't031', name: 'MAITRE ABSOLU', description: 'Atteindre le Niveau 31. Vous etes une reference.', levelRequired: 31 }, { id: 't032', name: 'EXPERT LEGENDAIRE', description: 'Atteindre le Niveau 32. Votre reputation vous precede.', levelRequired: 32 }, { id: 't033', name: 'OLYMPIEN EN HERBE', description: 'Atteindre le Niveau 33. Digne des plus grands athletes.', levelRequired: 33 }, { id: 't034', name: 'CHAMPION INCROYABLE', description: 'Atteindre le Niveau 34. Votre esprit est indomptable.', levelRequired: 34 }, { id: 't035', name: 'LE PRODIGE', description: 'Atteindre le Niveau 35. Vos prouesses sont inegalees.', levelRequired: 35 }, { id: 't036', name: 'FORCE DE LA NATURE', description: 'Atteindre le Niveau 36. Vous etes imparable.', levelRequired: 36 }, { id: 't037', name: 'FORME DIVINE', description: 'Atteindre le Niveau 37. Votre corps est une oeuvre d\'art.', levelRequired: 37 }, { id: 't038', name: 'CONNAISSANCE SUPREME', description: 'Atteindre le Niveau 38. Votre savoir est immense.', levelRequired: 38 }, { id: 't039', name: 'REALISATION PARFAITE', description: 'Atteindre le Niveau 39. Tout est sous controle.', levelRequired: 39 }, { id: 't040', name: 'QUARANTIEME HORIZON', description: 'Atteindre le Niveau 40. Le ciel est votre limite !', levelRequired: 40 }, { id: 't041', name: 'LEGENDE VIVANTE', description: 'Atteindre le Niveau 41. On parlera de vous.', levelRequired: 41 }, { id: 't042', name: 'INSPIRATION ULTIME', description: 'Atteindre le Niveau 42. Vous inspirez les foules.', levelRequired: 42 }, { id: 't043', name: 'DEFI RELEVE', description: 'Atteindre le Niveau 43. Chaque obstacle est un tremplin.', levelRequired: 43 }, { id: 't044', name: 'SUMMUM DE LA FORME', description: 'Atteindre le Niveau 44. Vous etes au sommet.', levelRequired: 44 }, { id: 't045', name: 'LE MAITRE CULMINANT', description: 'Atteindre le Niveau 45. La perfection incarnee.', levelRequired: 45 }, { id: 't046', name: 'IMPARABLE', description: 'Atteindre le Niveau 46. Vous etes invincible !', levelRequired: 46 }, { id: 't047', name: 'VOLONTE DE DIAMANT', description: 'Atteindre le Niveau 47. Votre determination est inebranlable.', levelRequired: 47 }, { id: 't048', name: 'ECLAT ETERNEL', description: 'Atteindre le Niveau 48. Votre aura brille.', levelRequired: 48 }, { id: 't049', name: 'CONNAISSANCE ABSOLUE', description: 'Atteindre le Niveau 49. Le savoir vous guide.', levelRequired: 49 }, { id: 't050', name: 'LE CINQUANTIEME', description: 'Atteindre le Niveau 50. Une performance extraordinaire !', levelRequired: 50 }, { id: 't051', name: 'GRAND MAITRE', description: 'Atteindre le Niveau 51. Vous etes au-dela de l\'excellence.', levelRequired: 51 }, { id: 't052', name: 'ARCHITECTE DU CORPS', description: 'Atteindre le Niveau 52. Vous sculptez votre destin.', levelRequired: 52 }, { id: 't053', name: 'ARTISAN DE LA SANTE', description: 'Atteindre le Niveau 53. Votre bien-etre est une oeuvre.', levelRequired: 53 }, { id: 't054', name: 'GUERRIER DE LA FORME', description: 'Atteindre le Niveau 54. Combattez pour votre meilleure version.', levelRequired: 54 }, { id: 't055', name: 'CONQUERANT DU PHYSIQUE', description: 'Atteindre le Niveau 55. Chaque jour est une victoire.', levelRequired: 55 }, { id: 't056', name: 'PIONNIER DU BIEN-ETRE', description: 'Atteindre le Niveau 56. Vous ouvrez la voie.', levelRequired: 56 }, { id: 't057', name: 'PILIER DE LA VITALITE', description: 'Atteindre le Niveau 57. Votre energie est inepuisable.', levelRequired: 57 }, { id: 't058', name: 'SYNTHESE PARFAITE', description: 'Atteindre le Niveau 58. L\'harmonie est atteinte.', levelRequired: 58 }, { id: 't059', name: 'PERFORMANCE ULTIME', description: 'Atteindre le Niveau 59. Vous defiez les limites.', levelRequired: 59 }, { id: 't060', name: 'LE SOIXANTIEME', description: 'Atteindre le Niveau 60. Incroyable perseverance !', levelRequired: 60 }, { id: 't061', name: 'LEGENDAIRE INDOMPTABLE', description: 'Atteindre le Niveau 61. Votre nom resonne.', levelRequired: 61 }, { id: 't062', name: 'MYTHIQUE', description: 'Atteindre le Niveau 62. Votre parcours est une epopee.', levelRequired: 62 }, { id: 't063', name: 'CHRONIQUE VIVANTE', description: 'Atteindre le Niveau 63. Chaque jour ecrit l\'histoire.', levelRequired: 63 }, { id: 't064', name: 'PATRON DES RECORDS', description: 'Atteindre le Niveau 64. Les records s\'inclinent.', levelRequired: 64 }, { id: 't065', name: 'LE NEMESIS DE LA FAIBLESSE', description: 'Atteindre le Niveau 65. Plus rien ne vous arrete.', levelRequired: 65 }, { id: 't066', name: 'VOLONTE D\'ACIER', description: 'Atteindre le Niveau 66. Votre determination est inebranlable.', levelRequired: 66 }, { id: 't067', name: 'METEORE DE LA FORME', description: 'Atteindre le Niveau 67. Votre progression est fulgurante.', levelRequired: 67 }, { id: 't068', name: 'AU-DELA DES LIMITES', description: 'Atteindre le Niveau 68. Vous transcendez tout.', levelRequired: 68 }, { id: 't069', name: 'VISIONNAIRE DU FITNESS', description: 'Atteindre le Niveau 69. Votre vision est claire.', levelRequired: 69 }, { id: 't070', name: 'LE SOIXANTE-DIXIEME', description: 'Atteindre le Niveau 70. Une ascension sans fin !', levelRequired: 70 }, { id: 't071', name: 'IMMORTEL DE LA FORME', description: 'Atteindre le Niveau 71. Votre devouement est eternel.', levelRequired: 71 }, { id: 't072', name: 'INVICTUS', description: 'Atteindre le Niveau 72. Vous etes invaincu.', levelRequired: 72 }, { id: 't073', name: 'MAJESTE DU PHYSIQUE', description: 'Atteindre le Niveau 73. Votre presence est imposante.', levelRequired: 73 }, { id: 't074', name: 'SOUVERAIN DE LA SANTE', description: 'Atteindre le Niveau 74. Vous regnez sur votre bien-etre.', levelRequired: 74 }, { id: 't075', name: 'FORCE COLISEUM', description: 'Atteindre le Niveau 75. Digne d\'une arene antique.', levelRequired: 75 }, { id: 't076', name: 'MYSTERE DE LA REUSSITE', description: 'Atteindre le Niveau 76. Votre succes est fascinant.', levelRequired: 76 }, { id: 't077', name: 'PERFECTION DE L\'ETRE', description: 'Atteindre le Niveau 77. Corps et ame alignes.', levelRequired: 77 }, { id: 't078', name: 'AURORE DE LA GRANDEUR', description: 'Atteindre le Niveau 78. Chaque jour est un nouveau chef-d\'oeuvre.', levelRequired: 78 }, { id: 't079', name: 'COURONNE ETERNELLE', description: 'Atteindre le Niveau 79. Votre legs perdurera.', levelRequired: 79 }, { id: 't080', name: 'LE QUATRE-VINGTIEME', description: 'Atteindre le Niveau 80. Une legende se construit !', levelRequired: 80 }, { id: 't081', name: 'DIEU DU FITNESS', description: 'Atteindre le Niveau 81. Votre puissance est divine.', levelRequired: 81 }, { id: 't082', name: 'TITAN DE LA FORME', description: 'Atteindre le Niveau 82. Une force colossale.', levelRequired: 82 }, { id: 't083', name: 'HEROS ABSOLU', description: 'Atteindre le Niveau 83. Vous etes l\'incarnation du triomphe.', levelRequired: 83 }, { id: 't084', name: 'DEFIANT LES MORTELS', description: 'Atteindre le Niveau 84. Plus rien ne vous est impossible.', levelRequired: 84 }, { id: 't085', name: 'LE PHENIX DE LA SANTE', description: 'Atteindre le Niveau 85. Vous renaissez de vos efforts.', levelRequired: 85 }, { id: 't086', name: 'CONSTELLATION DE MUSCLES', description: 'Atteindre le Niveau 86. Chaque muscle brille.', levelRequired: 86 }, { id: 't087', name: 'L\'AURORE BOREALE', description: 'Atteindre le Niveau 87. Votre beaute est naturelle.', levelRequired: 87 }, { id: 't088', name: 'LA FULGURANCE', description: 'Atteindre le Niveau 88. Votre vitesse est inegalee.', levelRequired: 88 }, { id: 't089', name: 'L\'INCONNU', description: 'Atteindre le Niveau 89. Le monde vous attend.', levelRequired: 89 }, { id: 't090', name: 'LE NONANTIEME', description: 'Atteindre le Niveau 90. A l\'aube de l\'immortalite !', levelRequired: 90 }, { id: 't091', name: 'L\'ASCENSION', description: 'Atteindre le Niveau 91. Vous touchez les etoiles.', levelRequired: 91 }, { id: 't092', name: 'LA CONQUETE FINALE', description: 'Atteindre le Niveau 92. La victoire est proche.', levelRequired: 92 }, { id: 't093', name: 'LA PERFECTION ATTEINTE', description: 'Atteindre le Niveau 93. Chaque aspect est maitrise.', levelRequired: 93 }, { id: 't094', name: 'LE ZENITH', description: 'Atteindre le Niveau 94. Vous etes au sommet du monde.', levelRequired: 94 }, { id: 't095', name: 'LE MYSTERE ECLAIRCI', description: 'Atteindre le Niveau 95. Les secrets sont reveles.', levelRequired: 95 }, { id: 't096', name: 'LE DESTIN ACCOMPLI', description: 'Atteindre le Niveau 96. Votre destinee est scellee.', levelRequired: 96 }, { id: 't097', name: 'L\'APOTHEOSE', description: 'Atteindre le Niveau 97. Vous etes glorifie.', levelRequired: 97 }, { id: 't098', name: 'L\'HERITAGE', description: 'Atteindre le Niveau 98. Votre histoire sera contee.', levelRequired: 98 }, { id: 't099', name: 'L\'INFINI', description: 'Atteindre le Niveau 99. Les possibilites sont sans fin.', levelRequired: 99 }, { id: 't100', name: 'MAITRE ULTIME DE POXEL', description: 'Atteindre le Niveau 100. Felicitations, Poxel vous couronne !', levelRequired: 100 }, { id: 't101', name: 'AU-DELA DE LA CENTAINE I', description: 'Atteindre le Niveau 101. Une force continue.', levelRequired: 101 }, { id: 't102', name: 'AU-DELA DE LA CENTAINE II', description: 'Atteindre le Niveau 102. La puissance croit.', levelRequired: 102 }, { id: 't103', name: 'AU-DELA DE LA CENTAINE III', description: 'Atteindre le Niveau 103. L\'energie pure.', levelRequired: 103 }, { id: 't104', name: 'AU-DELA DE LA CENTAINE IV', description: 'Atteindre le Niveau 104. La maitrise s\'etend.', levelRequired: 104 }, { id: 't105', name: 'AU-DELA DE LA CENTAINE V', description: 'Atteindre le Niveau 105. Les profondeurs de la forme.', levelRequired: 105 }, { id: 't106', name: 'AU-DELA DE LA CENTAINE VI', description: 'Atteindre le Niveau 106. La discipline absolue.', levelRequired: 106 }, { id: 't107', name: 'AU-DELA DE LA CENTAINE VII', description: 'Atteindre le Niveau 107. Le corps resiste a tout.', levelRequired: 107 }, { id: 't108', name: 'AU-DELA DE LA CENTAINE VIII', description: 'Atteindre le Niveau 108. L\'esprit ne faiblit pas.', levelRequired: 108 }, { id: 't109', name: 'AU-DELA DE LA CENTAINE IX', description: 'Atteindre le Niveau 109. La sagesse du guerrier.', levelRequired: 109 }, { id: 't110', name: 'AU-DELA DE LA CENTAINE X', description: 'Atteindre le Niveau 110. Une decennie de plus de puissance !', levelRequired: 110 } ];
+        const allTrophies = [ { id: 't001', name: 'PREMIER PAS', description: 'Atteindre le Niveau 1. Le voyage commence !', levelRequired: 1 }, { id: 't002', name: 'NOVICE EN FORME', description: 'Atteindre le Niveau 2. Vous prenez le rythme.', levelRequired: 2 }, { id: 't003', name: 'INITIE DU FIT', description: 'Atteindre le Niveau 3. Les efforts paient.', levelRequired: 3 }, { id: 't004', name: 'FORME CROISSANTE', description: 'Atteindre le Niveau 4. De mieux en mieux !', levelRequired: 4 }, { id: 't005', name: 'DEBUTANT AVANCE', description: 'Atteindre le Niveau 5. Vous n\'etes plus un debutant.', levelRequired: 5 }, { id: 't006', name: 'CONSTANCE MERITEE', description: 'Atteindre le Niveau 6. La regularite, c\'est la cle.', levelRequired: 6 }, { id: 't007', name: 'ELAN DU PROGRES', description: 'Atteindre le Niveau 7. Vous sentez la progression.', levelRequired: 7 }, { id: 't008', name: 'GAINS ASSURES', description: 'Atteindre le Niveau 8. Les muscles se dessinent.', levelRequired: 8 }, { id: 't009', name: 'AVANCEE RAPIDE', description: 'Atteindre le Niveau 9. Vous brulez les etapes.', levelRequired: 9 }, { id: 't010', name: 'DIXIEME ETAPE', description: 'Atteindre le Niveau 10. Un jalon important !', levelRequired: 10 }, { id: 't011', name: 'MAITRE INTERMEDIAIRE', description: 'Atteindre le Niveau 11. Le fitness devient une habitude.', levelRequired: 11 }, { id: 't012', name: 'FORCE EMERGENTE', description: 'Atteindre le Niveau 12. Vos limites sont repoussees.', levelRequired: 12 }, { id: 't013', name: 'ENDURANCE ACCRUE', description: 'Atteindre le Niveau 13. Le cardio n\'a plus de secret.', levelRequired: 13 }, { id: 't014', name: 'EXCELLENCE EN VUE', description: 'Atteindre le Niveau 14. La performance est a portee.', levelRequired: 14 }, { id: 't015', name: 'DEMI-MAITRE', description: 'Atteindre le Niveau 15. Vous etes sur la bonne voie.', levelRequired: 15 }, { id: 't016', name: 'DISCIPLINE DE FER', description: 'Atteindre le Niveau 16. Votre engagement est fort.', levelRequired: 16 }, { id: 't017', name: 'ENERGIE DECUPLEE', description: 'Atteindre le Niveau 17. Sentez cette vitalite !', levelRequired: 17 }, { id: 't018', name: 'HARMONIE CORPS/ESPRIT', description: 'Atteindre le Niveau 18. L\'equilibre est parfait.', levelRequired: 18 }, { id: 't019', name: 'FORME OPTIMALE', description: 'Atteindre le Niveau 19. Vous rayonnez de sante.', levelRequired: 19 }, { id: 't020', name: 'DEUXIEME DIZAINE', description: 'Atteindre le Niveau 20. Double decennie de fitness !', levelRequired: 20 }, { id: 't021', name: 'EXPERT EN DEVENIR', description: 'Atteindre le Niveau 21. La maitrise approche.', levelRequired: 21 }, { id: 't022', name: 'PUISSANCE REVELEE', description: 'Atteindre le Niveau 22. Une force insoupconnee.', levelRequired: 22 }, { id: 't023', name: 'AGILITE MAXIMALE', description: 'Atteindre le Niveau 23. Votre corps est un temple agile.', levelRequired: 23 }, { id: 't024', name: 'RESISTANCE INEGALEE', description: 'Atteindre le Niveau 24. Rien ne vous arrete.', levelRequired: 24 }, { id: 't025', name: 'QUART DE SIECLE', description: 'Atteindre le Niveau 25. Vous etes une machine !', levelRequired: 25 }, { id: 't026', name: 'PERFECTION EN MARCHE', description: 'Atteindre le Niveau 26. Chaque pas est un succes.', levelRequired: 26 }, { id: 't027', name: 'FORME INCROYABLE', description: 'Atteindre le Niveau 27. Admirez votre progression !', levelRequired: 27 }, { id: 't028', name: 'DETERMINATION ACEREE', description: 'Atteindre le Niveau 28. Votre volonte est sans faille.', levelRequired: 28 }, { id: 't029', name: 'INEPUISABLE', description: 'Atteindre le Niveau 29. L\'energie vous habite.', levelRequired: 29 }, { id: 't030', name: 'LE TREINTIEME', description: 'Atteindre le Niveau 30. Un cap monumental !', levelRequired: 30 }, { id: 't031', name: 'MAITRE ABSOLU', description: 'Atteindre le Niveau 31. Vous etes une reference.', levelRequired: 31 }, { id: 't032', name: 'EXPERT LEGENDAIRE', description: 'Atteindre le Niveau 32. Votre reputation vous precede.', levelRequired: 32 }, { id: 't033', name: 'OLYMPIEN EN HERBE', description: 'Atteindre le Niveau 33. Digne des plus grands athletes.', levelRequired: 33 }, { id: 't034', name: 'CHAMPION INCROYABLE', description: 'Votre esprit est indomptable.Atteindre le Niveau 34. ', levelRequired: 34 }, { id: 't035', name: 'LE PRODIGE', description: 'Vos prouesses sont inegalees.Atteindre le Niveau 35. ', levelRequired: 35 }, { id: 't036', name: 'FORCE DE LA NATURE', description: 'Vous etes imparable.Atteindre le Niveau 36. ', levelRequired: 36 }, { id: 't037', name: 'FORME DIVINE', description: 'Votre corps est une oeuvre d\'art.Atteindre le Niveau 37. ', levelRequired: 37 }, { id: 't038', name: 'CONNAISSANCE SUPREME', description: 'Votre savoir est immense.Atteindre le Niveau 38. ', levelRequired: 38 }, { id: 't039', name: 'REALISATION PARFAITE', description: 'Tout est sous controle.Atteindre le Niveau 39. ', levelRequired: 39 }, { id: 't040', name: 'QUARANTIEME HORIZON', description: 'Le ciel est votre limite !Atteindre le Niveau 40. ', levelRequired: 40 }, { id: 't041', name: 'LEGENDE VIVANTE', description: 'On parlera de vous.Atteindre le Niveau 41. ', levelRequired: 41 }, { id: 't042', name: 'INSPIRATION ULTIME', description: 'Vous inspirez les foules.Atteindre le Niveau 42. ', levelRequired: 42 }, { id: 't043', name: 'DEFI RELEVE', description: 'Chaque obstacle est un tremplin.Atteindre le Niveau 43. ', levelRequired: 43 }, { id: 't044', name: 'SUMMUM DE LA FORME', description: 'Vous etes au sommet.Atteindre le Niveau 44. ', levelRequired: 44 }, { id: 't045', name: 'LE MAITRE CULMINANT', description: 'La perfection incarnee.Atteindre le Niveau 45. ', levelRequired: 45 }, { id: 't046', name: 'IMPARABLE', description: 'Vous etes invincible !Atteindre le Niveau 46. ', levelRequired: 46 }, { id: 't047', name: 'VOLONTE DE DIAMANT', description: 'Votre determination est inebranlable.Atteindre le Niveau 47. ', levelRequired: 47 }, { id: 't048', name: 'ECLAT ETERNEL', description: 'Votre aura brille.Atteindre le Niveau 48. ', levelRequired: 48 }, { id: 't049', name: 'CONNAISSANCE ABSOLUE', description: 'Le savoir vous guide.Atteindre le Niveau 49. ', levelRequired: 49 }, { id: 't050', name: 'LE CINQUANTIEME', description: 'Une performance extraordinaire !Atteindre le Niveau 50. ', levelRequired: 50 }, { id: 't051', name: 'GRAND MAITRE', description: 'Atteindre le Niveau 51. Vous etes au-delà de l\'excellence.', levelRequired: 51 }, { id: 't052', name: 'ARCHITECTE DU CORPS', description: 'Atteindre le Niveau 52. Vous sculptez votre destin.', levelRequired: 52 }, { id: 't053', name: 'ARTISAN DE LA SANTE', description: 'Atteindre le Niveau 53. Votre bien-etre est une oeuvre.', levelRequired: 53 }, { id: 't054', name: 'GUERRIER DE LA FORME', description: 'Atteindre le Niveau 54. Combattez pour votre meilleure version.', levelRequired: 54 }, { id: 't055', name: 'CONQUERANT DU PHYSIQUE', description: 'Atteindre le Niveau 55. Chaque jour est une victoire.', levelRequired: 55 }, { id: 't056', name: 'PIONNIER DU BIEN-ETRE', description: 'Atteindre le Niveau 56. Vous ouvrez la voie.', levelRequired: 56 }, { id: 't057', name: 'PILIER DE LA VITALITE', description: 'Atteindre le Niveau 57. Votre energie est inepuisable.', levelRequired: 57 }, { id: 't058', name: 'SYNTHESE PARFAITE', description: 'Atteindre le Niveau 58. L\'harmonie est atteinte.', levelRequired: 58 }, { id: 't059', name: 'PERFORMANCE ULTIME', description: 'Atteindre le Niveau 59. Vous defiez les limites.', levelRequired: 59 }, { id: 't060', name: 'LE SOIXANTIEME', description: 'Incroyable perseverance !Atteindre le Niveau 60. ', levelRequired: 60 }, { id: 't061', name: 'LEGENDAIRE INDOMPTABLE', description: 'Votre nom resonne.Atteindre le Niveau 61. ', levelRequired: 61 }, { id: 't062', name: 'MYTHIQUE', description: 'Votre parcours est une epopee.Atteindre le Niveau 62. ', levelRequired: 62 }, { id: 't063', name: 'CHRONIQUE VIVANTE', description: 'Chaque jour ecrit l\'histoire.Atteindre le Niveau 63. ', levelRequired: 63 }, { id: 't064', name: 'PATRON DES RECORDS', description: 'Les records s\'inclinent.Atteindre le Niveau 64. ', levelRequired: 64 }, { id: 't065', name: 'LE NEMESIS DE LA FAIBLESSE', description: 'Plus rien ne vous arrete.Atteindre le Niveau 65. ', levelRequired: 65 }, { id: 't066', name: 'VOLONTE D\'ACIER', description: 'Votre determination est inebranlable.Atteindre le Niveau 66. ', levelRequired: 66 }, { id: 't067', name: 'METEORE DE LA FORME', description: 'Votre progression est fulgurante.Atteindre le Niveau 67. ', levelRequired: 67 }, { id: 't068', name: 'AU-DELA DES LIMITES', description: 'Vous transcendez tout.Atteindre le Niveau 68. ', levelRequired: 68 }, { id: 't069', name: 'VISIONNAIRE DU FITNESS', description: 'Votre vision est claire.Atteindre le Niveau 69. ', levelRequired: 69 }, { id: 't070', name: 'LE SOIXANTE-DIXIEME', description: 'Une ascension sans fin !Atteindre le Niveau 70. ', levelRequired: 70 }, { id: 't071', name: 'IMMORTEL DE LA FORME', description: 'Atteindre le Niveau 71. Votre corps defie le temps.' }, { id: 't072', name: 'ZENITH DE LA VITALITE', description: 'Atteindre le Niveau 72. Sentez la pleine puissance.' }, { id: 't073', name: 'CONSTELLATION DU CORPS', description: 'Atteindre le Niveau 73. Chaque fibre brille.' }, { id: 't074', name: 'HEROS DU QUOTIDIEN', description: 'Atteindre le Niveau 74. Votre discipline est exemplaire.' }, { id: 't075', name: 'LE SEPTANTE-CINQUIEME', description: 'Atteindre le Niveau 75. Une prouesse historique !' }, { id: 't076', name: 'ETERNEL ATHLETE', description: 'Atteindre le Niveau 76. Le sport est votre essence.' }, { id: 't077', name: 'SAGESSE CORPORELLE', description: 'Atteindre le Niveau 77. Votre experience est precieuse.' }, { id: 't078', name: 'GUARDIEN DE LA SANTE', description: 'Atteindre le Niveau 78. Vous veillez sur votre bien-etre.' }, { id: 't079', name: 'EMERAUDE DU FITNESS', description: 'Atteindre le Niveau 79. Precieux et rare.' }, { id: 't080', name: 'LE QUATRE-VINGTIEME', description: 'Atteindre le Niveau 80. Un exploit extraordinaire !' }, { id: 't081', name: 'ARCHANGE DE L\'ACTIVITE', description: 'Atteindre le Niveau 81. Votre presence est divine.' }, { id: 't082', name: 'COURONNE DE LAURELS', description: 'Atteindre le Niveau 82. Le triomphe vous attend.' }, { id: 't083', name: 'ESSENCE DU MOUVEMENT', description: 'Atteindre le Niveau 83. Le mouvement est votre signature.' }, { id: 't084', name: 'INFINI DE L\'ENERGIE', description: 'Atteindre le Niveau 84. Une source intarissable.' }, { id: 't085', name: 'LE QUATRE-VINGT-CINQUIEME', description: 'Atteindre le Niveau 85. Un jalon impressionnant !' }, { id: 't086', name: 'CONSTELLATION D\'OR', description: 'Atteindre le Niveau 86. Vous etes une etoile.' }, { id: 't087', name: 'SYMBOLE DE FORCE', description: 'Atteindre le Niveau 87. Une incarnation de la puissance.' }, { id: 't088', name: 'APOTHEOSE PHYSIQUE', description: 'Atteindre le Niveau 88. Le sommet de la forme.' }, { id: 't089', name: 'LUMIERE DU BIEN-ETRE', description: 'Atteindre le Niveau 89. Vous eclairez le chemin.' }, { id: 't090', name: 'LE QUATRE-VINGT-DIXIEME', description: 'Atteindre le Niveau 90. Presque la perfection !' }, { id: 't091', name: 'DIVINITE DE LA FORME', description: 'Atteindre le Niveau 91. Vous touchez au divin.' }, { id: 't092', name: 'ETINCELLE ETERNELLE', description: 'Atteindre le Niveau 92. Votre flamme ne s\'eteint jamais.' }, { id: 't093', name: 'LE MAITRE DES MAITRES', description: 'Atteindre le Niveau 93. Le plus grand de tous.' }, { id: 't094', name: 'AU-DELA DE L\'EXCELLENCE', description: 'Atteindre le Niveau 94. Depassez toutes les attentes.' }, { id: 't095', name: 'LE QUATRE-VINGT-QUINZIEME', description: 'Atteindre le Niveau 95. La grandeur est a vous !' }, { id: 't096', name: 'SOURCE INFINIE', description: 'Atteindre le Niveau 96. Une energie inepuisable.' }, { id: 't097', name: 'ESSENCE DU CHAMPION', description: 'Atteindre le Niveau 97. Vous etes ne pour gagner.' }, { id: 't098', name: 'L\'APEX ULTIME', description: 'Atteindre le Niveau 98. Le sommet absolu.' }, { id: 't099', name: 'PERFECTION INCARNEE', description: 'Atteindre le Niveau 99. La perfection est atteinte.' }, { id: 't100', name: 'LE CENTIEME !', description: 'Atteindre le Niveau 100. Vous avez conquis FitQuest !', levelRequired: 100 } ];
         
         // Supprime les anciennes listes d'ingrédients statiques et les types de recettes prédéfinis
         // L'IA générera désormais les recettes de manière dynamique
@@ -181,57 +188,97 @@
                         ]
                     },
                     cardio: {
-                        name: "SEANCE CARDIO : ENDURANCE FONDAMENTALE",
+                        name: "SEANCE TYPE : CARDIO (ENDURANCE, FRACTIONNE OU MIXTE)",
                         options: [
-                            { name: "COURSE A PIED / MARCHE RAPIDE", desc: "30-45 MINUTES A INTENSITE MODEREE.", type: "cardio" },
-                            { name: "CYCLISME (VELO D'APPARTEMENT OU EXTERIEUR)", desc: "30-45 MINUTES A INTENSITE MODEREE.", type: "cardio" },
-                            { name: "NATATION", desc: "30-45 MINUTES. VARIEZ LES NAGES.", type: "cardio" }
+                            {
+                                name: "TAPIS DE COURSE (FRACTIONNE)",
+                                desc: "RONDE 1 (15 MINUTES) : REPETE 5 FOIS : 2 MINUTES : MARCHE RAPIDE A 6.0 KM/H, PENTE 2.0. 1 MINUTE : COURSE LEGERE A 8.0 KM/H, PENTE 1.0. RECUPERATION ACTIVE (5 MINUTES) : MARCHE LENTE A 4.0 KM/H, PENTE 0.0. BOIS UN PEU D'EAU. RONDE 2 (15 MINUTES) : REPETE 5 FOIS : 2 MINUTES : MARCHE RAPIDE A 6.5 KM/H, PENTE 2.0. 1 MINUTE : COURSE LEGERE A 8.5 KM/H, PENTE 1.0 (OU MARCHE RAPIDE INTENSE SI LA COURSE EST TROP DIFFICILE).",
+                                type: "cardio"
+                            },
+                            {
+                                name: "VELO STATIONNAIRE OU VELO ELLIPTIQUE (SYNCHRO) (FRACTIONNE)",
+                                desc: "RONDE 1 (20 MINUTES) : REPETE 5 FOIS : 3 MINUTES : RYTHME MODERE, NIVEAU 5-7 (SENS UNE LEGERE RESISTANCE, TU PEUX PARLER MAIS C'EST UN PEU DIFFICILE). 1 MINUTE : RYTHME PLUS INTENSE, NIVEAU 8-10 (TU ES ESSOUFFLE, TU NE PEUX PAS PARLER FACILEMENT). RECUPERATION ACTIVE (5 MINUTES) : RYTHME TRES FACILE, NIVEAU 3-4. BOIS UN PEU D'EAU. RONDE 2 (20 MINUTES) : REPETE 5 FOIS : 3 MINUTES : RYTHME MODERE, NIVEAU 6-8. 1 MINUTE : RYTHME PLUS INTENSE, NIVEAU 9-11 (OU LE MAXIMUM QUE TU PEUX SOUTENIR).",
+                                type: "cardio"
+                            },
+                            {
+                                name: "CARDIO & FONCTIONNEL MIXTE (MOINS INTENSE QU'UN HIIT)",
+                                desc: "PARTIE 1 (20 MINUTES) : 10 MINUTES : TAPIS DE COURSE (MARCHE RAPIDE A 6.0 KM/H, PENTE 2.0) OU VELO/ELLIPTIQUE (NIVEAU 6). 10 MINUTES : ALTERNER 2 MINUTES DE MOUNTAIN CLIMBERS (RYTHME MODERE) ET 2 MINUTES DE JUMPING JACKS (RYTHME MODERE), REPETE 2 FOIS. RECUPERATION ACTIVE (5 MINUTES) : MARCHE LENTE A 4.0 KM/H, PENTE 0.0. BOIS UN PEU D'EAU. PARTIE 2 (15 MINUTES) : 10 MINUTES : TAPIS DE COURSE (MARCHE RAPIDE A 6.5 KM/H, PENTE 2.0) OU VELO (NIVEAU 7). 5 MINUTES : MONTEES DE GENOUX RAPIDES (RYTHME MODERE) OU KETTLEBELL SWING (RYTHME MODERE).",
+                                type: "cardio"
+                            }
                         ]
                     },
                     hiit: {
-                        name: "SEANCE HIIT : BRULEUR DE GRAISSE EXPRESS",
-                        desc: "EFFECTUEZ CHAQUE EXERCICE PENDANT 40 SECONDES, SUIVI DE 20 SECONDES DE REPOS. REPETEZ LE CIRCUIT 3-4 FOIS AVEC 1-2 MINUTES DE REPOS ENTRE LES CIRCUITS.",
+                        name: "SEANCE TYPE : HIIT (HIGH-INTENSITY INTERVAL TRAINING)",
+                        desc: "DUREE ESTIMEE : 30-40 MINUTES. FREQUENCE : 1 A 2 FOIS PAR SEMAINE MAXIMUM POUR COMMENCER. ATTENTION : LE HIIT EST INTENSE. ECOUTE IMPERATIVEMENT TON CORPS. LES JOURS OU LA FATIGUE LIEE A TA SEP EST PLUS PRESENTE, REMPLACE CETTE SEANCE PAR DU CARDIO LEGER OU DU REPOS ACTIF. CORPS DE SEANCE (20-25 MINUTES) : STRUCTURE : REALISE 3 A 4 TOURS DU CIRCUIT SUIVANT. CHAQUE EXERCICE : 40 SECONDES D'EFFORT MAXIMAL, SUIVIES DE 20 SECONDES DE REPOS TOTAL. ENTRE CHAQUE TOUR COMPLET DU CIRCUIT : 1 MINUTE 30 DE REPOS ACTIF (MARCHE LEGERE, HYDRATATION).",
                         exercises: [
-                            { name: "BURPEES", desc: "ENCHAINEZ SQUAT, PLANCHE, POMPE, SQUAT, SAUT.", type: "hiit" },
-                            { name: "SQUAT JUMP", desc: "SQUAT SUIVI D'UN SAUT EXPLOSIF.", type: "hiit" },
-                            { name: "MOUNTAIN CLIMBERS", desc: "EN POSITION DE PLANCHE, RAMENEZ LES GENOUX VERS LA POITRINE ALTERNATIVEMENT.", type: "hiit" },
-                            { name: "JUMPING JACKS", desc: "SAUTS AVEC OUVERTURE ET FERMETURE DES BRAS ET DES JAMBES.", type: "hiit" }
+                            { name: "BURPEES (MODIFIES)", desc: "DESCENDS EN SQUAT, POSE LES MAINS AU SOL, JETTE LES JAMBES EN ARRIERE POUR TE METTRE EN PLANCHE (SANS POMPE SI TU DEBUTES), RAMENE LES PIEDS ENTRE LES MAINS, RELEVE-TOI.", type: "hiit" },
+                            { name: "MOUNTAIN CLIMBERS", desc: "EN POSITION DE PLANCHE, RAMENE ALTERNATIVEMENT LES GENOUX VERS LA POITRINE, COMME SI TU 'COURAIS' SUR PLACE.", type: "hiit" },
+                            { name: "JUMPING JACKS", desc: "SAUTE EN ECARTANT LES JAMBES ET EN LEVANT LES BRAS AU-DESSUS DE LA TETE, PUIS REVIENS EN POSITION INITIALE. (SI LES SAUTS SONT TROP INTENSES, FAIS UN PAS SUR LE COTE AVEC UN BRAS QUI MONTE, PUIS L'AUTRE).", type: "hiit" },
+                            { name: "KETTLEBELL SWING", desc: "MOUVEMENT DE BALANCIER EN POUSSANT LES HANCHES VERS L'AVANT (PAS AVEC LES BRAS !). POIDS SUGGERE : 6-10 KG.", type: "hiit" },
+                            { name: "FENTES SAUTEES", desc: "SAUTE POUR CHANGER DE JAMBE EN L'AIR ET ATTERRIS EN FENTE AVEC L'AUTRE JAMBE DEVANT. MODIFICATION : SI LES SAUTS SONT TROP INTENSES, FAIS DES FENTES ALTERNEES CLASSIQUES EN TE RELEVANT RAPIDEMENT ENTRE CHAQUE.", type: "hiit" },
+                            { name: "MONTEES DE GENOUX RAPIDES", desc: "COURS SUR PLACE EN LEVANT LES GENOUX LE PLUS HAUT POSSIBLE, EN UTILISANT TES BRAS.", type: "hiit" }
                         ]
                     }
                 }
             },
             phase2: {
-                name: "PHASE 2 : PROGRESSION ET INTENSIFICATION",
+                name: "PHASE 2 : PROGRAMME ALTERNATIF (POUR LES 4 A 6 SEMAINES SUIVANTES)",
                 sessions: {
                     main: {
-                        name: "SEANCE PRINCIPALE : FORCE ET VOLUME",
+                        name: "SEANCE TYPE : RENFORCEMENT MUSCULAIRE (FULL BODY) - ALTERNATIVE",
                         exercises: [
-                            { name: "SQUAT AVEC POIDS (HALTERES OU SAC A DOS)", desc: "3-4 SERIES DE 8-12 REPETITIONS. AUGMENTEZ LA CHARGE.", type: "legs" },
-                            { name: "POMPES DIAMANT OU SUR ELEVATION", desc: "3-4 SERIES DE 6-10 REPETITIONS. CIBLE LES TRICEPS ET PECTORAUX.", type: "chest" },
-                            { name: "FENTES BULGARES (UNE JAMBE ELEVEE)", desc: "3 SERIES DE 8-10 REPETITIONS PAR JAMBE.", type: "legs" },
-                            { name: "TRACTIONS (ASSISTEES SI NECESSAIRE)", desc: "3-4 SERIES AU MAXIMUM DE REPETITIONS.", type: "back" },
-                            { name: "GAINAGE DYNAMIQUE (PLANCHE AVEC TOUCHER EPAULE)", desc: "3 SERIES DE 10-15 REPETITIONS PAR COTE.", type: "core" }
+                            { name: "SOULEVE DE TERRE ROUMAIN (RDL HALTERES)", desc: "4 SERIES DE 10-15 REPETITIONS. CONSIGNE : TIENS UN HALTERE DANS CHAQUE MAIN, PIEDS LARGEUR DES HANCHES. DESCENDS LES HALTERES LE LONG DE TES JAMBES EN POUSSANT LES HANCHES VERS L'ARRIERE ET EN GARDANT LE DOS DROIT. POIDS SUGGERE (HALTERES) : COMMENCE AVEC 6-10 KG PAR MAIN.", type: "legs" },
+                            { name: "TRACTIONS ASSISTEES (MACHINE)", desc: "3-4 SERIES DE MAX DE REPETITIONS (AVEC UNE FORME CONTROLEE). CONSIGNE : TIRE TON CORPS VERS LE HAUT JUSQU'A CE QUE TON MENTON DEPASSE LA BARRE, EN CONTRACTANT LE DOS. ASSISTANCE : UTILISE LA MACHINE AVEC UN POIDS D'ASSISTANCE ELEVE, OU UN ELASTIQUE EPAIS. REDUIS L'ASSISTANCE AU FIL DES SEMAINES.", type: "back" },
+                            { name: "PRESSE A CUISSES (LEG PRESS)", desc: "3-4 SERIES DE 10-15 REPETITIONS. CONSIGNE : POUSSE LA PLATEFORME EN ETENDANT LES JAMBES, SANS BLOQUER LES GENOUX. POIDS SUGGERE MACHINE : COMMENCE AVEC 40-60 KG (AJUSTE PAR PALIERS DE 2.5KG OU 5KG).", type: "legs" },
+                            { name: "DEVELOPPE EPAULES (SHOULDER PRESS HALTERES OU MACHINE)", desc: "3-4 SERIES DE 10-15 REPETITIONS. CONSIGNE HALTERES : ASSIS, UN HALTERE DANS CHAQUE MAIN AU NIVEAU DES EPAULES. POUSSE LES HALTERES VERS LE HAUT AU-DESSUS DE TA TETE. POIDS SUGGERE HALTERES : COMMENCE AVEC 4-8 KG PAR MAIN. POIDS SUGGERE MACHINE : COMMENCE AVEC 10-20 KG (AJUSTE PAR PALIERS DE 2.5KG OU 5KG).", type: "shoulders" },
+                            { name: "ROWING PENCHE (HALTERES)", desc: "3 SERIES DE 10-15 REPETITIONS. CONSIGNE : TIENS UN HALTERE DANS CHAQUE MAIN, PENCHE LE BUSTE EN AVANT (DOS DROIT, GENOUX LEGEREMENT FLECHIS). TIRE LES HALTERES VERS TA POITRINE EN CONTRACTANT LES OMOPLATES. POIDS SUGGERE : COMMENCE AVEC 6-10 KG PAR MAIN.", type: "back" },
+                            { name: "EXTENSIONS TRICEPS (POULIE HAUTE OU HALTERE)", desc: "3 SERIES DE 12-15 REPETITIONS. CONSIGNE POULIE : COUDES COLLES AU CORPS. POUSSE LA BARRE VERS LE BAS EN NE BOUGEANT QUE L'AVANT-BRAS. POIDS SUGGERE POULIE : COMMENCE AVEC 10-15 KG (AJUSTE PAR PALIERS DE 2.5KG OU 5KG). HALTERE (DERRIERE LA TETE) : TIENS UN HALTERE AVEC LES DEUX MAINS DERRIERE TA TETE, POUSSE VERS LE HAUT. POIDS SUGGERE HALTERE : 4-8 KG.", type: "arms" },
+                            { name: "CRUNCHS (ABDOMINALS)", desc: "3 SERIES DE 15-20 REPETITIONS. CONSIGNE : LEVE LES EPAULES DU SOL EN CONTRACTANT LES ABDOMINAUX, SANS TIRER SUR LA NUQUE. RECUPERATION : 30 SECONDES ENTRE LES SERIES.", type: "core" }
                         ]
                     },
                     cardio: {
-                        name: "SEANCE CARDIO : INTERVALLE ET VITESSE",
+                        name: "SEANCE TYPE : CARDIO (ENDURANCE, FRACTIONNE OU MIXTE) - ALTERNATIVE",
                         options: [
-                            { name: "COURSE A PIED PAR INTERVALLES", desc: "ALTERNEZ 1 MINUTE DE SPRINT AVEC 2 MINUTES DE MARCHE RAPIDE. REPETEZ 8-10 FOIS.", type: "cardio" },
-                            { name: "VELO HIIT", desc: "30 SECONDES DE SPRINT INTENSE, 90 SECONDES DE PEDALAGE FACILE. REPETEZ 10-12 FOIS.", type: "cardio" },
-                            { name: "CORDE A SAUTER", desc: "5 MINUTES D'ECHAUFFEMENT, PUIS 1 MINUTE DE SAUTS RAPIDES, 30 SECONDES DE REPOS. REPETEZ 10-15 FOIS.", type: "cardio" }
+                            {
+                                name: "TAPIS DE COURSE (ENDURANCE A PENTE VARIABLE)",
+                                desc: "5 MINUTES : ECHAUFFEMENT LEGER (MARCHE RAPIDE A 5.0 KM/H, PENTE 1.0). 5 MINUTES : MARCHE RAPIDE A 5.5 KM/H, PENTE 2.0. 3 MINUTES : MARCHE RAPIDE A 6.0 KM/H, PENTE 3.0. 2 MINUTES : COURSE LEGERE A 7.5 KM/H, PENTE 1.0. REPETE CE CYCLE 4-5 FOIS POUR UN TOTAL DE 40-50 MINUTES. VARIANTE : POUR AUGMENTER L'INTENSITE, AUGMENTE LEGEREMENT LA VITESSE OU LA PENTE A CHAQUE CYCLE SI TU TE SENS BIEN.",
+                                type: "cardio"
+                            },
+                            {
+                                name: "RAMEUR (ROWING MACHINE) - INTERVAL TRAINING",
+                                desc: "5 MINUTES : ECHAUFFEMENT LEGER (RYTHME LENT, RESISTANCE FAIBLE). RONDE 1 (15 MINUTES) : REPETE 5 FOIS : 2 MINUTES : RYTHME MODERE, RESISTANCE 3-5 (EFFORT SOUTENU MAIS CONFORTABLE). 1 MINUTE : RYTHME INTENSE, RESISTANCE 6-7 (TU ES ESSOUFFLE, TU NE PEUX PAS PARLER FACILEMENT). RECUPERATION ACTIVE (5 MINUTES) : RYTHME TRES FACILE, RESISTANCE 2. BOIS UN PEU D'EAU. RONDE 2 (15 MINUTES) : REPETE 5 FOIS : 2 MINUTES : RYTHME MODERE, RESISTANCE 4-6. 1 MINUTE : RYTHME PLUS INTENSE, RESISTANCE 7-8 (OU LE MAXIMUM QUE TU PEUX SOUTENIR). CONSIGNE : UTILISE 60% DE LA FORCE DES JAMBES, 20% DU TRONC, 20% DES BRAS. POUSSE AVEC LES JAMBES EN PREMIER !",
+                                type: "cardio"
+                            },
+                            {
+                                name: "CARDIO & FONCTIONNEL MIXTE (ALTERNATIF)",
+                                desc: "PARTIE 1 (20 MINUTES) : 10 MINUTES : RAMEUR (RYTHME MODERE, RESISTANCE 4-5) OU VELO ELLIPTIQUE (NIVEAU 6-7). 10 MINUTES : ALTERNER 2 MINUTES DE SQUAT (POIDS DU CORPS) (RYTHME MODERE) ET 2 MINUTES DE FENTES (LUNGES) ALTERNEES (RYTHME MODERE), REPETE 2 FOIS. RECUPERATION ACTIVE (5 MINUTES) : RYTHME TRES FACILE, RESISTANCE 2. PARTIE 2 (15 MINUTES) : 10 MINUTES : TAPIS DE COURSE (COURSE LEGERE A 7.0 KM/H, PENTE 1.0) OU VELO (NIVEAU 8). 5 MINUTES : BURPEES (MODIFIES) (RYTHME MODERE) OU CORDE A SAUTER (RYTHME MODERE).",
+                                type: "cardio"
+                            }
                         ]
                     },
                     hiit: {
-                        name: "SEANCE HIIT : EXPLOSIVITE ET AGILITE",
-                        desc: "EFFECTUEZ CHAQUE EXERCICE PENDANT 45 SECONDES, SUIVI DE 15 SECONDES DE REPOS. REPETEZ LE CIRCUIT 4-5 FOIS AVEC 1 MINUTE DE REPOS ENTRE LES CIRCUITS.",
+                        name: "SEANCE TYPE : HIIT (HIGH-INTENSITY INTERVAL TRAINING) - ALTERNATIVE",
+                        desc: "DUREE ESTIMEE : 30-40 MINUTES. FREQUENCE : 1 A 2 FOIS PAR SEMAINE MAXIMUM. ATTENTION : LE HIIT EST INTENSE. ECOUTE IMPERATIVEMENT TON CORPS. LES JOURS OU LA FATIGUE LIEE A TA SEP EST PLUS PRESENTE, REMPLACE CETTE SEANCE PAR DU CARDIO LEGER OU DU REPOS ACTIF. CORPS DE SEANCE (20-25 MINUTES) : STRUCTURE : REALISE 3 A 4 TOURS DU CIRCUIT SUIVANT. CHAQUE EXERCICE : 45 SECONDES D'EFFORT INTENSE, SUIVIES DE 15 SECONDES DE REPOS TOTAL. ENTRE CHAQUE TOUR COMPLET DU CIRCUIT : 1 MINUTE 15 DE REPOS ACTIF (MARCHE LEGERE, HYDRATATION).",
                         exercises: [
-                            { name: "BOX JUMPS (OU SAUTS SUR UNE SURFACE ELEVEE)", desc: "SAUTEZ SUR ET HORS D'UNE BOITE/MARCHE.", type: "hiit" },
-                            { name: "THRUSTERS (AVEC HALTERES LEGERES OU POIDS DU CORPS)", desc: "SQUAT SUIVI D'UNE POUSSEE AU-DESSUS DE LA TETE.", type: "hiit" },
-                            { name: "RUSSIAN TWISTS (AVEC OU SANS POIDS)", desc: "ASIS EN EQUILIBRE, TOURNEZ LE BUSTE DE COTE A COTE.", type: "hiit" },
-                            { name: "PLANK JACKS", desc: "EN POSITION DE PLANCHE, SAUTEZ LES PIEDS DE COTE A COTE.", type: "hiit" }
+                            { name: "BURPEES (AVEC POMPE)", desc: "FAIS UN BURPEE COMPLET, EN INCLUANT UNE POMPE (SUR LES GENOUX SI BESOIN) LORSQUE TU ES EN POSITION DE PLANCHE.", type: "hiit" },
+                            { name: "BOX JUMPS OU STEP-UPS", desc: "SAUTE SUR UNE BOITE BASSE (OU UN STEP) ET DESCENDS. SI LES SAUTS SONT UN PROBLEME : FAIS DES STEP-UPS RAPIDES (MONTE ET DESCENDS DU BANC UNE JAMBE APRES L'AUTRE).", type: "hiit" },
+                            { name: "CORDE A SAUTER", desc: "SAUTE A LA CORDE. VARIE LES SAUTS (PIEDS JOINTS, ALTERNES). SI PAS DE CORDE OU TROP DIFFICILE : FAIS DES SAUTS SUR PLACE LEGERS OU DES PAS CHASSES RAPIDES.", type: "hiit" },
+                            { name: "KETTLEBELL GOBLET SQUAT (EXPLOSIF)", desc: "TIENS UN KETTLEBELL DEVANT TA POITRINE. FAIS UN SQUAT COMPLET ET REMONTE DE MANIERE EXPLOSIVE. POIDS SUGGERE : 8-12 KG.", type: "hiit" },
+                            { name: "MOUNTAIN CLIMBERS CROISES", desc: "EN POSITION DE PLANCHE, RAMENE LE GENOU DROIT VERS LE COUDE GAUCHE, PUIS LE GENOU GAUCHE VERS LE COUDE DROIT, EN ALTERNANCE RAPIDE.", type: "hiit" },
+                            { name: "SAUTS LATERAUX (LATERAL JUMPS)", desc: "SAUTE DE DROITE A GAUCHE RAPIDEMENT AU-DESSUS D'UNE LIGNE IMAGINAIRE OU D'UN PETIT OBJET.", type: "hiit" }
                         ]
                     }
                 }
+            },
+            recovery: { // New section for recovery
+                name: "JOURNEE DE RECUPERATION ACTIVE / FLEXIBILITE (OPTIONNEL)",
+                desc: "EN PLUS DE TES JOURS DE REPOS COMPLETS, TU PEUX DEDIER UNE JOURNEE PAR SEMAINE A UNE ACTIVITE DOUCE POUR LA RECUPERATION ET LA SOUPLESSE.",
+                activities: [
+                    { name: "MARCHE PROLONGEE", desc: "DANS UN PARC, EN NATURE, A UN RYTHME AGREABLE (45-60 MIN)." },
+                    { name: "SEANCE DE YOGA DOUX OU DE PILATES", desc: "PRIVILEGIE LES VIDEOS EN LIGNE POUR DEBUTANTS AXEES SUR LA FLEXIBILITE ET LE RENFORCEMENT DU TRONC." },
+                    { name: "ETIREMENTS PROFONDS", desc: "UNE SEANCE DEDIEE DE 20-30 MINUTES POUR ETIRER TOUS LES GRANDS GROUPES MUSCULAIRES, EN MAINTENANT LES POSITIONS PLUS LONGTEMPS (30-60 SEC)." },
+                    { name: "NATATION LEGERE", desc: "QUELQUES LONGUEURS A RYTHME TRANQUILLE POUR DETENDRE LES MUSCLES." }
+                ]
             }
         };
 
@@ -447,7 +494,7 @@
             'petit_dejeuner': { '18h-6h': "CONSEIL : APRES UN POSTE DE NUIT, PRIVILEGIE UN REPAS NUTRITIF POUR FAVORISER LA RECUPERATION ET UN SOMMEIL DE QUALITE. LES PROTEINES ET GLUCIDES LENTS SONT CLES.", 'default': "CONSEIL : UN PETIT-DEJEUNER EQUILIBRE EST ESSENTIEL POUR L'ENERGIE DU MATIN. VARIE LES SOURCES DE PROTEINES ET FIBRES." },
             'dejeuner': { '18h-6h': "CONSEIL : PENDANT UN POSTE DE NUIT, OPTE POUR DES PLATS FACILES A DIGERER, RICHES EN PROTEINES ET LEGUMES POUR MAINTENIR TON ENERGIE SANS ALOURDIR.", 'repos_sport': "CONSEIL : APRES LE SPORT, RECONSTITUE TES RESERVES. CE REPAS DEVRAIT ETRE RICHE EN GLUCIDES COMPLEXES POUR L'ENERGIE ET EN PROTEINES POUR LA REPARATION MUSCULAIRE.", 'default': "CONSEIL : POUR UN DEJEUNER OPTIMAL EN JOURNEE DE TRAVAIL, PRIVILEGIE UN PLAT EQUILIBRE QUI APPORTE UNE ENERGIE DURABLE SANS CAUSER DE COUP DE BARRE." },
             'diner': { '18h-6h': "CONSEIL : AVANT UN POSTE DE NUIT, CHOISIS UN DINER CONSISTANT MAIS FACILE A DIGERER POUR TE DONNER L'ENERGIE NECESSAIRE SANS PERTURBER TON DEBUT DE SOMMEIL PRE-POSTE.", 'repos_sport': "CONSEIL : LE DINER APRES UNE SEANCE DE SPORT DOIT COMPLETER LA RECUPERATION. CONCENTRE-TOI SUR LES PROTEINES POUR LA REPARATION ET LES GLUCIDES POUR REFAIRE LE PLEIN.", 'default': "CONSEIL : UN DINER LEGER EST IDEAL POUR FAVORISER UNE BONNE DIGESTION ET UN SOMMEIL REPARATEUR APRES UNE JOURNEE DE TRAVAIL. PRIVILEGIE LES LEGUMES ET PROTEINES MAIGRES." },
-            'collation': { '6h-18h_matin': "CONSEIL : CETTE COLLATON MATINALE EST CLE POUR MAINTENIR TON ENERGIE ET EVITER LES BAISSES DE GLYCEMIE JUSQU'AU DEJEUNER.", '6h-18h_apresmidi': "CONSEIL : LA COLLATON DE L'APRES-MIDI AIDE A GERER LA FAIM ET A SOUTENIR TON ENERGIE JUSQU'AU DINER, SANS ALOURDIR AVANT LA FIN DU POSTE.", '18h-6h_pendant': "CONSEIL : UNE COLLATON PENDANT LA NUIT EST LEGERE ET ENERGISANTE POUR MAINTENIR TA VIGILANCE SANS PERTURBER TA DIGESTION.", '7h-18h_apresmidi': "CONSEIL : LA COLLATON DE L'APRES-MIDI EST PARFAITE POUR SOUTENIR TON ENERGIE LORS DES JOURS DE LONG POSTE OU DE REPOS ACTIF.", 'repos_sport_post': "CONSEIL : UNE COLLATON POST-SPORT EST CRUCIALE POUR UNE RECUPERATION RAPIDE. PRIVILEGIE UN MIX DE PROTEINES ET GLUCIDES.", 'repos_default': "CONSEIL : UNE COLLATON LEGERE EN JOUR DE REPOS PEUT AIDER A GERER LA FAIM ET APPORTER DES NUTRIENTS SUPPLEMENTAIRES." }
+            'collation': { '6h-18h_matin': "CONSEIL : CETTE COLLATON MATINALE EST CLE POUR MAINTENIR TON ENERGIE ET EVITER LES BAISSES DE GLYCEMIE JUSQU'AU DEJEUNER.", '6h-18h_apresmidi': "CONSEIL : LA COLLATON DE L'APRES-MIDI AIDE A GERER LA FAIM ET A SOUTENIR TON ENERGIE JUSQU'AU DINER, SANS ALOURDIR AVANT LA FIN DU POSTE.", '18h-6h_pendant': "CONSEIL : UNE COLLATON PENDANT LA NUIT EST LEGERE ET ENERGISANTE POUR MAINTENIR TA VIGILANCE SANS PERTURBER TA DIGESTION.", '7h-18h_apresmidi': "CONSEIL : LA COLLATON DE L'APRES-MIDI EST PARFAITE POUR SOUTENIR SON ENERGIE LORS DES JOURS DE LONG POSTE OU DE REPOS ACTIF.", 'repos_sport_post': "CONSEIL : UNE COLLATON POST-SPORT EST CRUCIALE POUR UNE RECUPERATION RAPIDE. PRIVILEGIE UN MIX DE PROTEINES ET GLUCIDES.", 'repos_default': "CONSEIL : UNE COLLATON LEGERE EN JOUR DE REPOS PEUT AIDER A GERER LA FAIM ET APPORTER DES NUTRIENTS SUPPLEMENTAIRES." }
         };
 
         // Calcule les seuils d'XP pour chaque niveau
@@ -458,27 +505,28 @@
             for (let i = 1; i <= level; i++) {
                 xp += (i * 50 + 50); // XP requise pour le niveau i
             }
-            const prevLevelThreshold = xp - (level * 50 + 50); // XP totale requise pour atteindre le niveau précédent (level-1)
-            return { current: prevLevelThreshold, next: xp }; // 'current' est le seuil pour le début du niveau actuel, 'next' pour le début du niveau suivant
+            const prevLevelThreshold = xp - (level * 50 + 50); // XP totale requise pour atteindre le niveau precedent (level-1)
+            return { current: prevLevelThreshold, next: xp }; // 'current' est le seuil pour le debut du niveau actuel, 'next' pour le debut du niveau suivant
         }
 
         // Calcule le niveau actuel et l'XP restante pour le niveau suivant
         function calculateLevelAndXP(totalXP) {
             let level = 0;
-            let xpNeededForNextLevel = 100; // XP pour passer du niveau 0 au niveau 1
-            let xpAccumulatedUpToCurrentLevel = 0;
+            let xpNeededForCurrentLevel = 0; // XP needed to *start* the current level
+            let xpNeededForNextLevel = 100; // XP needed to *reach* the next level (start of level 1)
 
             while (totalXP >= xpNeededForNextLevel) {
-                xpAccumulatedUpToCurrentLevel = xpNeededForNextLevel;
                 level++;
-                xpNeededForNextLevel += (level * 50 + 50); // XP requise pour le niveau suivant
+                xpNeededForCurrentLevel = xpNeededForNextLevel; // Update XP needed to start this level
+                xpNeededForNextLevel = Math.round(100 + (level * 50 * (1 + level / 10))); // Calculate XP needed to reach the *next* level
             }
 
-            // XP gagnée dans le niveau actuel
-            const xpProgressInCurrentLevel = totalXP - xpAccumulatedUpToCurrentLevel;
-            // Total XP requise pour le niveau actuel (pour passer de ce niveau au suivant)
-            const xpForThisLevel = (level * 50 + 50);
-            
+            // XP earned within the current level
+            const xpProgressInCurrentLevel = totalXP - xpNeededForCurrentLevel;
+
+            // Total XP required to complete the current level (i.e., the difference between xpNeededForNextLevel and xpNeededForCurrentLevel)
+            const xpForThisLevel = xpNeededForNextLevel - xpNeededForCurrentLevel;
+
             const xpRemainingForNextLevel = xpForThisLevel - xpProgressInCurrentLevel;
 
             return { level: level, xpCurrentLevel: xpProgressInCurrentLevel, xpForThisLevel: xpForThisLevel, xpToNextLevel: xpRemainingForNextLevel };
@@ -713,11 +761,31 @@
                 const mealForThisDay = weeklyMealPlan?.semaine?.find(d => d.date === formatDateToYYYYMMDD(dateObj)); // Trouve le repas pour ce jour
                 const shiftDiv = document.createElement('div');
                 shiftDiv.className = "bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg";
-                shiftDiv.innerHTML = `<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3"><h4 class="text-lg sm:text-xl font-bold text-yellow-300">${dateString} - POSTE: ${String(shift.type).toUpperCase()}</h4><button class="btn-retro-red text-sm px-3 py-1 mt-2 sm:mt-0 delete-shift-btn" data-id="${shift.id}">SUPPRIMER</button></div>${String(shift.workoutType) !== 'aucun' ? `<div class="mb-3 p-2 bg-blue-800 rounded-md border border-purple-400"><p class="text-sm sm:text-base font-medium text-white">SEANCE SPORT : ${String(shift.workoutType).toUpperCase().replace('_', ' ')} PREVUE</p></div>` : ''}<div class="mb-4"><h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">PLAN REPAS SUGGERE :</h5>${mealForThisDay ? `<ul class="list-disc list-inside text-gray-300 text-sm space-y-1">${mealForThisDay.petit_dejeuner ? `<li>**PETIT-DEJEUNER :** ${String(mealForThisDay.petit_dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.dejeuner ? `<li>**DEJEUNER :** ${String(mealForThisDay.dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.diner ? `<li>**DINER :** ${String(mealForThisDay.diner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_matin ? `<li>**COLLAT. MATIN :** ${String(mealForThisDay.collation_matin.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_apresmidi ? `<li>**COLLAT. APRES-MIDI :** ${String(mealForThisDay.collation_apresmidi.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_unique ? `<li>**COLLAT. UNIQUE :** ${String(mealForThisDay.collation_unique.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}</ul>` : `<p class="text-gray-400">PLAN DE REPAS NON DISPONIBLE POUR CE JOUR. GENEREZ UN PLAN HEBDOMADAIRE DANS L'ONGLET "RECETTES".</p>`}</div>`;
+                shiftDiv.innerHTML = `<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3"><h4 class="text-lg sm:text-xl font-bold text-yellow-300">${dateString} - POSTE: ${String(shift.type).toUpperCase()}</h4><button class="btn-retro-red text-sm px-3 py-1 mt-2 sm:mt-0 delete-shift-btn" data-id="${shift.id}" data-date="${formatDateToYYYYMMDD(dateObj)}">SUPPRIMER</button></div>${String(shift.workoutType) !== 'aucun' ? `<div class="mb-3 p-2 bg-blue-800 rounded-md border border-purple-400"><p class="text-sm sm:text-base font-medium text-white">SEANCE SPORT : ${String(shift.workoutType).toUpperCase().replace('_', ' ')} PREVUE</p></div>` : ''}<div class="mb-4"><h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">PLAN REPAS SUGGERE :</h5>${mealForThisDay ? `<ul class="list-disc list-inside text-gray-300 text-sm space-y-1">${mealForThisDay.petit_dejeuner ? `<li>**PETIT-DEJEUNER :** ${String(mealForThisDay.petit_dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.dejeuner ? `<li>**DEJEUNER :** ${String(mealForThisDay.dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.diner ? `<li>**DINER :** ${String(mealForThisDay.diner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_matin ? `<li>**COLLAT. MATIN :** ${String(mealForThisDay.collation_matin.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_apresmidi ? `<li>**COLLAT. APRES-MIDI :** ${String(mealForThisDay.collation_apresmidi.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_unique ? `<li>**COLLAT. UNIQUE :** ${String(mealForThisDay.collation_unique.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}</ul>` : `<p class="text-gray-400">PLAN DE REPAS NON DISPONIBLE POUR CE JOUR. GENEREZ UN PLAN HEBDOMADAIRE DANS L'ONGLET "RECETTES".</p>`}</div>`;
                 container.appendChild(shiftDiv);
             });
             // Attache les ecouteurs d'evenements pour les boutons de suppression de poste
-            container.querySelectorAll('.delete-shift-btn').forEach(button => { button.onclick = async (event) => { const idToDelete = event.target.dataset.id; if (await showConfirmModal("CONFIRMER LA SUPPRESSION DU POSTE ?")) { shifts = shifts.filter(s => s.id !== idToDelete); saveToLocalStorage('shifts', shifts); showMessage("SUCCES: POSTE SUPPRIME !", 'success'); renderDailyPlanView(document.getElementById('main-content')); } }; });
+            container.querySelectorAll('.delete-shift-btn').forEach(button => {
+                button.onclick = async (event) => {
+                    const idToDelete = event.target.dataset.id;
+                    const dateToDelete = event.target.dataset.date; // Get the date of the shift to delete
+
+                    if (await showConfirmModal("CONFIRMER LA SUPPRESSION DU POSTE ET DE SON PLAN DE REPAS ASSOCIE ?")) {
+                        shifts = shifts.filter(s => s.id !== idToDelete);
+                        saveToLocalStorage('shifts', shifts);
+
+                        // Also remove the corresponding day from weeklyMealPlan
+                        if (weeklyMealPlan && weeklyMealPlan.semaine) {
+                            weeklyMealPlan.semaine = weeklyMealPlan.semaine.filter(dayData => dayData.date !== dateToDelete);
+                            saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
+                        }
+
+                        showMessage("SUCCES: POSTE ET REPAS ASSOCIES SUPPRIMES !", 'success');
+                        renderDailyPlanView(document.getElementById('main-content')); // Re-render pour afficher la liste mise a jour
+                        renderRecipeView(document.getElementById('main-content')); // Re-render recipe view to update meal plan
+                    }
+                };
+            });
         }
 
         // Rend la vue du programme sportif
@@ -734,7 +802,19 @@
                 const currentPhaseData = workoutProgram[phase];
                 if (!currentPhaseData || !currentPhaseData.sessions || !currentPhaseData.sessions.main || !currentPhaseData.sessions.cardio || !currentPhaseData.sessions.hiit) { workoutPhaseContent.innerHTML = '<p class="text-gray-400 text-center">CONTENU DE LA PHASE INDISPONIBLE. VEUILLEZ IMPORTER UN PROGRAMME VALIDE ET COMPLET.</p>'; return; }
                 const generateExerciseHtml = (ex, index) => `<div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-md border-2 border-blue-700 bg-gray-800 shadow-md"><div class="flex-1"><p class="font-medium text-gray-100 text-base sm:text-lg">${index + 1}. ${String(ex.name).toUpperCase()}</p><p class="text-sm text-gray-400 italic">${String(ex.desc).toUpperCase()}</p></div><button class="btn-retro-green text-sm px-4 py-2 mt-2 sm:mt-0 log-workout-btn" data-exercise-name="${ex.name}" data-exercise-type="${ex.type}">ENREGISTRER</button></div>`;
-                let phaseHtml = `<h3 class="text-xl sm:text-2xl font-bold text-blue-400">${String(currentPhaseData.name).toUpperCase()}</h3><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">PRINCIPES GENERAUX DE L'ENTRAINEMENT :</h4><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>ECOUTEZ VOTRE CORPS : NE JAMAIS FORCER SI VOUS AVEZ MAL.</li><li>LA FORME AVANT LA CHARGE : CONCENTREZ-VOUS SUR L'EXECUTION CORRECTE.</li><li>SURCHARGE PROGRESSIVE : AUGMENTEZ LA CHARGE OU LES REPETITIONS LORSQUE VOUS ETES A L'AISE.</li><li>HYDRATATION : BUVEZ DE L'EAU AVANT, PENDANT ET APRES CHAQUE SEANCE.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.main.name).toUpperCase()}</h4><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">ECHAUFFEMENT (10-15 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1"><li>**CARDIO LEGER (5-7 MIN):** TAPIS DE COURSE (MARCHE RAPIDE 5,0 KM/H, INCLINAISON 1,0) OU VELO/ELLIPTIQUE (NIVEAU 3-5).</li><li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-8 MIN):** CERCLES DE BRAS, ROTATIONS DU TORSE, FENTES (A VIDE), ROTATIONS DE HANCHE, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 REPETITIONS CHACUN).</li></ul><div class="space-y-3">${currentPhaseData.sessions.main.exercises.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RECUPERATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**ETIREMENTS DOUX :** MAINTENEZ CHAQUE ETIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTREZ-VOUS SUR LES ISCHIO-JAMBIERS, LES QUADRICEPES, LES PECTORAUX, LE DOS, LES EPAULES ET LES BRAS.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.cardio.name).toUpperCase()}</h4><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">ECHAUFFEMENT (10-15 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1"><li>**CARDIO LEGER (5-7 MIN):** TAPIS DE COURSE (MARCHE RAPIDE 5,0 KM/H, INCLINAISON 1,0) OU VELO/ELLIPTIQUE (NIVEAU 3-5).</li><li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-8 MIN):** CERCLES DE BRAS, ROTATIONS DU TORSE, FENTES (A VIDE), ROTATIONS DE HANCHE, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 REPETITIONS CHACUN).</li></ul><div class="space-y-3">${currentPhaseData.sessions.cardio.options.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RECUPERATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**ETIREMENTS DOUX :** MAINTENEZ CHAQUE ETIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTREZ-VOUS SUR LES ISCHIO-JAMBIERS, LES QUADRICEPES, LES PECTORAUX, LE DOS, LES EPAULES ET LES BRAS.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.hiit.name).toUpperCase()}</h4><p class="text-sm sm:text-base text-gray-300 mb-4">${String(currentPhaseData.sessions.hiit.desc).toUpperCase()}</p><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">ECHAUFFEMENT (10-15 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1"><li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-7 MIN):** CERCLES DE BRAS, ROTATIONS DU TORSE, FENTES (A VIDE), ROTATIONS DE HANCHE, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 REPETITIONS CHACUN).</li></ul><div class="space-y-3">${currentPhaseData.sessions.hiit.exercises.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RECUPERATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**RETOUR AU CALME :** MARCHE LEGERE ET RESPIRATION PROFONDE.</li><li>**ETIREMENTS DOUX :** AXES SUR LES MUSCLES PRINCIPAUX SOLLICITES.</li></ul></div>`;
+                let phaseHtml = `<h3 class="text-xl sm:text-2xl font-bold text-blue-400">${String(currentPhaseData.name).toUpperCase()}</h3><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">PRINCIPES GENERAUX DE L'ENTRAINEMENT :</h4><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>ECOUTEZ VOTRE CORPS : NE JAMAIS FORCER SI VOUS AVEZ MAL.</li><li>LA FORME AVANT LA CHARGE : CONCENTREZ-VOUS SUR L'EXECUTION CORRECTE.</li><li>SURCHARGE PROGRESSIVE : AUGMENTEZ LA CHARGE OU LES REPETITIONS LORSQUE VOUS ETES A L'AISE.</li><li>HYDRATATION : BUVEZ DE L'EAU AVANT, PENDANT ET APRES CHAQUE SEANCE.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.main.name).toUpperCase()}</h4><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">ECHAUFFEMENT (10-15 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1"><li>**CARDIO LEGIER (5-7 MIN):** TAPIS DE COURSE (MARCHE RAPIDE 5,0 KM/H, INCLINAISON 1,0) OU VELO/ELLIPTIQUE (NIVEAU 3-5).</li><li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-8 MIN):** CERCLES DE BRAS, ROTATIONS DU TORSE, FENTES (A VIDE), ROTATIONS DE HANCHE, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 REPETITIONS CHACUN).</li></ul><div class="space-y-3">${currentPhaseData.sessions.main.exercises.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RECUPERATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**ETIREMENTS DOUX :** MAINTENEZ CHAQUE ETIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTREZ-VOUS SUR LES ISCHIO-JAMBIERS, LES QUADRICEPES, LES PECTORAUX, LE DOS, LES EPAULES ET LES BRAS.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.cardio.name).toUpperCase()}</h4><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">ECHAUFFEMENT (10-15 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1"><li>**CARDIO LEGIER (5-7 MIN):** TAPIS DE COURSE (MARCHE RAPIDE 5,0 KM/H, INCLINAISON 1,0) OU VELO/ELLIPTIQUE (NIVEAU 3-5).</li><li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-8 MIN):** CERCLES DE BRAS, ROTATIONS DU TORSE, FENTES (A VIDE), ROTATIONS DE HANCHE, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 REPETITIONS CHACUN).</li></ul><div class="space-y-3">${currentPhaseData.sessions.cardio.options.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RECUPERATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**ETIREMENTS DOUX :** MAINTENEZ CHAQUE ETIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTREZ-VOUS SUR LES ISCHIO-JAMBIERS, LES QUADRICEPES, LES PECTORAUX, LE DOS, LES EPAULES ET LES BRAS.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.hiit.name).toUpperCase()}</h4><p class="text-sm sm:text-base text-gray-300 mb-4">${String(currentPhaseData.sessions.hiit.desc).toUpperCase()}</p><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">ECHAUFFEMENT (10-15 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1"><li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-7 MIN):** CERCLES DE BRAS, ROTATIONS DU TORSE, FENTES (A VIDE), ROTATIONS DE HANCHE, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 REPETITIONS CHACUN).</li></ul><div class="space-y-3">${currentPhaseData.sessions.hiit.exercises.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RECUPERATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**RETOUR AU CALME :** MARCHE LEGERE ET RESPIRATION PROFONDE.</li><li>**ETIREMENTS DOUX :** AXES SUR LES MUSCLES PRINCIPAUX SOLLICITES.</li></ul></div>`;
+                
+                // Add recovery section if it exists
+                if (workoutProgram.recovery) {
+                    phaseHtml += `<div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(workoutProgram.recovery.name).toUpperCase()}</h4>
+                        <p class="text-sm sm:text-base text-gray-300 mb-4">${String(workoutProgram.recovery.desc).toUpperCase()}</p>
+                        <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1">
+                            ${workoutProgram.recovery.activities.map(activity => `<li>**${String(activity.name).toUpperCase()} :** ${String(activity.desc).toUpperCase()}</li>`).join('')}
+                        </ul>
+                    </div>`;
+                }
+
                 workoutPhaseContent.innerHTML = phaseHtml;
                 renderLucideIcons(); // Rend les icones Lucide
                 // Attache les ecouteurs d'evenements pour les boutons d'enregistrement d'entrainement
@@ -1005,8 +1085,8 @@ GENERER LA RECETTE DETAILLEE : `.trim();
 
         // Rend la vue des recettes et gere la generation du plan de repas
         function renderRecipeView(container) {
-            let numPeople = loadFromLocalStorage('recipeNumPeople', 1), allowMeatFish = loadFromLocalStorage('recipeAllowMeatFish', true), regeneratingMeal = null;
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">PLAN DE REPAS</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GENERER MON PLAN DE REPAS :</h3><div class="mb-4"><label for="numPeople" class="block text-gray-200 text-sm font-bold mb-2">POUR COMBIEN DE PERSONNES ?</label><input type="number" id="numPeople" value="${numPeople}" min="1" class="input-retro" /></div><div class="mb-4 flex items-center"><input type="checkbox" id="allowMeatFish" ${allowMeatFish ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" /><label for="allowMeatFish" class="text-gray-200 text-sm font-bold">AUTORISER VIANDE ET POISSON (PLUS ECONOMIQUE SANS)</label></div><button id="generate-plan-btn" class="btn-retro-purple w-full flex items-center justify-center"><span id="generate-plan-spinner" class="spinner mr-2 hidden"></span><span id="generate-plan-text">GENERER PLAN DE REPAS</span></button><p class="text-xs text-gray-400 mt-2 text-center">LE PLAN SERA GENERE UNIQUEMENT POUR LES JOURS AVEC DES POSTES ENREGISTRES DANS L'ONGLET "PLANNING".</p></div><div id="weekly-meal-plan-content"></div></div>`;
+            let numPeople = loadFromLocalStorage('recipeNumPeople', 1), allowMeatFish = loadFromLocalStorage('recipeAllowMeatFish', true); // regeneratingMeal est maintenant global
+            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">PLAN DE REPAS</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GENERER MON PLAN DE REPAS :</h3><div class="mb-4"><label for="numPeople" class="block text-gray-200 text-sm font-bold mb-2">POUR COMBIEN DE PERSONNES ?</label><input type="number" id="numPeople" value="${numPeople}" min="1" class="input-retro" /></div><div class="mb-4 flex items-center"><input type="checkbox" id="allowMeatFish" ${allowMeatFish ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" /><label for="allowMeatFish" class="text-gray-200 text-sm font-bold">AUTORISER VIANDE ET POISSON (PLUS ECONOMIQUE SANS)</label></div><button id="generate-plan-btn" class="btn-retro-purple w-full flex items-center justify-center"><span id="generate-plan-spinner" class="spinner mr-2 ${regeneratingMeal && !regeneratingMeal.mealType ? '' : 'hidden'}"></span><span id="generate-plan-text">${regeneratingMeal && !regeneratingMeal.mealType ? 'GENERATION...' : 'GENERER PLAN DE REPAS'}</span></button><p class="text-xs text-gray-400 mt-2 text-center">LE PLAN SERA GENERE UNIQUEMENT POUR LES JOURS AVEC DES POSTES ENREGISTRES DANS L'ONGLET "PLANNING".</p></div><div id="weekly-meal-plan-content"></div></div>`;
             container.innerHTML = html;
             const numPeopleInput = document.getElementById('numPeople'), allowMeatFishCheckbox = document.getElementById('allowMeatFish'), generatePlanBtn = document.getElementById('generate-plan-btn'), generatePlanSpinner = document.getElementById('generate-plan-spinner'), generatePlanText = document.getElementById('generate-plan-text'), weeklyMealPlanContentDiv = document.getElementById('weekly-meal-plan-content');
 
@@ -1018,7 +1098,17 @@ GENERER LA RECETTE DETAILLEE : `.trim();
             numPeopleInput.onchange = (e) => { numPeople = Math.max(1, parseInt(e.target.value) || 1); saveToLocalStorage('recipeNumPeople', numPeople); };
             allowMeatFishCheckbox.onchange = (e) => { allowMeatFish = e.target.checked; saveToLocalStorage('recipeAllowMeatFish', allowMeatFish); };
 
+            // Set initial state of generate button based on global regeneratingMeal
+            if (regeneratingMeal && !regeneratingMeal.mealType) { // If it's a full plan generation
+                generatePlanBtn.disabled = true;
+            } else {
+                generatePlanBtn.disabled = false;
+            }
+
             generatePlanBtn.onclick = async () => {
+                regeneratingMeal = { dateKey: null, mealType: null }; // Indicate full plan generation
+                renderRecipeView(container); // Re-render to show spinner on main button
+
                 generatePlanBtn.disabled = true;
                 generatePlanSpinner.classList.remove('hidden');
                 generatePlanText.textContent = 'GENERATION...';
@@ -1036,7 +1126,7 @@ GENERER LA RECETTE DETAILLEE : `.trim();
                     const newMealPlan = { semaine: [] };
                     const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds };
 
-                    // Réinitialiser le cache global pour une nouvelle génération de plan
+                    // Reinitialiser le cache global pour une nouvelle generation de plan
                     contextualMealCache = new Map();
 
                     for (const shift of fetchedShifts) {
@@ -1046,7 +1136,7 @@ GENERER LA RECETTE DETAILLEE : `.trim();
 
                         for (const mealType of mealOrder) {
                             let addMeal = true;
-                            // Logique pour déterminer si un repas/collation doit être ajouté pour le contexte donné
+                            // Logique pour determiner si un repas/collation doit etre ajoute pour le contexte donne
                             if (mealType === 'collation_matin') {
                                 if (dayContext.poste === '18h-6h' || (dayContext.poste === 'repos' && dayContext.sport === 'aucun')) { addMeal = false; }
                             } else if (mealType === 'collation_apresmidi') {
@@ -1086,6 +1176,7 @@ GENERER LA RECETTE DETAILLEE : `.trim();
                     console.error("Erreur lors de la generation du plan de repas:", error);
                     showMessage(`ERREUR: Echec de la generation du plan. ${error.message}`, 'error');
                 } finally {
+                    regeneratingMeal = null; // Reset global regeneratingMeal status
                     generatePlanBtn.disabled = false;
                     generatePlanSpinner.classList.add('hidden');
                     generatePlanText.textContent = 'GENERER PLAN DE REPAS';
@@ -1098,49 +1189,51 @@ GENERER LA RECETTE DETAILLEE : `.trim();
 
                 let mealsHtml = `<div class="space-y-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3 text-center">TON PLAN DE REPAS :</h3>`;
                 weeklyMealPlan.semaine.forEach((dayData) => {
-                    mealsHtml += `<div class="bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg"><div class="flex justify-between items-center cursor-pointer py-2" data-toggle="day-content-${dayData.date}"><h4 class="text-lg sm:text-xl font-bold text-yellow-300">${new Date(dayData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()} - ${getDayContextString(dayData.dayContext.poste, dayData.dayContext.sport)}</h4><i data-lucide="chevron-down" class="text-yellow-300 transition-transform duration-300"></i></div><div id="day-content-${dayData.date}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0"><div class="space-y-4 pt-2">`;
+                    // Only render if the dayData is not null (i.e., not explicitly deleted)
+                    if (dayData) {
+                        mealsHtml += `<div class="bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg"><div class="flex justify-between items-center cursor-pointer py-2" data-toggle="day-content-${dayData.date}"><h4 class="text-lg sm:text-xl font-bold text-yellow-300">${new Date(dayData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()} - ${getDayContextString(dayData.dayContext.poste, dayData.dayContext.sport)}</h4><i data-lucide="chevron-down" class="text-yellow-300 transition-transform duration-300"></i></div><div id="day-content-${dayData.date}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0"><div class="space-y-4 pt-2">`;
 
-                    const mealOrder = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation_apresmidi', 'diner', 'collation_unique'];
-                    mealOrder.forEach(mealType => {
-                        const meal = dayData[mealType];
-                        if (meal) {
-                            const momentContext = getMealMomentContext(mealType, dayData.dayContext.poste, dayData.dayContext.sport);
-                            const adviceKey = mealType.includes('collation') ? `${mealType.replace('_unique', '')}_${dayData.dayContext.poste === '18h-6h' ? 'pendant' : (dayData.dayContext.sport !== 'aucun' ? 'post' : 'default')}` : dayData.dayContext.poste === '18h-6h' ? '18h-6h' : (dayData.dayContext.sport !== 'aucun' ? 'repos_sport' : 'default');
-                            const advice = specificMealAdvice[mealType]?.[adviceKey] || specificMealAdvice[mealType]?.default || "CONSEIL GENERAL : MANGEZ EQUILIBRE.";
-                            const isRegeneratingCurrentMeal = regeneratingMeal && regeneratingMeal.dateKey === dayData.date && regeneratingMeal.mealType === mealType;
-                            // Check if the current meal object's ID is in the likedMeals array
-                            const isLiked = userProfile.likedMeals.some(likedMeal => likedMeal.id === meal.id);
+                        const mealOrder = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation_apresmidi', 'diner', 'collation_unique'];
+                        mealOrder.forEach(mealType => {
+                            const meal = dayData[mealType];
+                            if (meal) {
+                                const momentContext = getMealMomentContext(mealType, dayData.dayContext.poste, dayData.dayContext.sport);
+                                const adviceKey = mealType.includes('collation') ? `${mealType.replace('_unique', '')}_${dayData.dayContext.poste === '18h-6h' ? 'pendant' : (dayData.dayContext.sport !== 'aucun' ? 'post' : 'default')}` : dayData.dayContext.poste === '18h-6h' ? '18h-6h' : (dayData.dayContext.sport !== 'aucun' ? 'repos_sport' : 'default');
+                                const advice = specificMealAdvice[mealType]?.[adviceKey] || specificMealAdvice[mealType]?.default || "CONSEIL GENERAL : MANGEZ EQUILIBRE.";
+                                const isRegeneratingCurrentMeal = regeneratingMeal && regeneratingMeal.dateKey === dayData.date && regeneratingMeal.mealType === mealType;
+                                // Check if the current meal object's ID is in the likedMeals array
+                                const isLiked = userProfile.likedMeals.some(likedMeal => likedMeal.id === meal.id);
 
-                            mealsHtml += `<div class="bg-gray-800 p-3 rounded-md border-2 border-blue-700 shadow-md">
-                                <div class="flex justify-between items-center cursor-pointer py-2" data-toggle="meal-content-${meal.id}">
-                                    <h5 class="font-semibold text-base sm:text-lg text-blue-400">${momentContext} : ${String(meal.title || 'RECETTE NON DEFINIE').toUpperCase()}</h5>
-                                    <div class="flex items-center">
-                                        <button class="btn-retro-red text-sm px-2 py-1 ml-2 flex items-center justify-center regenerate-meal-btn" data-date="${dayData.date}" data-meal-type="${mealType}" ${isRegeneratingCurrentMeal ? 'disabled' : ''}>
-                                            ${isRegeneratingCurrentMeal ? `<span class="spinner w-4 h-4"></span>` : `<i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>`}
-                                            <span class="ml-1 hidden sm:inline">REGENERER</span>
-                                        </button>
-                                        <button class="text-white ml-2 like-meal-btn" data-meal-id="${meal.id}" data-date="${dayData.date}" data-meal-type="${mealType}" style="color:${isLiked ? '#FCD34D' : 'white'};">
-                                            <i data-lucide="${isLiked ? 'heart' : 'heart'}" class="${isLiked ? 'fill-current text-yellow-400' : ''}" style="width:20px; height:20px;"></i>
-                                        </button>
-                                        <i data-lucide="chevron-down" class="text-blue-400 transition-transform duration-300 ml-2"></i>
+                                mealsHtml += `<div class="bg-gray-800 p-3 rounded-md border-2 border-blue-700 shadow-md">
+                                    <div class="flex justify-between items-center cursor-pointer py-2" data-toggle="meal-content-${meal.id}">
+                                        <h5 class="font-semibold text-base sm:text-lg text-blue-400">${momentContext} : ${String(meal.title || 'RECETTE NON DEFINIE').toUpperCase()}</h5>
+                                        <div class="flex items-center">
+                                            <button class="btn-retro-red text-sm px-2 py-1 ml-2 flex items-center justify-center regenerate-meal-btn" data-date="${dayData.date}" data-meal-type="${mealType}" ${isRegeneratingCurrentMeal ? 'disabled' : ''}>
+                                                ${isRegeneratingCurrentMeal ? `<span class="spinner w-4 h-4"></span>` : `<i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>`}
+                                                <span class="ml-1 hidden sm:inline">REGENERER</span>
+                                            </button>
+                                            <button class="text-white ml-2 like-meal-btn" data-meal-id="${meal.id}" data-date="${dayData.date}" data-meal-type="${mealType}" style="color:${isLiked ? '#FCD34D' : 'white'};">
+                                                <i data-lucide="${isLiked ? 'heart' : 'heart'}" class="${isLiked ? 'fill-current text-yellow-400' : ''}" style="width:20px; height:20px;"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div id="meal-content-${meal.id}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0">
-                                    <p class="text-gray-300 text-sm italic mb-2">${String(meal.description_du_plat || 'DESCRIPTION INDISPONIBLE').toUpperCase()}</p>
-                                    <p class="text-sm font-medium text-yellow-300">${String(meal.ingredients_label || 'INGREDIENTS').toUpperCase()} :</p>
-                                    <ul class="list-disc list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.ingredients_list || []).map(ingredient => `<li>${String(ingredient).toUpperCase()}</li>`).join('')}</ul>
-                                    <p class="text-sm font-medium text-yellow-300 mt-2">PREPARATION :</p>
-                                    <ol class="list-decimal list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.preparation_steps || []).map(step => `<li>${String(step).toUpperCase()}</li>`).join('')}</ol>
-                                    <p class="text-sm font-medium text-yellow-300 mt-2">PORTION WAEKY :</p>
-                                    <p class="text-gray-300 text-xs">${String(meal.ma_portion_waeky || 'PORTION INDISPONIBLE').toUpperCase()}</p>
-                                    <p class="text-sm font-medium text-yellow-300 mt-2">CONSEILS ECONOMIE :</p>
-                                    <p class="text-gray-300 text-xs">${String(meal.conseils_reutilisation_economie || 'CONSEILS INDISPONIBLES').toUpperCase()}</p>
-                                    <p class="text-blue-200 text-xs mt-3">${advice}</p>
-                                </div>
-                            </div>`;
-                        }
-                    });
-                    mealsHtml += `</div></div></div>`;
+                                    <div id="meal-content-${meal.id}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0">
+                                        <p class="text-gray-300 text-sm italic mb-2">${String(meal.description_du_plat || 'DESCRIPTION INDISPONIBLE').toUpperCase()}</p>
+                                        <p class="text-sm font-medium text-yellow-300">${String(meal.ingredients_label || 'INGREDIENTS').toUpperCase()} :</p>
+                                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.ingredients_list || []).map(ingredient => `<li>${String(ingredient).toUpperCase()}</li>`).join('')}</ul>
+                                        <p class="text-sm font-medium text-yellow-300 mt-2">PREPARATION :</p>
+                                        <ol class="list-decimal list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.preparation_steps || []).map(step => `<li>${String(step).toUpperCase()}</li>`).join('')}</ol>
+                                        <p class="text-sm font-medium text-yellow-300 mt-2">PORTION WAEKY :</p>
+                                        <p class="text-gray-300 text-xs">${String(meal.ma_portion_waeky || 'PORTION INDISPONIBLE').toUpperCase()}</p>
+                                        <p class="text-sm font-medium text-yellow-300 mt-2">CONSEILS ECONOMIE :</p>
+                                        <p class="text-gray-300 text-xs">${String(meal.conseils_reutilisation_economie || 'CONSEILS INDISPONIBLES').toUpperCase()}</p>
+                                        <p class="text-blue-200 text-xs mt-3">${advice}</p>
+                                    </div>
+                                </div>`;
+                            }
+                        });
+                        mealsHtml += `</div></div></div>`;
+                    }
                 });
                 mealsHtml += `</div>`;
                 weeklyMealPlanContentDiv.innerHTML = mealsHtml;
@@ -1250,9 +1343,9 @@ GENERER LA RECETTE DETAILLEE : `.trim();
 
         // Rend la vue du chronometre d'intervalles
         function renderChronoIntervalleView(container) {
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">CHRONOMETRE D'INTERVALLES</h2><div class="text-center mb-6 p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><p class="text-2xl sm:text-3xl text-yellow-300 mb-2">INTERVALLE ACTUEL :</p><p id="chrono-instruction" class="text-3xl sm:text-4xl font-bold text-white mb-4"></p><div id="chrono-display" class="text-6xl sm:text-7xl font-bold text-purple-400 bg-[#131313] p-4 rounded-lg border-4 border-purple-600 inline-block shadow-inner-lg">00:00</div><div class="flex justify-center gap-4 mt-6 flex-wrap"><button id="start-chrono-btn" class="btn-retro-green px-6 py-3">DEMARRER</button><button id="pause-chrono-btn" class="btn-retro-purple px-6 py-3">PAUSE</button><button id="reset-chrono-btn" class="btn-retro-red px-6 py-3">REINITIALISER</button></div></div><div class="mb-6 space-y-4 p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES INTERVALLES :</h3><div class="flex flex-col sm:flex-row gap-3 items-end"><div class="flex-1 w-full"><label for="newDurationMinutes" class="block text-gray-200 text-sm font-bold mb-1">DUREE (MINUTES) :</label><input type="number" id="newDurationMinutes" value="" class="input-retro" placeholder="EX: 1" /></div><div class="flex-1 w-full"><label for="newInstruction" class="block text-gray-200 text-sm font-bold mb-1">INSTRUCTION :</label><input type="text" id="newInstruction" value="" class="input-retro" placeholder="EX: VITESSE 8, PENTE 2" /></div><button id="add-interval-btn" class="btn-retro w-full sm:w-auto px-5 py-2">AJOUTER</button></div><div class="mt-4 p-3 rounded-lg border-2 border-purple-500 bg-gray-800"><h4 class="text-lg sm:text-xl font-bold text-yellow-300 mb-2">OPTIONS DE DEPART :</h4><div class="flex items-center mb-2"><input type="checkbox" id="enablePreCountdown" ${enableChronoPreCountdown ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" /><label for="enablePreCountdown" class="text-gray-200 text-sm font-bold">ACTIVER COMPTE A REBOURS DE PRE-DEPART</label></div><div id="pre-countdown-duration-setting" ${!enableChronoPreCountdown ? 'class="hidden"' : ''}><label for="chronoPreCountdownDuration" class="block text-gray-200 text-sm font-bold mb-1">DUREE PRE-DEPART (SECONDES) :</label><input type="number" id="chronoPreCountdownDuration" value="${chronoPreCountdownDuration}" min="1" class="input-retro w-full sm:w-1/2" /></div></div><div id="intervals-list" class="mt-4 p-3 rounded-lg border-2 border-purple-500 bg-gray-800"></div></div><div class="mb-6 space-y-4 p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">SAUVEGARDER ET CHARGER :</h3><div class="flex flex-col sm:flex-row gap-3 items-end"><div class="flex-1 w-full"><label for="sequenceName" class="block text-gray-200 text-sm font-bold mb-1">NOM DE LA SEQUENCE :</label><input type="text" id="sequenceName" value="" class="input-retro" placeholder="EX: HIIT DU MATIN" /></div><button id="save-sequence-btn" class="btn-retro w-full sm:w-auto px-5 py-2">SAUVEGARDER</button><button id="load-sequence-btn" class="btn-retro-green w-full sm:w-auto px-5 py-2">CHARGER</button></div></div></div>`;
+            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">CHRONOMETRE D'INTERVALLES</h2><div class="text-center mb-6 p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><p class="text-2xl sm:text-3xl text-yellow-300 mb-2">INTERVALLE ACTUEL :</p><p id="chrono-instruction" class="text-3xl sm:text-4xl font-bold text-white mb-4"></p><div id="chrono-display" class="text-6xl sm:text-7xl font-bold text-purple-400 bg-[#131313] p-4 rounded-lg border-4 border-purple-600 inline-block shadow-inner-lg">00:00</div><div class="flex justify-center gap-4 mt-6 flex-wrap"><button id="start-chrono-btn" class="btn-retro-green px-6 py-3">DEMARRER</button><button id="pause-chrono-btn" class="btn-retro-purple px-6 py-3">PAUSE</button><button id="reset-chrono-btn" class="btn-retro-red px-6 py-3">REINITIALISER</button></div></div><div class="mb-6 space-y-4 p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES INTERVALLES :</h3><div class="flex flex-col sm:flex-row gap-3 items-end"><div class="flex-1 w-full"><label for="newDurationMinutes" class="block text-gray-200 text-sm font-bold mb-1">DUREE (MINUTES) :</label><input type="number" id="newDurationMinutes" value="" class="input-retro" placeholder="EX: 1" /></div><div class="flex-1 w-full"><label for="newInstruction" class="block text-gray-200 text-sm font-bold mb-1">INSTRUCTION :</label><input type="text" id="newInstruction" value="" class="input-retro" placeholder="EX: VITESSE 8, PENTE 2" /></div><button id="add-update-interval-btn" class="btn-retro w-full sm:w-auto px-5 py-2">AJOUTER</button></div><div class="mt-4 p-3 rounded-lg border-2 border-purple-500 bg-gray-800"><h4 class="text-lg sm:text-xl font-bold text-yellow-300 mb-2">OPTIONS DE DEPART :</h4><div class="flex items-center mb-2"><input type="checkbox" id="enablePreCountdown" ${enableChronoPreCountdown ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" /><label for="enablePreCountdown" class="text-gray-200 text-sm font-bold">ACTIVER COMPTE A REBOURS DE PRE-DEPART</label></div><div id="pre-countdown-duration-setting" ${!enableChronoPreCountdown ? 'class="hidden"' : ''}><label for="chronoPreCountdownDuration" class="block text-gray-200 text-sm font-bold mb-1">DUREE PRE-DEPART (SECONDES) :</label><input type="number" id="chronoPreCountdownDuration" value="${chronoPreCountdownDuration}" min="1" class="input-retro w-full sm:w-1/2" /></div></div><div id="intervals-list" class="mt-4 p-3 rounded-lg border-2 border-purple-500 bg-gray-800"></div></div><div class="mb-6 space-y-4 p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">SAUVEGARDER ET CHARGER :</h3><div class="flex flex-col sm:flex-row gap-3 items-end"><div class="flex-1 w-full"><label for="sequenceName" class="block text-gray-200 text-sm font-bold mb-1">NOM DE LA SEQUENCE :</label><input type="text" id="sequenceName" value="" class="input-retro" placeholder="EX: HIIT DU MATIN" /></div><button id="save-sequence-btn" class="btn-retro w-full sm:w-auto px-5 py-2">SAUVEGARDER</button><button id="load-sequence-btn" class="btn-retro-green w-full sm:w-auto px-5 py-2">CHARGER</button></div></div></div>`;
             container.innerHTML = html;
-            const chronoDisplay = document.getElementById('chrono-display'), chronoInstruction = document.getElementById('chrono-instruction'), startChronoBtn = document.getElementById('start-chrono-btn'), pauseChronoBtn = document.getElementById('pause-chrono-btn'), resetChronoBtn = document.getElementById('reset-chrono-btn'), newDurationMinutesInput = document.getElementById('newDurationMinutes'), newInstructionInput = document.getElementById('newInstruction'), addIntervalBtn = document.getElementById('add-interval-btn'), intervalsListDiv = document.getElementById('intervals-list'), enablePreCountdownCheckbox = document.getElementById('enablePreCountdown'), preCountdownDurationSetting = document.getElementById('pre-countdown-duration-setting'), chronoPreCountdownDurationInput = document.getElementById('chronoPreCountdownDuration'), saveSequenceBtn = document.getElementById('save-sequence-btn'), loadSequenceBtn = document.getElementById('load-sequence-btn');
+            const chronoDisplay = document.getElementById('chrono-display'), chronoInstruction = document.getElementById('chrono-instruction'), startChronoBtn = document.getElementById('start-chrono-btn'), pauseChronoBtn = document.getElementById('pause-chrono-btn'), resetChronoBtn = document.getElementById('reset-chrono-btn'), newDurationMinutesInput = document.getElementById('newDurationMinutes'), newInstructionInput = document.getElementById('newInstruction'), addUpdateIntervalBtn = document.getElementById('add-update-interval-btn'), intervalsListDiv = document.getElementById('intervals-list'), enablePreCountdownCheckbox = document.getElementById('enablePreCountdown'), preCountdownDurationSetting = document.getElementById('pre-countdown-duration-setting'), chronoPreCountdownDurationInput = document.getElementById('chronoPreCountdownDuration'), saveSequenceBtn = document.getElementById('save-sequence-btn'), loadSequenceBtn = document.getElementById('load-sequence-btn');
 
             chronoPreCountdownDurationInput.value = chronoPreCountdownDuration;
 
@@ -1261,11 +1354,72 @@ GENERER LA RECETTE DETAILLEE : `.trim();
                 intervalsListDiv.innerHTML = '';
                 if (chronoIntervals.length === 0) { intervalsListDiv.innerHTML = '<p class="text-gray-400">AUCUNE INTERVALLE AJOUTEE.</p>'; return; }
                 let listHtml = `<h4 class="text-lg sm:text-xl font-bold text-yellow-300 mb-2">SEQUENCE ACTUELLE :</h4><ul class="space-y-2">`;
-                chronoIntervals.forEach((interval, index) => { listHtml += `<li class="flex justify-between items-stretch bg-[#131313] p-2 rounded-md border border-gray-700"><span class="text-gray-100 text-base sm:text-lg">${Math.floor(interval.duration / 60)}MIN${interval.duration % 60 > 0 ? ` ${interval.duration % 60}S` : ''} - ${String(interval.instruction).toUpperCase()}</span><button class="btn-retro-red text-xs px-2 py-1 remove-interval-btn" data-index="${index}">X</button></li>`; });
+                chronoIntervals.forEach((interval, index) => {
+                    listHtml += `<li class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-[#131313] p-2 rounded-md border border-gray-700">
+                        <span class="text-gray-100 text-base sm:text-lg">${Math.floor(interval.duration / 60)}MIN${interval.duration % 60 > 0 ? ` ${interval.duration % 60}S` : ''} - ${String(interval.instruction).toUpperCase()}</span>
+                        <div class="flex gap-2 mt-2 sm:mt-0">
+                            <button class="btn-retro-green text-xs px-2 py-1 duplicate-interval-btn" data-index="${index}">DUPLIQUER</button>
+                            <button class="btn-retro-purple text-xs px-2 py-1 edit-interval-btn" data-index="${index}">MODIFIER</button>
+                            <button class="btn-retro-red text-xs px-2 py-1 remove-interval-btn" data-index="${index}">SUPPRIMER</button>
+                        </div>
+                    </li>`;
+                });
                 listHtml += `</ul>`;
                 intervalsListDiv.innerHTML = listHtml;
+
                 // Attache les ecouteurs d'evenements pour les boutons de suppression d'intervalle
-                intervalsListDiv.querySelectorAll('.remove-interval-btn').forEach(button => { button.onclick = async (event) => { const indexToRemove = parseInt(event.target.dataset.index); if (await showConfirmModal("CONFIRMER LA SUPPRESSION DE L'INTERVALLE ?")) { chronoIntervals.splice(indexToRemove, 1); updateLocalStorageChronoState(); showMessage("INTERVALLE SUPPRIMEE !", 'success'); renderIntervalsList(); } }; });
+                intervalsListDiv.querySelectorAll('.remove-interval-btn').forEach(button => {
+                    button.onclick = async (event) => {
+                        const indexToRemove = parseInt(event.target.dataset.index);
+                        if (await showConfirmModal("CONFIRMER LA SUPPRESSION DE L'INTERVALLE ?")) {
+                            chronoIntervals.splice(indexToRemove, 1);
+                            updateLocalStorageChronoState();
+                            showMessage("INTERVALLE SUPPRIMEE !", 'success');
+                            renderIntervalsList();
+                            resetIntervalForm(); // Reset form after deletion
+                        }
+                    };
+                });
+
+                // Attache les ecouteurs d'evenements pour les boutons de duplication d'intervalle
+                intervalsListDiv.querySelectorAll('.duplicate-interval-btn').forEach(button => {
+                    button.onclick = async (event) => {
+                        const indexToDuplicate = parseInt(event.target.dataset.index);
+                        const originalInterval = chronoIntervals[indexToDuplicate];
+                        if (originalInterval) {
+                            chronoIntervals.push({ ...originalInterval }); // Add a copy
+                            updateLocalStorageChronoState();
+                            showMessage("INTERVALLE DUPLIQUEE !", 'success');
+                            renderIntervalsList();
+                        }
+                    };
+                });
+
+                // Attache les ecouteurs d'evenements pour les boutons de modification d'intervalle
+                intervalsListDiv.querySelectorAll('.edit-interval-btn').forEach(button => {
+                    button.onclick = (event) => {
+                        editingIntervalIndex = parseInt(event.target.dataset.index);
+                        const intervalToEdit = chronoIntervals[editingIntervalIndex];
+                        if (intervalToEdit) {
+                            newDurationMinutesInput.value = Math.floor(intervalToEdit.duration / 60);
+                            newInstructionInput.value = intervalToEdit.instruction;
+                            addUpdateIntervalBtn.textContent = 'METTRE A JOUR';
+                            addUpdateIntervalBtn.classList.remove('btn-retro');
+                            addUpdateIntervalBtn.classList.add('btn-retro-purple');
+                            showMessage(`MODIFICATION DE L'INTERVALLE ${editingIntervalIndex + 1}.`, 'info');
+                        }
+                    };
+                });
+            }
+
+            // Reinitialise le formulaire d'ajout/modification d'intervalle
+            function resetIntervalForm() {
+                newDurationMinutesInput.value = '';
+                newInstructionInput.value = '';
+                addUpdateIntervalBtn.textContent = 'AJOUTER';
+                addUpdateIntervalBtn.classList.remove('btn-retro-purple');
+                addUpdateIntervalBtn.classList.add('btn-retro');
+                editingIntervalIndex = -1; // Reset editing index
             }
 
             // Met a jour l'affichage du chronometre
@@ -1321,12 +1475,29 @@ GENERER LA RECETTE DETAILLEE : `.trim();
             }
 
             // Attache les ecouteurs d'evenements pour les boutons du chronometre
-            addIntervalBtn.onclick = () => { const duration = newDurationMinutesInput.value, instruction = newInstructionInput.value; if (duration === '' || instruction.trim() === '') { showMessage("ERREUR: LA DUREE ET L'INSTRUCTION SONT REQUISES.", 'error'); return; } chronoIntervals.push({ duration: parseInt(duration) * 60, instruction: instruction.trim() }); newDurationMinutesInput.value = ''; newInstructionInput.value = ''; updateLocalStorageChronoState(); showMessage("INTERVALLE AJOUTEE !", 'success'); renderIntervalsList(); };
-            enablePreCountdownCheckbox.onchange = (e) => { enableChronoPreCountdown = e.target.checked; preCountdownDurationSetting.classList.toggle('hidden', !enablePreCountdown); updateLocalStorageChronoState(); };
+            addUpdateIntervalBtn.onclick = () => {
+                const duration = newDurationMinutesInput.value, instruction = newInstructionInput.value;
+                if (duration === '' || instruction.trim() === '') { showMessage("ERREUR: LA DUREE ET L'INSTRUCTION SONT REQUISES.", 'error'); return; }
+
+                if (editingIntervalIndex !== -1) {
+                    // Update existing interval
+                    chronoIntervals[editingIntervalIndex] = { duration: parseInt(duration) * 60, instruction: instruction.trim() };
+                    showMessage("INTERVALLE MISE A JOUR !", 'success');
+                } else {
+                    // Add new interval
+                    chronoIntervals.push({ duration: parseInt(duration) * 60, instruction: instruction.trim() });
+                    showMessage("INTERVALLE AJOUTEE !", 'success');
+                }
+                updateLocalStorageChronoState();
+                renderIntervalsList();
+                resetIntervalForm();
+            };
+
+            enablePreCountdownCheckbox.onchange = (e) => { enableChronoPreCountdown = e.target.checked; preCountdownDurationSetting.classList.toggle('hidden', !enableChronoPreCountdown); updateLocalStorageChronoState(); };
             chronoPreCountdownDurationInput.onchange = (e) => { chronoPreCountdownDuration = Math.max(1, parseInt(e.target.value) || 1); updateLocalStorageChronoState(); };
             startChronoBtn.onclick = () => { if (chronoIntervals.length === 0) { showMessage("ERREUR: AJOUTEZ DES INTERVALLES AVANT DE COMMENCER.", 'error'); return; } if (isChronoRunning && !isChronoPaused) return; isChronoRunning = true; isChronoPaused = false; chronoCurrentIntervalIndex = -1; if (enableChronoPreCountdown) chronoCurrentTime = chronoPreCountdownDuration; else { chronoCurrentIntervalIndex = 0; chronoCurrentTime = chronoIntervals[0].duration; speak(String(chronoIntervals[0].instruction).toUpperCase()); showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono'); } updateLocalStorageChronoState(); updateChronoDisplay(); showMessage("CHRONO DEMARRE !", 'chrono'); if (!chronoIntervalTimerRef) chronoIntervalTimerRef = setInterval(chronoLoop, 1000); };
             pauseChronoBtn.onclick = () => { isChronoPaused = true; updateLocalStorageChronoState(); updateChronoDisplay(); showMessage("CHRONO EN PAUSE.", 'info'); clearInterval(chronoIntervalTimerRef); chronoIntervalTimerRef = null; };
-            resetChronoBtn.onclick = () => { isChronoRunning = false; isChronoPaused = false; chronoCurrentIntervalIndex = -1; chronoCurrentTime = 0; updateLocalStorageChronoState(); updateChronoDisplay(); showMessage("CHRONO REINITIALISE.", 'success'); clearInterval(chronoIntervalTimerRef); chronoIntervalTimerRef = null; };
+            resetChronoBtn.onclick = () => { isChronoRunning = false; isChronoPaused = false; chronoCurrentIntervalIndex = -1; chronoCurrentTime = 0; updateLocalStorageChronoState(); updateChronoDisplay(); showMessage("CHRONO REINITIALISE.", 'success'); clearInterval(chronoIntervalTimerRef); chronoIntervalTimerRef = null; resetIntervalForm(); };
 
             // Gere la sauvegarde d'une sequence d'intervalles
             saveSequenceBtn.onclick = () => {
@@ -1342,11 +1513,91 @@ GENERER LA RECETTE DETAILLEE : `.trim();
             loadSequenceBtn.onclick = () => {
                 const modalDiv = document.createElement('div');
                 modalDiv.id = 'load-sequence-modal'; modalDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50';
-                let sequencesListHtml = intervalSequences.length === 0 ? '<p class="text-gray-400">AUCUNE SEQUENCE ENREGISTREE.</p>' : `<ul class="space-y-2 max-h-60 overflow-y-auto pr-2">${intervalSequences.map(seq => `<li class="flex justify-between items-center bg-gray-700 p-2 rounded-md border border-gray-600"><span class="text-gray-100 text-base sm:text-lg">${String(seq.name).toUpperCase()}</span><div><button class="btn-retro-green text-xs px-2 py-1 mr-2 load-sequence-item-btn" data-id="${seq.id}">CHARGER</button><button class="btn-retro-red text-xs px-2 py-1 delete-sequence-item-btn" data-id="${seq.id}">SUPPRIMER</button></div></li>`).join('')}</ul>`;
+                let sequencesListHtml = intervalSequences.length === 0 ? '<p class="text-gray-400">AUCUNE SEQUENCE ENREGISTREE.</p>' : `<ul class="space-y-2 max-h-60 overflow-y-auto pr-2">${intervalSequences.map(seq => `<li class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-700 p-2 rounded-md border border-gray-600"><span class="text-gray-100 text-base sm:text-lg">${String(seq.name).toUpperCase()}</span><div class="flex gap-2 mt-2 sm:mt-0"><button class="btn-retro-green text-xs px-2 py-1 load-sequence-item-btn" data-id="${seq.id}">CHARGER</button><button class="btn-retro-purple text-xs px-2 py-1 edit-sequence-name-btn" data-id="${seq.id}">MODIFIER NOM</button><button class="btn-retro-green text-xs px-2 py-1 duplicate-sequence-item-btn" data-id="${seq.id}">DUPLIQUER</button><button class="btn-retro-red text-xs px-2 py-1 delete-sequence-item-btn" data-id="${seq.id}">SUPPRIMER</button></div></li>`).join('')}</ul>`;
                 modalDiv.innerHTML = `<div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-sm text-white"><h3 class="text-xl sm:text-2xl font-bold mb-4 text-yellow-300">CHARGER LA SEQUENCE</h3>${sequencesListHtml}<div class="flex justify-end mt-6"><button id="close-load-sequence-btn" class="btn-retro-red">FERMER</button></div></div>`;
                 document.getElementById('global-modals-container').appendChild(modalDiv);
-                modalDiv.querySelectorAll('.load-sequence-item-btn').forEach(button => { button.onclick = (event) => { const idToLoad = event.target.dataset.id, sequence = intervalSequences.find(s => s.id === idToLoad); if (sequence) { chronoIntervals = JSON.parse(sequence.intervals); updateLocalStorageChronoState(); showMessage(`SUCCES: SEQUENCE "${String(sequence.name).toUpperCase()}" CHARGEE !`, 'success'); modalDiv.remove(); isChronoRunning = false; isChronoPaused = false; chronoCurrentIntervalIndex = -1; chronoCurrentTime = 0; updateChronoDisplay(); renderIntervalsList(); } else { showMessage("ERREUR: SEQUENCE INTROUVABLE.", 'error'); } }; });
-                modalDiv.querySelectorAll('.delete-sequence-item-btn').forEach(button => { button.onclick = async (event) => { const idToDelete = event.target.dataset.id; if (await showConfirmModal("CONFIRMER LA SUPPRESSION DE LA SEQUENCE ?")) { intervalSequences = intervalSequences.filter(s => s.id !== idToDelete); saveToLocalStorage('intervalSequences', intervalSequences); showMessage("SUCCES: SEQUENCE SUPPRIMEE !", 'success'); modalDiv.remove(); loadSequenceBtn.click(); } }; });
+
+                modalDiv.querySelectorAll('.load-sequence-item-btn').forEach(button => {
+                    button.onclick = (event) => {
+                        const idToLoad = event.target.dataset.id, sequence = intervalSequences.find(s => s.id === idToLoad);
+                        if (sequence) {
+                            chronoIntervals = JSON.parse(sequence.intervals);
+                            updateLocalStorageChronoState();
+                            showMessage(`SUCCES: SEQUENCE "${String(sequence.name).toUpperCase()}" CHARGEE !`, 'success');
+                            modalDiv.remove();
+                            isChronoRunning = false;
+                            isChronoPaused = false;
+                            chronoCurrentIntervalIndex = -1;
+                            chronoCurrentTime = 0;
+                            updateChronoDisplay();
+                            renderIntervalsList();
+                            resetIntervalForm();
+                        } else {
+                            showMessage("ERREUR: SEQUENCE INTROUVABLE.", 'error');
+                        }
+                    };
+                });
+
+                modalDiv.querySelectorAll('.duplicate-sequence-item-btn').forEach(button => {
+                    button.onclick = async (event) => {
+                        const idToDuplicate = event.target.dataset.id;
+                        const originalSequence = intervalSequences.find(s => s.id === idToDuplicate);
+                        if (originalSequence) {
+                            const newName = `${originalSequence.name}_COPIE`;
+                            intervalSequences.push({ id: generateUniqueId(), name: newName, intervals: originalSequence.intervals });
+                            saveToLocalStorage('intervalSequences', intervalSequences);
+                            showMessage(`SUCCES: SEQUENCE "${String(originalSequence.name).toUpperCase()}" DUPLIQUEE EN "${String(newName).toUpperCase()}" !`, 'success');
+                            modalDiv.remove();
+                            loadSequenceBtn.click(); // Re-open the load modal to show the new sequence
+                        } else {
+                            showMessage("ERREUR: SEQUENCE INTROUVABLE POUR LA DUPLICATION.", 'error');
+                        }
+                    };
+                });
+
+                modalDiv.querySelectorAll('.edit-sequence-name-btn').forEach(button => {
+                    button.onclick = (event) => {
+                        const idToEdit = event.target.dataset.id;
+                        const sequenceToEdit = intervalSequences.find(s => s.id === idToEdit);
+                        if (sequenceToEdit) {
+                            const editNameModalDiv = document.createElement('div');
+                            editNameModalDiv.id = 'edit-sequence-name-modal';
+                            editNameModalDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50';
+                            editNameModalDiv.innerHTML = `<div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-md text-white"><h3 class="text-xl sm:text-2xl font-bold mb-4 text-yellow-300">MODIFIER NOM DE LA SEQUENCE</h3><label for="newSequenceName" class="block text-gray-200 text-sm font-bold mb-2">NOUVEAU NOM :</label><input type="text" id="newSequenceName" class="input-retro" placeholder="NOUVEAU NOM" value="${sequenceToEdit.name}" /><div class="flex justify-end space-x-4 mt-6"><button id="cancel-edit-name-btn" class="btn-retro-red">ANNULER</button><button id="confirm-edit-name-btn" class="btn-retro-green">ENREGISTRER</button></div></div>`;
+                            document.getElementById('global-modals-container').appendChild(editNameModalDiv);
+
+                            document.getElementById('cancel-edit-name-btn').onclick = () => editNameModalDiv.remove();
+                            document.getElementById('confirm-edit-name-btn').onclick = () => {
+                                const newName = document.getElementById('newSequenceName').value.trim();
+                                if (!newName) {
+                                    showMessage("ERREUR: LE NOM NE PEUT PAS ETRE VIDE.", 'error');
+                                    return;
+                                }
+                                sequenceToEdit.name = newName;
+                                saveToLocalStorage('intervalSequences', intervalSequences);
+                                showMessage("SUCCES: NOM DE LA SEQUENCE MIS A JOUR !", 'success');
+                                editNameModalDiv.remove();
+                                modalDiv.remove(); // Close the load sequence modal
+                                loadSequenceBtn.click(); // Re-open to show updated name
+                            };
+                        } else {
+                            showMessage("ERREUR: SEQUENCE INTROUVABLE POUR LA MODIFICATION DU NOM.", 'error');
+                        }
+                    };
+                });
+
+                modalDiv.querySelectorAll('.delete-sequence-item-btn').forEach(button => {
+                    button.onclick = async (event) => {
+                        const idToDelete = event.target.dataset.id;
+                        if (await showConfirmModal("CONFIRMER LA SUPPRESSION DE LA SEQUENCE ?")) {
+                            intervalSequences = intervalSequences.filter(s => s.id !== idToDelete);
+                            saveToLocalStorage('intervalSequences', intervalSequences);
+                            showMessage("SUCCES: SEQUENCE SUPPRIMEE !", 'success');
+                            modalDiv.remove();
+                            loadSequenceBtn.click(); // Re-open the load modal to show updated list
+                        }
+                    };
+                });
                 document.getElementById('close-load-sequence-btn').onclick = () => modalDiv.remove();
             };
 
@@ -1455,7 +1706,7 @@ GENERER LA RECETTE DETAILLEE : `.trim();
 
         // Rend la vue des options de l'application
         function renderOptionsView(container) {
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">OPTIONS</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">REGLAGES AUDIO :</h3><div class="flex items-center justify-center mb-4"><label for="masterVolume" class="block text-gray-200 text-sm font-bold mr-3">VOLUME GLOBAL :</label><input type="range" id="masterVolume" min="0" max="1" step="0.05" value="${masterVolume}" class="w-full accent-purple-500" /><span id="volume-display" class="ml-3 text-gray-300">${(masterVolume * 100).toFixed(0)}%</span></div><button id="toggle-audio-btn" class="btn-retro ${isAudioActive ? 'btn-retro-red' : 'btn-retro-green'} w-full">${isAudioActive ? "DESACTIVER LE SON" : "ACTIVER LE SON"}</button><p class="text-xs text-gray-400 mt-2 text-center">${isAudioActive ? "LE SON EST ACTUELLEMENT ACTIVE." : "LE SON EST ACTUELLEMENT DESACTIVE. Cliquez pour activer et profiter des effets sonores et de la synthese vocale !"}</p></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">REGLAGES D'AFFICHAGE :</h3><div class="flex items-center mb-2"><input type="checkbox" id="toggleExerciseHistory" ${userProfile.hideExerciseHistory ? '' : 'checked'} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" /><label for="toggleExerciseHistory" class="text-gray-200 text-sm font-bold">AFFICHER L'HISTORIQUE D'EXERCICE</label></div></div><div class="p-4 rounded-lg border-2 border-yellow-500 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">CLE API (POUR IA) :</h3><label for="apiKeyInput" class="block text-gray-200 text-sm font-bold mb-2">ENTREZ VOTRE CLE API GEMINI :</label><input type="password" id="apiKeyInput" class="input-retro" placeholder="VOTRE CLE API" value="${userProfile.apiKey}" /><button id="save-api-key-btn" class="btn-retro-green w-full mt-4">ENREGISTRER CLE API</button><p class="text-xs text-gray-400 mt-2 text-center">NECESSAIRE POUR LA GENERATION DE CONSEILS IA.</p></div><div class="p-4 rounded-lg border-2 border-red-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES DONNEES :</h3><button id="reset-app-btn" class="btn-retro-red w-full">REINITIALISER L'APPLICATION (SUPPRIME TOUTES LES DONNEES)</button><p class="text-xs text-gray-400 mt-2 text-center">ATTENTION: CETTE ACTION EST IRREVERSIBLE.</p></div></div>`;
+            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">OPTIONS</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">REGLAGES AUDIO :</h3><div class="flex items-center justify-center mb-4"><label for="masterVolume" class="block text-gray-200 text-sm font-bold mr-3">VOLUME GLOBAL :</label><input type="range" id="masterVolume" min="0" max="1" step="0.05" value="${masterVolume}" class="w-full accent-purple-500" /><span id="volume-display" class="ml-3 text-gray-300">${(masterVolume * 100).toFixed(0)}%</span></div><button id="toggle-audio-btn" class="btn-retro ${isAudioActive ? 'btn-retro-red' : 'btn-retro-green'} w-full">${isAudioActive ? "DESACTIVER LE SON" : "ACTIVER LE SON"}</button><p class="text-xs text-gray-400 mt-2 text-center">${isAudioActive ? "LE SON EST ACTUELLEMENT ACTVE." : "LE SON EST ACTUELLEMENT DESACTIVE. Cliquez pour activer et profiter des effets sonores et de la synthese vocale !"}</p></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">REGLAGES D'AFFICHAGE :</h3><div class="flex items-center mb-2"><input type="checkbox" id="toggleExerciseHistory" ${userProfile.hideExerciseHistory ? '' : 'checked'} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" /><label for="toggleExerciseHistory" class="text-gray-200 text-sm font-bold">AFFICHER L'HISTORIQUE D'EXERCICE</label></div></div><div class="p-4 rounded-lg border-2 border-yellow-500 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">CLE API (POUR IA) :</h3><label for="apiKeyInput" class="block text-gray-200 text-sm font-bold mb-2">ENTREZ VOTRE CLE API GEMINI :</label><input type="password" id="apiKeyInput" class="input-retro" placeholder="VOTRE CLE API" value="${userProfile.apiKey}" /><button id="save-api-key-btn" class="btn-retro-green w-full mt-4">ENREGISTRER CLE API</button><p class="text-xs text-gray-400 mt-2 text-center">NECESSAIRE POUR LA GENERATION DE CONSEILS IA. (LAISSEZ VIDE POUR DESACTIVER)</p></div><div class="p-4 rounded-lg border-2 border-red-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES DONNEES :</h3><button id="reset-app-btn" class="btn-retro-red w-full">REINITIALISER L'APPLICATION (SUPPRIME TOUTES LES DONNEES)</button><p class="text-xs text-gray-400 mt-2 text-center">ATTENTION: CETTE ACTION EST IRREVERSIBLE.</p></div></div>`;
             container.innerHTML = html;
             const masterVolumeControl = document.getElementById('masterVolume'), volumeDisplay = document.getElementById('volume-display'), toggleAudioBtn = document.getElementById('toggle-audio-btn'), toggleExerciseHistoryCheckbox = document.getElementById('toggleExerciseHistory'), apiKeyInput = document.getElementById('apiKeyInput'), saveApiKeyBtn = document.getElementById('save-api-key-btn'), resetAppBtn = document.getElementById('reset-app-btn');
 
@@ -1499,6 +1750,7 @@ GENERER LA RECETTE DETAILLEE : `.trim();
         function attachEventListeners() {
             document.querySelectorAll('.nav-item').forEach(button => { button.onclick = (event) => { const page = event.currentTarget.dataset.page; renderPage(page); }; });
             document.getElementById('save-profile-btn').onclick = handleSaveProfile;
+            document.getElementById('home-button').onclick = () => renderPage('daily_plan'); // Attach event listener for the new home button
         }
 
         // Affiche une modale de confirmation
