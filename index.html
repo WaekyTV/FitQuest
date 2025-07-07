@@ -452,20 +452,35 @@
 
         // Calcule les seuils d'XP pour chaque niveau
         function getLevelThresholds(level) {
-            if (level === 0) return { current: 0, next: 100 };
-            let xp = 0, prevLevelThreshold = 0;
-            for (let i = 1; i <= level; i++) { prevLevelThreshold = xp; xp += (i * 50 + 50); }
-            return { current: prevLevelThreshold, next: xp };
+            // XP requise pour atteindre le niveau 'level'
+            if (level === 0) return { current: 0, next: 100 }; // Pour passer du niveau 0 au niveau 1, il faut 100 XP
+            let xp = 0;
+            for (let i = 1; i <= level; i++) {
+                xp += (i * 50 + 50); // XP requise pour le niveau i
+            }
+            const prevLevelThreshold = xp - (level * 50 + 50); // XP totale requise pour atteindre le niveau précédent (level-1)
+            return { current: prevLevelThreshold, next: xp }; // 'current' est le seuil pour le début du niveau actuel, 'next' pour le début du niveau suivant
         }
 
         // Calcule le niveau actuel et l'XP restante pour le niveau suivant
         function calculateLevelAndXP(totalXP) {
-            let level = 0, xpNeededForNextLevel = 100;
-            while (totalXP >= xpNeededForNextLevel) { level++; xpNeededForNextLevel += (level * 50 + 50); }
-            const { current: xpCurrentLevelThreshold, next: xpNextLevelThreshold } = getLevelThresholds(level);
-            const xpProgressInCurrentLevel = totalXP - xpCurrentLevelThreshold;
-            const xpForThisLevel = xpNextLevelThreshold - xpCurrentLevelThreshold;
-            const xpRemainingForNextLevel = xpNextLevelThreshold - totalXP;
+            let level = 0;
+            let xpNeededForNextLevel = 100; // XP pour passer du niveau 0 au niveau 1
+            let xpAccumulatedUpToCurrentLevel = 0;
+
+            while (totalXP >= xpNeededForNextLevel) {
+                xpAccumulatedUpToCurrentLevel = xpNeededForNextLevel;
+                level++;
+                xpNeededForNextLevel += (level * 50 + 50); // XP requise pour le niveau suivant
+            }
+
+            // XP gagnée dans le niveau actuel
+            const xpProgressInCurrentLevel = totalXP - xpAccumulatedUpToCurrentLevel;
+            // Total XP requise pour le niveau actuel (pour passer de ce niveau au suivant)
+            const xpForThisLevel = (level * 50 + 50);
+            
+            const xpRemainingForNextLevel = xpForThisLevel - xpProgressInCurrentLevel;
+
             return { level: level, xpCurrentLevel: xpProgressInCurrentLevel, xpForThisLevel: xpForThisLevel, xpToNextLevel: xpRemainingForNextLevel };
         }
 
@@ -566,10 +581,13 @@
 
         // Met a jour la barre d'experience (XP) et le niveau de l'utilisateur
         function updateXPBar() {
-            const { level, xpCurrentLevel, xpForThisLevel, xpToNextLevel } = calculateLevelAndXP(userProfile.currentXP);
-            const progressBar = document.getElementById('xp-bar-fill'), progressText = document.getElementById('xp-bar-text');
-            const newProgressPercentage = xpForThisLevel > 0 ? ((xpForThisLevel - xpToNextLevel) / xpForThisLevel) * 100 : 0;
-            const actualNewProgress = Math.max(0, Math.min(100, newProgressPercentage));
+            const { level, xpCurrentLevel, xpForThisLevel } = calculateLevelAndXP(userProfile.currentXP);
+            const progressBar = document.getElementById('xp-bar-fill');
+            const progressText = document.getElementById('xp-bar-text');
+
+            // Calculate progress within the current level
+            const progressPercentage = xpForThisLevel > 0 ? (xpCurrentLevel / xpForThisLevel) * 100 : 0;
+            const actualProgress = Math.max(0, Math.min(100, progressPercentage)); // Ensure percentage is between 0 and 100
 
             // Check for level up
             if (level > previousLevel) {
@@ -578,25 +596,27 @@
                 showMessage(`FELICITATIONS, VOUS AVEZ ATTEINT LE NIVEAU ${level} !`, 'success');
                 speak(`Felicitations, vous avez atteint le niveau ${level} !`);
 
-                // Visual reset animation:
+                // Visual reset animation for level up:
                 // 1. Temporarily remove transition for instant reset to 0%
                 progressBar.style.transition = 'none';
                 progressBar.style.width = '0%';
 
-                // 2. Force a reflow to apply the 0% width instantly
-                void progressBar.offsetWidth; // This forces the browser to render the change
+                // 2. Force a reflow to apply the 0% width instantly before the new fill animation
+                void progressBar.offsetWidth;
 
                 // 3. Re-add transition and set the actual new width after a very short delay
+                // This makes the bar appear to "reset" to 0% and then fill up for the new level
                 setTimeout(() => {
                     progressBar.style.transition = 'width 0.5s ease-in-out, background 0.5s ease-in-out'; // Re-add transition
-                    progressBar.style.width = `${actualNewProgress}%`;
-                }, 50); // Small delay to ensure the 0% is rendered before the fill animation starts
+                    progressBar.style.width = `${actualProgress}%`;
+                }, 150); // Increased delay for a more noticeable reset
             } else {
                 // Normal XP gain, just update width with existing transition
                 progressBar.style.transition = 'width 0.5s ease-in-out, background 0.5s ease-in-out'; // Ensure transition is always on for normal updates
-                progressBar.style.width = `${actualNewProgress}%`;
+                progressBar.style.width = `${actualProgress}%`;
             }
 
+            // Update the text display for current level and XP progress
             progressText.textContent = `LVL ${level} : ${xpCurrentLevel}/${xpForThisLevel} XP`;
 
             previousLevel = level; // Met a jour le niveau precedent
