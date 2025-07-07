@@ -146,7 +146,7 @@
         let currentPage = 'daily_plan', isLoadingApp = true, loadingProgress = 0, messageQueue = [], currentDisplayedMessage = '', currentDisplayedMessageType = '', messageDisplayTimeoutRef = null;
         let weeklyMealPlan = null, userProfile = { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [] };
         let workoutLogs = [], weightHistory = [], intervalSequences = [], shifts = [];
-        let workoutProgram = {}, previousLevel = 0, isAudioActive = true, masterVolume = 0.5;
+        let workoutProgram = {}, previousLevel = 0, isAudioActive = true, masterVolume = 1;
         let trophySoundPlayer, levelUpPlayer, majorLevelUpPlayer, beepPlayer, startSoundPlayer, loadingSoundLoop, synth;
         let chronoIntervals = [], chronoCurrentTime = 0, chronoCurrentIntervalIndex = -1, isChronoRunning = false, isChronoPaused = false, enableChronoPreCountdown = true, chronoPreCountdownDuration = 10, chronoIntervalTimerRef = null;
         let weightChartInstance = null, exerciseChartInstance = null, userId = 'local_user';
