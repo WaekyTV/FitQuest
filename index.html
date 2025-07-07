@@ -60,6 +60,72 @@
             .nav-item { flex-shrink: 0; min-width: 80px; padding: 0.5rem 0.75rem; margin: 0 0.25rem; }
             .main-content-area { padding-bottom: 6rem; }
         }
+        /* Styles pour la barre de volume */
+        input[type="range"] {
+            -webkit-appearance: none; /* Supprime l'apparence par defaut */
+            width: 100%;
+            height: 16px; /* Hauteur de la barre */
+            background: transparent; /* Rend le fond du range transparent */
+            outline: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Style pour la piste (track) du curseur */
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 10px; /* Hauteur de la piste */
+            background: linear-gradient(to right, #9333ea 0%, #9333ea var(--volume-fill, 0%), #4a5568 var(--volume-fill, 0%), #4a5568 100%); /* Fond gris avec remplissage violet */
+            border-radius: 5px; /* Coins arrondis */
+            border: 1px solid #6b21a8; /* Bordure */
+            box-shadow: inset 0 0 3px rgba(0,0,0,0.5);
+            transition: background 0.1s ease-in-out; /* Transition douce pour le remplissage */
+        }
+
+        input[type="range"]::-moz-range-track {
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, #9333ea 0%, #9333ea var(--volume-fill, 0%), #4a5568 var(--volume-fill, 0%), #4a5568 100%);
+            border-radius: 5px;
+            border: 1px solid #6b21a8;
+            box-shadow: inset 0 0 3px rgba(0,0,0,0.5);
+            transition: background 0.1s ease-in-out;
+        }
+
+        /* Style pour le curseur (thumb) */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px; /* Taille du curseur */
+            height: 20px; /* Taille du curseur */
+            background: #a78bfa; /* Couleur du curseur */
+            border: 2px solid #6b21a8;
+            border-radius: 50%; /* Forme ronde */
+            cursor: grab;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            margin-top: -5px; /* Centre le curseur sur la piste */
+            transition: background 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #a78bfa;
+            border: 2px solid #6b21a8;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            transition: background 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+        }
+
+        input[type="range"]:active::-webkit-slider-thumb {
+            cursor: grabbing;
+            box-shadow: 0 0 8px rgba(167, 139, 250, 0.8);
+        }
+        input[type="range"]:active::-moz-range-thumb {
+            cursor: grabbing;
+            box-shadow: 0 0 8px rgba(167, 139, 250, 0.8);
+        }
     </style>
 </head>
 <body class="font-vt323 text-white bg-gray-900 min-h-screen flex flex-col">
@@ -158,7 +224,7 @@
         let contextualMealCache = new Map(); // Key: "mealType_poste", Value: meal object
 
         // Liste de tous les trophées disponibles et leurs conditions
-        const allTrophies = [ { id: 't001', name: 'PREMIER PAS', description: 'Atteindre le Niveau 1. Le voyage commence !', levelRequired: 1 }, { id: 't002', name: 'NOVICE EN FORME', description: 'Atteindre le Niveau 2. Vous prenez le rythme.', levelRequired: 2 }, { id: 't003', name: 'INITIE DU FIT', description: 'Atteindre le Niveau 3. Les efforts paient.', levelRequired: 3 }, { id: 't004', name: 'FORME CROISSANTE', description: 'Atteindre le Niveau 4. De mieux en mieux !', levelRequired: 4 }, { id: 't005', name: 'DEBUTANT AVANCE', description: 'Atteindre le Niveau 5. Vous n\'etes plus un debutant.', levelRequired: 5 }, { id: 't006', name: 'CONSTANCE MERITEE', description: 'Atteindre le Niveau 6. La regularite, c\'est la cle.', levelRequired: 6 }, { id: 't007', name: 'ELAN DU PROGRES', description: 'Atteindre le Niveau 7. Vous sentez la progression.', levelRequired: 7 }, { id: 't008', name: 'GAINS ASSURES', description: 'Atteindre le Niveau 8. Les muscles se dessinent.', levelRequired: 8 }, { id: 't009', name: 'AVANCEE RAPIDE', description: 'Atteindre le Niveau 9. Vous brulez les etapes.', levelRequired: 9 }, { id: 't010', name: 'DIXIEME ETAPE', description: 'Atteindre le Niveau 10. Un jalon important !', levelRequired: 10 }, { id: 't011', name: 'MAITRE INTERMEDIAIRE', description: 'Atteindre le Niveau 11. Le fitness devient une habitude.', levelRequired: 11 }, { id: 't012', name: 'FORCE EMERGENTE', description: 'Atteindre le Niveau 12. Vos limites sont repoussees.', levelRequired: 12 }, { id: 't013', name: 'ENDURANCE ACCRUE', description: 'Atteindre le Niveau 13. Le cardio n\'a plus de secret.', levelRequired: 13 }, { id: 't014', name: 'EXCELLENCE EN VUE', description: 'Atteindre le Niveau 14. La performance est a portee.', levelRequired: 14 }, { id: 't015', name: 'DEMI-MAITRE', description: 'Atteindre le Niveau 15. Vous etes sur la bonne voie.', levelRequired: 15 }, { id: 't016', name: 'DISCIPLINE DE FER', description: 'Atteindre le Niveau 16. Votre engagement est fort.', levelRequired: 16 }, { id: 't017', name: 'ENERGIE DECUPLEE', description: 'Atteindre le Niveau 17. Sentez cette vitalite !', levelRequired: 17 }, { id: 't018', name: 'HARMONIE CORPS/ESPRIT', description: 'Atteindre le Niveau 18. L\'equilibre est parfait.', levelRequired: 18 }, { id: 't019', name: 'FORME OPTIMALE', description: 'Atteindre le Niveau 19. Vous rayonnez de sante.', levelRequired: 19 }, { id: 't020', name: 'DEUXIEME DIZAINE', description: 'Atteindre le Niveau 20. Double decennie de fitness !', levelRequired: 20 }, { id: 't021', name: 'EXPERT EN DEVENIR', description: 'Atteindre le Niveau 21. La maitrise approche.', levelRequired: 21 }, { id: 't022', name: 'PUISSANCE REVELEE', description: 'Atteindre le Niveau 22. Une force insoupconnee.', levelRequired: 22 }, { id: 't023', name: 'AGILITE MAXIMALE', description: 'Atteindre le Niveau 23. Votre corps est un temple agile.', levelRequired: 23 }, { id: 't024', name: 'RESISTANCE INEGALEE', description: 'Atteindre le Niveau 24. Rien ne vous arrete.', levelRequired: 24 }, { id: 't025', name: 'QUART DE SIECLE', description: 'Atteindre le Niveau 25. Vous etes une machine !', levelRequired: 25 }, { id: 't026', name: 'PERFECTION EN MARCHE', description: 'Atteindre le Niveau 26. Chaque pas est un succes.', levelRequired: 26 }, { id: 't027', name: 'FORME INCROYABLE', description: 'Atteindre le Niveau 27. Admirez votre progression !', levelRequired: 27 }, { id: 't028', name: 'DETERMINATION ACEREE', description: 'Atteindre le Niveau 28. Votre volonte est sans faille.', levelRequired: 28 }, { id: 't029', name: 'INEPUISABLE', description: 'Atteindre le Niveau 29. L\'energie vous habite.', levelRequired: 29 }, { id: 't030', name: 'LE TREINTIEME', description: 'Atteindre le Niveau 30. Un cap monumental !', levelRequired: 30 }, { id: 't031', name: 'MAITRE ABSOLU', description: 'Atteindre le Niveau 31. Vous etes une reference.', levelRequired: 31 }, { id: 't032', name: 'EXPERT LEGENDAIRE', description: 'Votre reputation vous precede.Atteindre le Niveau 32. ', levelRequired: 32 }, { id: 't033', name: 'OLYMPIEN EN HERBE', description: 'Digne des plus grands athletes.Atteindre le Niveau 33. ', levelRequired: 33 }, { id: 't034', name: 'CHAMPION INCROYABLE', description: 'Votre esprit est indomptable.Atteindre le Niveau 34. ', levelRequired: 34 }, { id: 't035', name: 'LE PRODIGE', description: 'Vos prouesses sont inegalees.Atteindre le Niveau 35. ', levelRequired: 35 }, { id: 't036', name: 'FORCE DE LA NATURE', description: 'Vous etes imparable.Atteindre le Niveau 36. ', levelRequired: 36 }, { id: 't037', name: 'FORME DIVINE', description: 'Votre corps est une oeuvre d\'art.Atteindre le Niveau 37. ', levelRequired: 37 }, { id: 't038', name: 'CONNAISSANCE SUPREME', description: 'Votre savoir est immense.Atteindre le Niveau 38. ', levelRequired: 38 }, { id: 't039', name: 'REALISATION PARFAITE', description: 'Tout est sous controle.Atteindre le Niveau 39. ', levelRequired: 39 }, { id: 't040', name: 'QUARANTIEME HORIZON', description: 'Le ciel est votre limite !Atteindre le Niveau 40. ', levelRequired: 40 }, { id: 't041', name: 'LEGENDE VIVANTE', description: 'On parlera de vous.Atteindre le Niveau 41. ', levelRequired: 41 }, { id: 't042', name: 'INSPIRATION ULTIME', description: 'Vous inspirez les foules.Atteindre le Niveau 42. ', levelRequired: 42 }, { id: 't043', name: 'DEFI RELEVE', description: 'Chaque obstacle est un tremplin.Atteindre le Niveau 43. ', levelRequired: 43 }, { id: 't044', name: 'SUMMUM DE LA FORME', description: 'Vous etes au sommet.Atteindre le Niveau 44. ', levelRequired: 44 }, { id: 't045', name: 'LE MAITRE CULMINANT', description: 'La perfection incarnee.Atteindre le Niveau 45. ', levelRequired: 45 }, { id: 't046', name: 'IMPARABLE', description: 'Vous etes invincible !Atteindre le Niveau 46. ', levelRequired: 46 }, { id: 't047', name: 'VOLONTE DE DIAMANT', description: 'Votre determination est inebranlable.Atteindre le Niveau 47. ', levelRequired: 47 }, { id: 't048', name: 'ECLAT ETERNEL', description: 'Votre aura brille.Atteindre le Niveau 48. ', levelRequired: 48 }, { id: 't049', name: 'CONNAISSANCE ABSOLUE', description: 'Le savoir vous guide.Atteindre le Niveau 49. ', levelRequired: 49 }, { id: 't050', name: 'LE CINQUANTIEME', description: 'Une performance extraordinaire !Atteindre le Niveau 50. ', levelRequired: 50 }, { id: 't051', name: 'GRAND MAITRE', description: 'Atteindre le Niveau 51. Vous etes au-delà de l\'excellence.', levelRequired: 51 }, { id: 't052', name: 'ARCHITECTE DU CORPS', description: 'Atteindre le Niveau 52. Vous sculptez votre destin.', levelRequired: 52 }, { id: 't053', name: 'ARTISAN DE LA SANTE', description: 'Atteindre le Niveau 53. Votre bien-etre est une oeuvre.', levelRequired: 53 }, { id: 't054', name: 'GUERRIER DE LA FORME', description: 'Atteindre le Niveau 54. Combattez pour votre meilleure version.', levelRequired: 54 }, { id: 't055', name: 'CONQUERANT DU PHYSIQUE', description: 'Atteindre le Niveau 55. Chaque jour est une victoire.', levelRequired: 55 }, { id: 't056', name: 'PIONNIER DU BIEN-ETRE', description: 'Atteindre le Niveau 56. Vous ouvrez la voie.', levelRequired: 56 }, { id: 't057', name: 'PILIER DE LA VITALITE', description: 'Atteindre le Niveau 57. Votre energie est inepuisable.', levelRequired: 57 }, { id: 't058', name: 'SYNTHESE PARFAITE', description: 'Atteindre le Niveau 58. L\'harmonie est atteinte.', levelRequired: 58 }, { id: 't059', name: 'PERFORMANCE ULTIME', description: 'Atteindre le Niveau 59. Vous defiez les limites.', levelRequired: 59 }, { id: 't060', name: 'LE SOIXANTIEME', description: 'Incroyable perseverance !Atteindre le Niveau 60. ', levelRequired: 60 }, { id: 't061', name: 'LEGENDAIRE INDOMPTABLE', description: 'Votre nom resonne.Atteindre le Niveau 61. ', levelRequired: 61 }, { id: 't062', name: 'MYTHIQUE', description: 'Votre parcours est une epopee.Atteindre le Niveau 62. ', levelRequired: 62 }, { id: 't063', name: 'CHRONIQUE VIVANTE', description: 'Chaque jour ecrit l\'histoire.Atteindre le Niveau 63. ', levelRequired: 63 }, { id: 't064', name: 'PATRON DES RECORDS', description: 'Les records s\'inclinent.Atteindre le Niveau 64. ', levelRequired: 64 }, { id: 't065', name: 'LE NEMESIS DE LA FAIBLESSE', description: 'Plus rien ne vous arrete.Atteindre le Niveau 65. ', levelRequired: 65 }, { id: 't066', name: 'VOLONTE D\'ACIER', description: 'Votre determination est inebranlable.Atteindre le Niveau 66. ', levelRequired: 66 }, { id: 't067', name: 'METEORE DE LA FORME', description: 'Votre progression est fulgurante.Atteindre le Niveau 67. ', levelRequired: 67 }, { id: 't068', name: 'AU-DELA DES LIMITES', description: 'Vous transcendez tout.Atteindre le Niveau 68. ', levelRequired: 68 }, { id: 't069', name: 'VISIONNAIRE DU FITNESS', description: 'Votre vision est claire.Atteindre le Niveau 69. ', levelRequired: 69 }, { id: 't070', name: 'LE SOIXANTE-DIXIEME', description: 'Une ascension sans fin !Atteindre le Niveau 70. ', levelRequired: 70 }, { id: 't071', name: 'IMMORTEL DE LA FORME', description: 'Atteindre le Niveau 71. Votre corps defie le temps.' }, { id: 't072', name: 'ZENITH DE LA VITALITE', description: 'Atteindre le Niveau 72. Sentez la pleine puissance.' }, { id: 't073', name: 'CONSTELLATION DU CORPS', description: 'Atteindre le Niveau 73. Chaque fibre brille.' }, { id: 't074', name: 'HEROS DU QUOTIDIEN', description: 'Atteindre le Niveau 74. Votre discipline est exemplaire.' }, { id: 't075', name: 'LE SEPTANTE-CINQUIEME', description: 'Atteindre le Niveau 75. Une prouesse historique !' }, { id: 't076', name: 'ETERNEL ATHLETE', description: 'Atteindre le Niveau 76. Le sport est votre essence.' }, { id: 't077', name: 'SAGESSE CORPORELLE', description: 'Atteindre le Niveau 77. Votre experience est precieuse.' }, { id: 't078', name: 'GUARDIEN DE LA SANTE', description: 'Atteindre le Niveau 78. Vous veillez sur votre bien-etre.' }, { id: 't079', name: 'EMERAUDE DU FITNESS', description: 'Atteindre le Niveau 79. Precieux et rare.' }, { id: 't080', name: 'LE QUATRE-VINGTIEME', description: 'Atteindre le Niveau 80. Un exploit extraordinaire !' }, { id: 't081', name: 'ARCHANGE DE L\'ACTIVITE', description: 'Atteindre le Niveau 81. Votre presence est divine.' }, { id: 't082', name: 'COURONNE DE LAURELS', description: 'Atteindre le Niveau 82. Le triomphe vous attend.' }, { id: 't083', name: 'ESSENCE DU MOUVEMENT', description: 'Atteindre le Niveau 83. Le mouvement est votre signature.' }, { id: 't084', name: 'INFINI DE L\'ENERGIE', description: 'Atteindre le Niveau 84. Une source intarissable.' }, { id: 't085', name: 'LE QUATRE-VINGT-CINQUIEME', description: 'Atteindre le Niveau 85. Un jalon impressionnant !' }, { id: 't086', name: 'CONSTELLATION D\'OR', description: 'Atteindre le Niveau 86. Vous etes une etoile.' }, { id: 't087', name: 'SYMBOLE DE FORCE', description: 'Atteindre le Niveau 87. Une incarnation de la puissance.' }, { id: 't088', name: 'APOTHEOSE PHYSIQUE', description: 'Atteindre le Niveau 88. Le sommet de la forme.' }, { id: 't089', name: 'LUMIERE DU BIEN-ETRE', description: 'Atteindre le Niveau 89. Vous eclairez le chemin.' }, { id: 't090', name: 'LE QUATRE-VINGT-DIXIEME', description: 'Atteindre le Niveau 90. Presque la perfection !' }, { id: 't091', name: 'DIVINITE DE LA FORME', description: 'Atteindre le Niveau 91. Vous touchez au divin.' }, { id: 't092', name: 'ETINCELLE ETERNELLE', description: 'Atteindre le Niveau 92. Votre flamme ne s\'eteint jamais.' }, { id: 't093', name: 'LE MAITRE DES MAITRES', description: 'Atteindre le Niveau 93. Le plus grand de tous.' }, { id: 't094', name: 'AU-DELA DE L\'EXCELLENCE', description: 'Atteindre le Niveau 94. Depassez toutes les attentes.' }, { id: 't095', name: 'LE QUATRE-VINGT-QUINZIEME', description: 'Atteindre le Niveau 95. La grandeur est a vous !' }, { id: 't096', name: 'SOURCE INFINIE', description: 'Atteindre le Niveau 96. Une energie inepuisable.' }, { id: 't097', name: 'ESSENCE DU CHAMPION', description: 'Atteindre le Niveau 97. Vous etes ne pour gagner.' }, { id: 't098', name: 'L\'APEX ULTIME', description: 'Atteindre le Niveau 98. Le sommet absolu.' }, { id: 't099', name: 'PERFECTION INCARNEE', description: 'Atteindre le Niveau 99. La perfection est atteinte.' }, { id: 't100', name: 'LE CENTIEME !', description: 'Atteindre le Niveau 100. Vous avez conquis FitQuest !', levelRequired: 100 } ];
+        const allTrophies = [ { id: 't001', name: 'PREMIER PAS', description: 'Atteindre le Niveau 1. Le voyage commence !', levelRequired: 1 }, { id: 't002', name: 'NOVICE EN FORME', description: 'Atteindre le Niveau 2. Vous prenez le rythme.', levelRequired: 2 }, { id: 't003', name: 'INITIE DU FIT', description: 'Atteindre le Niveau 3. Les efforts paient.', levelRequired: 3 }, { id: 't004', name: 'FORME CROISSANTE', description: 'Atteindre le Niveau 4. De mieux en mieux !', levelRequired: 4 }, { id: 't005', name: 'DEBUTANT AVANCE', description: 'Atteindre le Niveau 5. Vous n\'etes plus un debutant.', levelRequired: 5 }, { id: 't006', name: 'CONSTANCE MERITEE', description: 'Atteindre le Niveau 6. La regularite, c\'est la cle.', levelRequired: 6 }, { id: 't007', name: 'ELAN DU PROGRES', description: 'Atteindre le Niveau 7. Vous sentez la progression.', levelRequired: 7 }, { id: 't008', name: 'GAINS ASSURES', description: 'Atteindre le Niveau 8. Les muscles se dessinent.', levelRequired: 8 }, { id: 't009', name: 'AVANCEE RAPIDE', description: 'Atteindre le Niveau 9. Vous brulez les etapes.', levelRequired: 9 }, { id: 't010', name: 'DIXIEME ETAPE', description: 'Atteindre le Niveau 10. Un jalon important !', levelRequired: 10 }, { id: 't011', name: 'MAITRE INTERMEDIAIRE', description: 'Atteindre le Niveau 11. Le fitness devient une habitude.', levelRequired: 11 }, { id: 't012', name: 'FORCE EMERGENTE', description: 'Atteindre le Niveau 12. Vos limites sont repoussees.', levelRequired: 12 }, { id: 't013', name: 'ENDURANCE ACCRUE', description: 'Atteindre le Niveau 13. Le cardio n\'a plus de secret.', levelRequired: 13 }, { id: 't014', name: 'EXCELLENCE EN VUE', description: 'Atteindre le Niveau 14. La performance est a portee.', levelRequired: 14 }, { id: 't015', name: 'DEMI-MAITRE', description: 'Atteindre le Niveau 15. Vous etes sur la bonne voie.', levelRequired: 15 }, { id: 't016', name: 'DISCIPLINE DE FER', description: 'Atteindre le Niveau 16. Votre engagement est fort.', levelRequired: 16 }, { id: 't017', name: 'ENERGIE DECUPLEE', description: 'Atteindre le Niveau 17. Sentez cette vitalite !', levelRequired: 17 }, { id: 't018', name: 'HARMONIE CORPS/ESPRIT', description: 'Atteindre le Niveau 18. L\'equilibre est parfait.', levelRequired: 18 }, { id: 't019', name: 'FORME OPTIMALE', description: 'Atteindre le Niveau 19. Vous rayonnez de sante.', levelRequired: 19 }, { id: 't020', name: 'DEUXIEME DIZAINE', description: 'Atteindre le Niveau 20. Double decennie de fitness !', levelRequired: 20 }, { id: 't021', name: 'EXPERT EN DEVENIR', description: 'Atteindre le Niveau 21. La maitrise approche.', levelRequired: 21 }, { id: 't022', name: 'PUISSANCE REVELEE', description: 'Atteindre le Niveau 22. Une force insoupconnee.', levelRequired: 22 }, { id: 't023', name: 'AGILITE MAXIMALE', description: 'Atteindre le Niveau 23. Votre corps est un temple agile.', levelRequired: 23 }, { id: 't024', name: 'RESISTANCE INEGALEE', description: 'Atteindre le Niveau 24. Rien ne vous arrete.', levelRequired: 24 }, { id: 't025', name: 'QUART DE SIECLE', description: 'Atteindre le Niveau 25. Vous etes une machine !', levelRequired: 25 }, { id: 't026', name: 'PERFECTION EN MARCHE', description: 'Atteindre le Niveau 26. Chaque pas est un succes.', levelRequired: 26 }, { id: 't027', name: 'FORME INCROYABLE', description: 'Atteindre le Niveau 27. Admirez votre progression !', levelRequired: 27 }, { id: 't028', name: 'DETERMINATION ACEREE', description: 'Votre volonte est sans faille.Atteindre le Niveau 28. ', levelRequired: 28 }, { id: 't029', name: 'INEPUISABLE', description: 'L\'energie vous habite.Atteindre le Niveau 29. ', levelRequired: 29 }, { id: 't030', name: 'LE TREINTIEME', description: 'Un cap monumental !Atteindre le Niveau 30. ', levelRequired: 30 }, { id: 't031', name: 'MAITRE ABSOLU', description: 'Vous etes une reference.Atteindre le Niveau 31. ', levelRequired: 31 }, { id: 't032', name: 'EXPERT LEGENDAIRE', description: 'Votre reputation vous precede.Atteindre le Niveau 32. ', levelRequired: 32 }, { id: 't033', name: 'OLYMPIEN EN HERBE', description: 'Digne des plus grands athletes.Atteindre le Niveau 33. ', levelRequired: 33 }, { id: 't034', name: 'CHAMPION INCROYABLE', description: 'Votre esprit est indomptable.Atteindre le Niveau 34. ', levelRequired: 34 }, { id: 't035', name: 'LE PRODIGE', description: 'Vos prouesses sont inegalees.Atteindre le Niveau 35. ', levelRequired: 35 }, { id: 't036', name: 'FORCE DE LA NATURE', description: 'Vous etes imparable.Atteindre le Niveau 36. ', levelRequired: 36 }, { id: 't037', name: 'FORME DIVINE', description: 'Votre corps est une oeuvre d\'art.Atteindre le Niveau 37. ', levelRequired: 37 }, { id: 't038', name: 'CONNAISSANCE SUPREME', description: 'Votre savoir est immense.Atteindre le Niveau 38. ', levelRequired: 38 }, { id: 't039', name: 'REALISATION PARFAITE', description: 'Tout est sous controle.Atteindre le Niveau 39. ', levelRequired: 39 }, { id: 't040', name: 'QUARANTIEME HORIZON', description: 'Le ciel est votre limite !Atteindre le Niveau 40. ', levelRequired: 40 }, { id: 't041', name: 'LEGENDE VIVANTE', description: 'On parlera de vous.Atteindre le Niveau 41. ', levelRequired: 41 }, { id: 't042', name: 'INSPIRATION ULTIME', description: 'Vous inspirez les foules.Atteindre le Niveau 42. ', levelRequired: 42 }, { id: 't043', name: 'DEFI RELEVE', description: 'Chaque obstacle est un tremplin.Atteindre le Niveau 43. ', levelRequired: 43 }, { id: 't044', name: 'SUMMUM DE LA FORME', description: 'Vous etes au sommet.Atteindre le Niveau 44. ', levelRequired: 44 }, { id: 't045', name: 'LE MAITRE CULMINANT', description: 'La perfection incarnee.Atteindre le Niveau 45. ', levelRequired: 45 }, { id: 't046', name: 'IMPARABLE', description: 'Vous etes invincible !Atteindre le Niveau 46. ', levelRequired: 46 }, { id: 't047', name: 'VOLONTE DE DIAMANT', description: 'Votre determination est inebranlable.Atteindre le Niveau 47. ', levelRequired: 47 }, { id: 't048', name: 'ECLAT ETERNEL', description: 'Votre aura brille.Atteindre le Niveau 48. ', levelRequired: 48 }, { id: 't049', name: 'CONNAISSANCE ABSOLUE', description: 'Le savoir vous guide.Atteindre le Niveau 49. ', levelRequired: 49 }, { id: 't050', name: 'LE CINQUANTIEME', description: 'Une performance extraordinaire !Atteindre le Niveau 50. ', levelRequired: 50 }, { id: 't051', name: 'GRAND MAITRE', description: 'Atteindre le Niveau 51. Vous etes au-delà de l\'excellence.', levelRequired: 51 }, { id: 't052', name: 'ARCHITECTE DU CORPS', description: 'Atteindre le Niveau 52. Vous sculptez votre destin.', levelRequired: 52 }, { id: 't053', name: 'ARTISAN DE LA SANTE', description: 'Atteindre le Niveau 53. Votre bien-etre est une oeuvre.', levelRequired: 53 }, { id: 't054', name: 'GUERRIER DE LA FORME', description: 'Atteindre le Niveau 54. Combattez pour votre meilleure version.', levelRequired: 54 }, { id: 't055', name: 'CONQUERANT DU PHYSIQUE', description: 'Atteindre le Niveau 55. Chaque jour est une victoire.', levelRequired: 55 }, { id: 't056', name: 'PIONNIER DU BIEN-ETRE', description: 'Atteindre le Niveau 56. Vous ouvrez la voie.', levelRequired: 56 }, { id: 't057', name: 'PILIER DE LA VITALITE', description: 'Atteindre le Niveau 57. Votre energie est inepuisable.', levelRequired: 57 }, { id: 't058', name: 'SYNTHESE PARFAITE', description: 'Atteindre le Niveau 58. L\'harmonie est atteinte.', levelRequired: 58 }, { id: 't059', name: 'PERFORMANCE ULTIME', description: 'Atteindre le Niveau 59. Vous defiez les limites.', levelRequired: 59 }, { id: 't060', name: 'LE SOIXANTIEME', description: 'Incroyable perseverance !Atteindre le Niveau 60. ', levelRequired: 60 }, { id: 't061', name: 'LEGENDAIRE INDOMPTABLE', description: 'Votre nom resonne.Atteindre le Niveau 61. ', levelRequired: 61 }, { id: 't062', name: 'MYTHIQUE', description: 'Votre parcours est une epopee.Atteindre le Niveau 62. ', levelRequired: 62 }, { id: 't063', name: 'CHRONIQUE VIVANTE', description: 'Chaque jour ecrit l\'histoire.Atteindre le Niveau 63. ', levelRequired: 63 }, { id: 't064', name: 'PATRON DES RECORDS', description: 'Les records s\'inclinent.Atteindre le Niveau 64. ', levelRequired: 64 }, { id: 't065', name: 'LE NEMESIS DE LA FAIBLESSE', description: 'Plus rien ne vous arrete.Atteindre le Niveau 65. ', levelRequired: 65 }, { id: 't066', name: 'VOLONTE D\'ACIER', description: 'Votre determination est inebranlable.Atteindre le Niveau 66. ', levelRequired: 66 }, { id: 't067', name: 'METEORE DE LA FORME', description: 'Votre progression est fulgurante.Atteindre le Niveau 67. ', levelRequired: 67 }, { id: 't068', name: 'AU-DELA DES LIMITES', description: 'Vous transcendez tout.Atteindre le Niveau 68. ', levelRequired: 68 }, { id: 't069', name: 'VISIONNAIRE DU FITNESS', description: 'Votre vision est claire.Atteindre le Niveau 69. ', levelRequired: 69 }, { id: 't070', name: 'LE SOIXANTE-DIXIEME', description: 'Une ascension sans fin !Atteindre le Niveau 70. ', levelRequired: 70 }, { id: 't071', name: 'IMMORTEL DE LA FORME', description: 'Atteindre le Niveau 71. Votre corps defie le temps.' }, { id: 't072', name: 'ZENITH DE LA VITALITE', description: 'Atteindre le Niveau 72. Sentez la pleine puissance.' }, { id: 't073', name: 'CONSTELLATION DU CORPS', description: 'Atteindre le Niveau 73. Chaque fibre brille.' }, { id: 't074', name: 'HEROS DU QUOTIDIEN', description: 'Atteindre le Niveau 74. Votre discipline est exemplaire.' }, { id: 't075', name: 'LE SEPTANTE-CINQUIEME', description: 'Atteindre le Niveau 75. Une prouesse historique !' }, { id: 't076', name: 'ETERNEL ATHLETE', description: 'Atteindre le Niveau 76. Le sport est votre essence.' }, { id: 't077', name: 'SAGESSE CORPORELLE', description: 'Atteindre le Niveau 77. Votre experience est precieuse.' }, { id: 't078', name: 'GUARDIEN DE LA SANTE', description: 'Atteindre le Niveau 78. Vous veillez sur votre bien-etre.' }, { id: 't079', name: 'EMERAUDE DU FITNESS', description: 'Atteindre le Niveau 79. Precieux et rare.' }, { id: 't080', name: 'LE QUATRE-VINGTIEME', description: 'Atteindre le Niveau 80. Un exploit extraordinaire !' }, { id: 't081', name: 'ARCHANGE DE L\'ACTIVITE', description: 'Atteindre le Niveau 81. Votre presence est divine.' }, { id: 't082', name: 'COURONNE DE LAURELS', description: 'Atteindre le Niveau 82. Le triomphe vous attend.' }, { id: 't083', name: 'ESSENCE DU MOUVEMENT', description: 'Atteindre le Niveau 83. Le mouvement est votre signature.' }, { id: 't084', name: 'INFINI DE L\'ENERGIE', description: 'Atteindre le Niveau 84. Une source intarissable.' }, { id: 't085', name: 'LE QUATRE-VINGT-CINQUIEME', description: 'Atteindre le Niveau 85. Un jalon impressionnant !' }, { id: 't086', name: 'CONSTELLATION D\'OR', description: 'Atteindre le Niveau 86. Vous etes une etoile.' }, { id: 't087', name: 'SYMBOLE DE FORCE', description: 'Atteindre le Niveau 87. Une incarnation de la puissance.' }, { id: 't088', name: 'APOTHEOSE PHYSIQUE', description: 'Atteindre le Niveau 88. Le sommet de la forme.' }, { id: 't089', name: 'LUMIERE DU BIEN-ETRE', description: 'Atteindre le Niveau 89. Vous eclairez le chemin.' }, { id: 't090', name: 'LE QUATRE-VINGT-DIXIEME', description: 'Atteindre le Niveau 90. Presque la perfection !' }, { id: 't091', name: 'DIVINITE DE LA FORME', description: 'Atteindre le Niveau 91. Vous touchez au divin.' }, { id: 't092', name: 'ETINCELLE ETERNELLE', description: 'Atteindre le Niveau 92. Votre flamme ne s\'eteint jamais.' }, { id: 't093', name: 'LE MAITRE DES MAITRES', description: 'Atteindre le Niveau 93. Le plus grand de tous.' }, { id: 't094', name: 'AU-DELA DE L\'EXCELLENCE', description: 'Atteindre le Niveau 94. Depassez toutes les attentes.' }, { id: 't095', name: 'LE QUATRE-VINGT-QUINZIEME', description: 'Atteindre le Niveau 95. La grandeur est a vous !' }, { id: 't096', name: 'SOURCE INFINIE', description: 'Atteindre le Niveau 96. Une energie inepuisable.' }, { id: 't097', name: 'ESSENCE DU CHAMPION', description: 'Atteindre le Niveau 97. Vous etes ne pour gagner.' }, { id: 't098', name: 'L\'APEX ULTIME', description: 'Atteindre le Niveau 98. Le sommet absolu.' }, { id: 't099', name: 'PERFECTION INCARNEE', description: 'Atteindre le Niveau 99. La perfection est atteinte.' }, { id: 't100', name: 'LE CENTIEME !', description: 'Atteindre le Niveau 100. Vous avez conquis FitQuest !', levelRequired: 100 } ];
         
         // Supprime les anciennes listes d'ingrédients statiques et les types de recettes prédéfinis
         // L'IA générera désormais les recettes de manière dynamique
@@ -247,7 +313,7 @@
                             },
                             {
                                 name: "RAMEUR (ROWING MACHINE) - INTERVAL TRAINING",
-                                desc: "5 MINUTES : ECHAUFFEMENT LEGER (RYTHME LENT, RESISTANCE FAIBLE). RONDE 1 (15 MINUTES) : REPETE 5 FOIS : 2 MINUTES : RYTHME MODERE, RESISTANCE 3-5 (EFFORT SOUTENU MAIS CONFORTABLE). 1 MINUTE : RYTHME INTENSE, RESISTANCE 6-7 (TU ES ESSOUFFLE, TU NE PEUX PAS PARLER FACILEMENT). RECUPERATION ACTIVE (5 MINUTES) : RYTHME TRES FACILE, RESISTANCE 2. BOIS UN PEU D'EAU. RONDE 2 (15 MINUTES) : REPETE 5 FOIS : 2 MINUTES : RYTHME MODERE, RESISTANCE 4-6. 1 MINUTE : RYTHME PLUS INTENSE, RESISTANCE 7-8 (OU LE MAXIMUM QUE TU PEUX SOUTENIR). CONSIGNE : UTILISE 60% DE LA FORCE DES JAMBES, 20% DU TRONC, 20% DES BRAS. POUSSE AVEC LES JAMBES EN PREMIER !",
+                                desc: "5 MINUTES : ECHAUFFEMENT LEGER (RYTHME LENT, RESISTANCE FAIBLE). RONDE 1 (15 MINUTES) : REPETE 5 FOIS : 2 MINUTES : RYTHME MODERE, RESISTANCE 3-5 (EFFORT SOUTENU MAIS CONFORTABLE). 1 MINUTE : RYTHME INTENSE, RESISTANCE 6-7 (TU ES ESSOUFFLE, TU NE PEUX PAS PARLER FACILEMENT). RECUPERATION ACTIVE (5 MINUTES) : RYTHME TRES FACILE, RESISTANCE 2. BOIS UN PEU D'EAU. RONDE 2 (15 MINUTES) : REPETE 5 FOIS : 2 MINUTES : RYTHME MODERE, RESISTANCE 4-6. 1 MINUTE : RYTHME PLUS INTENSE, RESISTANCE 7-8 (OU LE MAXIMUM QUE TU PEUX SOUTENIR). CONSIGNE : UTILISE 60% DE LA FORTE DES JAMBES, 20% DU TRONC, 20% DES BRAS. POUSSE AVEC LES JAMBES EN PREMIER !",
                                 type: "cardio"
                             },
                             {
@@ -340,6 +406,8 @@
                     });
                 });
             }
+            // Charger le volume général depuis le localStorage
+            masterVolume = loadFromLocalStorage('masterVolume', 1);
             console.log("[INITIALISATION] Etat global charge.");
         }
 
@@ -493,7 +561,7 @@
         // Conseils specifiques pour les repas en fonction du contexte
         const specificMealAdvice = {
             'petit_dejeuner': { '18h-6h': "CONSEIL : APRES UN POSTE DE NUIT, PRIVILEGIE UN REPAS NUTRITIF POUR FAVORISER LA RECUPERATION ET UN SOMMEIL DE QUALITE. LES PROTEINES ET GLUCIDES LENTS SONT CLES.", 'default': "CONSEIL : UN PETIT-DEJEUNER EQUILIBRE EST ESSENTIEL POUR L'ENERGIE DU MATIN. VARIE LES SOURCES DE PROTEINES ET FIBRES." },
-            'dejeuner': { '18h-6h': "CONSEIL : PENDANT UN POSTE DE NUIT, OPTE POUR DES PLATS FACILES A DIGERER, RICHES EN PROTEINES ET LEGUMES POUR MAINTENIR TON ENERGIE SANS ALOURDIR.", 'repos_sport': "CONSEIL : APRES LE SPORT, RECONSTITUE TES RESERVES. CE REPAS DEVRAIT ETRE RICHE EN GLUCIDES COMPLEXES POUR L'ENERGIE ET EN PROTEINES POUR LA REPARATION MUSCULAIRE.", 'default': "CONSEIL : POUR UN DEJEUNER OPTIMAL EN JOURNEE DE TRAVAIL, PRIVILEGIE UN PLAT EQUILIBRE QUI APPORTE UNE ENERGIE DURABLE SANS CAUSER DE COUP DE BARRE." },
+            'dejeuner': { '18h-6h': "CONSEIL : PENDANT UN POSTE DE NUIT, OPTE POUR DES PLATS FACILES A DIGERER, RICHES EN PROTEINES ET LEGUMES POUR MAINTENIR TON ENERGIE SANS ALOURDIR.", 'repos_sport': "CONSEIL : APRES LE SPORT, RECONSTITUE TES RESERVES. CE REPAS DEVRAIT ETRE RICHE EN GLUCIDES COMPLEXES POUR L'ENERGIE ET LA REPARATION MUSCULAIRE.", 'default': "CONSEIL : POUR UN DEJEUNER OPTIMAL EN JOURNEE DE TRAVAIL, PRIVILEGIE UN PLAT EQUILIBRE QUI APPORTE UNE ENERGIE DURABLE SANS CAUSER DE COUP DE BARRE." },
             'diner': { '18h-6h': "CONSEIL : AVANT UN POSTE DE NUIT, CHOISIS UN DINER CONSISTANT MAIS FACILE A DIGERER POUR TE DONNER L'ENERGIE NECESSAIRE SANS PERTURBER TON DEBUT DE SOMMEIL PRE-POSTE.", 'repos_sport': "CONSEIL : LE DINER APRES UNE SEANCE DE SPORT DOIT COMPLETER LA RECUPERATION. CONCENTRE-TOI SUR LES PROTEINES POUR LA REPARATION ET LES GLUCIDES POUR REFAIRE LE PLEIN.", 'default': "CONSEIL : UN DINER LEGER EST IDEAL POUR FAVORISER UNE BONNE DIGESTION ET UN SOMMEIL REPARATEUR APRES UNE JOURNEE DE TRAVAIL. PRIVILEGIE LES LEGUMES ET PROTEINES MAIGRES." },
             'collation': { '6h-18h_matin': "CONSEIL : CETTE COLLATON MATINALE EST CLE POUR MAINTENIR TON ENERGIE ET EVITER LES BAISSES DE GLYCEMIE JUSQU'AU DEJEUNER.", '6h-18h_apresmidi': "CONSEIL : LA COLLATON DE L'APRES-MIDI AIDE A GERER LA FAIM ET A SOUTENIR TON ENERGIE JUSQU'AU DINER, SANS ALOURDIR AVANT LA FIN DU POSTE.", '18h-6h_pendant': "CONSEIL : UNE COLLATON PENDANT LA NUIT EST LEGERE ET ENERGISANTE POUR MAINTENIR TA VIGILANCE SANS PERTURBER TA DIGESTION.", '7h-18h_apresmidi': "CONSEIL : LA COLLATON DE L'APRES-MIDI EST PARFAITE POUR SOUTENIR SON ENERGIE LORS DES JOURS DE LONG POSTE OU DE REPOS ACTIF.", 'repos_sport_post': "CONSEIL : UNE COLLATON POST-SPORT EST CRUCIALE POUR UNE RECUPERATION RAPIDE. PRIVILEGIE UN MIX DE PROTEINES ET GLUCIDES.", 'repos_default': "CONSEIL : UNE COLLATON LEGERE EN JOUR DE REPOS PEUT AIDER A GERER LA FAIM ET APPORTER DES NUTRIENTS SUPPLEMENTAIRES." }
         };
@@ -533,7 +601,7 @@
             return { level: level, xpCurrentLevel: xpProgressInCurrentLevel, xpForThisLevel: xpForThisLevel, xpToNextLevel: xpRemainingForNextLevel };
         }
 
-        // Initialise l'application au demarrage
+        // Initialise l'application au démarrage
         async function initializeApp() {
             isLoadingApp = true;
             renderLoadingScreen();
@@ -923,7 +991,7 @@
             // Add general nutritional principles to constraints
             mealSpecificConstraints.push("Priorite aux Proteines et aux Fibres: Essentielles pour la satiete, maintien masse musculaire. Inclure a chaque repas principal et collations. Fibres des legumes, fruits, glucides complexes pour digestion, glycemie, satiete. Legumes a volonte a chaque repas.");
             mealSpecificConstraints.push("Glucides Complexes pour l'Energie: Carburant. Privilegier faible indice glycemique pour energie durable (riz, pommes de terre, patate douce, quinoa, flocons d'avoine, pain complet). Adapter quantite a l'activite (plus les jours d'entrainement/rondes intenses, moins les jours sedentaires).");
-            mealSpecificConstraints.push("Graisses Saines avec Moderation: Importantes pour sante hormonale et absorption vitamines. Huiles vegetales (olive, colza), avocats, oleagineux (amandes, noix), poissons gras (saumon, maquereau). Utiliser avec parcimonie.");
+            mealSpecificConstraints.push("Graisses Saines avec Moderation: Importantes pour sante hormonale et absorption vitamines. Huiles vegetales (olive, colza), avocats, oleagineux (almonds, noix), poissons gras (saumon, maquereau). Utiliser avec parcimonie.");
             mealSpecificConstraints.push("Aliments pour la Sclerose en Plaques (SEP): Privilegier Omega-3 (poissons gras, graines de lin/chia, noix), antioxydants (fruits et legumes colores), Vitamine D (exposition soleil, poissons gras, champignons).");
             mealSpecificConstraints.push("POUR OPTIMISER LES COURSES ET REDUIRE LE COUT, PRIVILEGIEZ L'UTILISATION D'INGREDIENTS COMMUNS DANS DIFFERENTES RECETTES AU COURS DE LA SEMAINE. PAR EXEMPLE, SI DES LENTILLES OU DU POULET SONT UTILISES UN JOUR, PROPOSEZ D'AUTRES RECETTES QUI PEUVENT UTILISER CES MEMES INGREDIENT DANS D'AUTRES RECETTES DE LA SEMAINE, AFIN DE MINIMISER LES DECHETS ET LES COUTS.");
             mealSpecificConstraints.push("POUR LES REPAS QUI SE REPETENT (SI LE CONTEXTE DE POSTE ET DE SPORT EST IDENTIQUE), ASSUREZ-VOUS QU'ILS NE SOIENT PAS SYSTEMATIQUEMENT LES MEMES. VARIEZ-LES LEGEREMENT OU PROPOSEZ DES ALTERNATIVES POUR EVITER LA MONOTONIE, TOUT EN MAINTENANT LA COHERENCE POUR LES ACHATS.");
@@ -963,7 +1031,7 @@
                 } else if (mealType === 'collation_apresmidi') { // This is "Collation de fin de nuit"
                     mealSpecificConstraints.push("COLLATION DE FIN DE NUIT (vers 4h-5h - facultatif) : Un fruit OU un yaourt nature OU petite poignee de noix.");
                 } else if (mealType === 'petit_dejeuner') { // This is "Repas APRES POSTE" for night shifts
-                    mealSpecificConstraints.push("REPAS APRES POSTE (vers 6h30-7h, avant de dormir) : Important pour recuperation et satiete. Boisson : The/tisane prefere (the fruits rouges, lait demi-ecreme, 2 sucres, 1 cuillere miel). Source glucides complexes et proteines : Galette/Pancake proteine (50g flocons d'avoine, 20-30g whey proteine, 1 banane ecrasee ou fruits rouges, eau/lait). OU Option simple : 50g flocons d'avoine en porridge (eau/lait), ou 2 tranches pain complet avec pure d'oleagineux/miel. Fruit : Un fruit entier a croquer (kiwi, pomme).");
+                    mealSpecificConstraints.push("REPAS APRES POSTE (vers 6h30-7h, avant de dormir) : Important pour recuperation et satiete. Boisson : The/tisane prefere (the aux fruits rouges, lait demi-ecreme, 2 sucres, 1 cuillere miel). Source glucides complexes et proteines : Galette/Pancake proteine (50g flocons d'avoine, 20-30g whey proteine, 1 banane ecrasee ou fruits rouges, eau/lait). OU Option simple : 50g flocons d'avoine en porridge (eau/lait), ou 2 tranches pain complet avec pure d'oleagineux/miel. Fruit : Un fruit entier a croquer (kiwi, pomme).");
                     mealSpecificConstraints.push("Doit etre sucre, en evitant les saveurs salees (sauf si les oeufs sont integres dans une preparation sucree comme des crepes/pancakes).");
                     mealSpecificConstraints.push("Les oeufs ne peuvent etre utilises que s'ils sont integres dans des preparations comme des crepes, des pancakes ou des porridges, PAS comme plat principal (ex: oeufs brouilles, omelette).");
                     mealSpecificConstraints.push("PAS DE PATES, SEMOULE OU SAUCE TOMATE.");
@@ -979,13 +1047,13 @@
                 } else if (mealType === 'collation_matin') {
                     mealSpecificConstraints.push("COLLATION MATINALE (si besoin, entre 10h30 et 11h30) : Un fruit (pomme ou poire) OU petite poignee d'oleagineux (15-20 amandes ou noix) OU yaourt grec nature (100-150g).");
                 } else if (mealType === 'dejeuner') {
-                    mealSpecificConstraints.push("DEJEUNER (vers 13h) : Legumes : Portion genereuse de legumes varies. Proteines (120-150g cuits, varie tes sources !) : Viande blanche (poulet, dinde) ou poisson maigre (cabillaud, colin). Poissons gras : 1 a 2 fois par semaine, du saumon, maquereau ou sardines pour les precieux Omega-3. Alternatives : Legumineuses (lentilles, pois chiches, haricots rouges - 150-200g cuits), tofu. Feculents (150-200g cuits, ajuster) : Riz, pommes de terre, patate douce, quinoa, semoule. Matiere grasse : 1 cuillere a soupe huile d'olive ou de colza.");
+                    mealSpecificConstraints.push("DEJEUNER (vers 13h) : Legumes : Une portion genereuse de legumes varies. Proteines (120-150g cuits, varie tes sources !) : Viande blanche (poulet, dinde) ou poisson maigre (cabillaud, colin). Poissons gras : 1 a 2 fois par semaine, du saumon, maquereau ou sardines pour les precieux Omega-3. Alternatives : Legumineuses (lentilles, pois chiches, haricots rouges - 150-200g cuits), tofu. Feculents (150-200g cuits, ajuster) : Riz, pommes de terre, patate douce, quinoa, semoule. Matiere grasse : 1 cuillere a soupe huile d'olive ou de colza.");
                     mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
                     mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
                 } else if (mealType === 'collation_apresmidi') {
                     mealSpecificConstraints.push("COLLATION APRES-MIDI (si besoin, vers 16h-17h) : Un fruit OU un yaourt nature ou fromage blanc (0% ou 20%) OU un shaker de whey proteine avec de l'eau OU une petite poignee de noix de cajou ou amandes (15g). Option 'plaisir maison' : 1 part de gateau flocons d'avoine/whey maison (type banana bread proteine).");
                 } else if (mealType === 'diner') {
-                    mealSpecificConstraints.push("DINER (vers 19h-20h) : Legumes : Portion genereuse (soupe, poelee, legumes vapeur). Proteines (100-120g cuits). Feculents (100-150g cuits, optionnel si sedentaire) : Portion moderee de riz, pommes de terre ou patate douce. Reduire si jour de repos sans sport. Matiere grasse : Petite cuillere huile d'olive ou de colza. Fruit (si faim) : Pomme ou autre fruit leger.");
+                    mealSpecificConstraints.push("DINER (vers 19h-20h) : Legumes : Portion genereuse (soupe, poelee, legumes vapeur). Proteines (100-120g cuits). Feculents (100-150g cuits, optionnel si journee tres sedentaire) : Portion moderee de riz, pommes de terre ou patate douce. Reduire si jour de repos sans sport. Matiere grasse : Petite cuillere huile d'olive ou de colza. Fruit (si faim) : Pomme ou autre fruit leger.");
                     mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
                     mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
                 }
@@ -1016,6 +1084,9 @@
 
             const sportImpact = dayContext.sport !== 'aucun' ? `Waeky a une seance de sport de type '${dayContext.sport}' prevue. Les glucides complexes et les proteines sont importants pour l'energie et la recuperation.` : `Waeky n'a pas de sport prevu pour cette journee. Les repas doivent rester equilibres.`;
             const posteImpact = `Waeky est sur un poste de type '${dayContext.poste}'. N'oubliez pas d'adapter la digestion et l'energie en fonction de cet horaire.`;
+
+            const mealContextDescription = getMealMomentContext(mealType, dayContext.poste, dayContext.sport);
+
 
             const LLM_PROMPT = `Vous etes un nutritionniste expert et un chef cuisinier, travaillant pour 'FitQuest'. Votre mission est de creer une recette detaillee et adaptee pour Waeky, un agent de securite avec un emploi du temps exigeant.
 
@@ -1064,14 +1135,14 @@ PROGRAMME NUTRITIONNEL DE WAEKY :
         - OU 2 tartines de pain complet + pure d'amande.
     - REPAS PENDANT LE POSTE ("Mini-repas", vers 2h-3h, leger et facile a digerer) :
         - Legumes : Une portion de legumes (crudites faciles a manger, reste de legumes cuits du diner, ou une soupe de legumes).
-        - Proteines (80-100g cuits) : Poisson blanc (cabillaud, colin) ou thon au naturel (petite boite) OU un oeuf dur (si ok) OU du fromage blanc/yaourt grec.
+        - Proteines (80-100g cuits) : Poisson blanc (cabillaud, colin) ou thon au naturel (petite boite) OU un oeuf dur OU fromage blanc/yaourt grec.
         - Alternative proteine en poudre : Un petit shaker de whey proteine (20-25g) avec de l'eau, si tu preferes une option tres legere et rapide.
         - Feculents (80-100g cuits) : Une tres petite portion de riz, pommes de terre ou patate douce, ou une tranche de pain complet. A ajuster en fonction de tes rondes : si tu as fait une ronde intense, une petite portion peut etre utile.
         - Matiere grasse : Un filet d'huile pour assaisonner.
     - COLLATION DE FIN DE NUIT (vers 4h-5h - facultatif, si tu as fait une seconde ronde et sens un coup de barre) :
-        - Un fruit OU un yaourt nature OU une petite poignee de noix.
+        - Un fruit OU un yaourt nature OU petite poignee de noix.
     - REPAS APRES POSTE (vers 6h30-7h, avant de dormir) : Ce repas est important pour la recuperation et la satiete avant le sommeil.
-        - Boisson : Ton the/tisane prefere (the aux fruits rouges, lait demi-ecreme, 2 sucres, 1 cuillere de miel).
+        - Boisson : Ton the/tisane prefere (the aux fruits rouges, lait demi-ecreme, 2 sucres, 1 cuillere miel).
         - Source de glucides complexes et proteines :
         - Galette/Pancake proteine : 50g de flocons d'avoine, 20-30g de whey proteine, 1 banane ecrasee (ou fruits rouges), un peu d'eau/lait. Cuit a la poele.
         - Option simple : 50g de flocons d'avoine en porridge (eau/lait), ou 2 tranches de pain complet avec pure d'oleagineux/miel.
@@ -1739,7 +1810,7 @@ GENERER LA RECETTE DETAILLEE : `.trim();
 
             enablePreCountdownCheckbox.onchange = (event) => {
                 enableChronoPreCountdown = event.target.checked;
-                preCountdownDurationSetting.classList.toggle('hidden', !enableChronoPreCountdown);
+                preCountdownDurationSetting.classList.toggle('hidden', !enablePreCountdown);
                 updateLocalStorageChronoState();
             };
 
@@ -1791,7 +1862,7 @@ GENERER LA RECETTE DETAILLEE : `.trim();
 
         // Rend la vue de progression
         function renderProgressView(container) {
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">MA PROGRESSION</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">HISTORIQUE DE POIDS ET IMC :</h3><div class="mb-4"><canvas id="weightChart"></canvas></div><div id="weight-history-list" class="space-y-2"></div></div><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3 flex items-center justify-between">HISTORIQUE D'EXERCICES : <button id="toggle-exercise-history" class="btn-retro-purple text-sm px-3 py-1">${userProfile.hideExerciseHistory ? 'AFFICHER' : 'MASQUER'}</button></h3><div id="exercise-history-content" class="${userProfile.hideExerciseHistory ? 'hidden' : ''}"><canvas id="exerciseChart" class="mb-4"></canvas><div id="exercise-logs-list" class="space-y-2"></div></div></div></div>`;
+            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">MA PROGRESSION</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">HISTORIQUE DE POIDS ET IMC :</h3><div class="mb-4"><canvas id="weightChart"></canvas></div><div id="weight-history-list" class="space-y-2"></div></div><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3 flex items-center justify-between">HISTORIQUE D'EXERCICES : <button id="toggle-exercise-history" class="btn-retro-purple text-sm px-3 py-1">${userProfile.hideExerciseHistory ? 'AFFICHER' : 'MASQUER'}</button></h3><div id="exercise-history-content" class="${userProfile.hideExerciseHistory ? 'hidden' : ''}"><div class="overflow-x-auto pb-4"><canvas id="exerciseChart" class="mb-4"></canvas></div><div id="exercise-logs-list" class="space-y-2"></div></div></div></div>`;
             container.innerHTML = html;
             const weightHistoryList = document.getElementById('weight-history-list'), exerciseLogsList = document.getElementById('exercise-logs-list'), toggleExerciseHistoryBtn = document.getElementById('toggle-exercise-history'), exerciseHistoryContent = document.getElementById('exercise-history-content');
 
@@ -1883,8 +1954,8 @@ GENERER LA RECETTE DETAILLEE : `.trim();
                     listHtml += `<tr><td>${new Date(log.date).toLocaleDateString('fr-FR')}</td><td>${String(log.exerciseName).toUpperCase()}</td><td>${String(log.sets).toUpperCase()}</td><td>${String(log.reps).toUpperCase()}</td><td>${log.weight > 0 ? log.weight : '-'}</td><td>${String(log.feeling).toUpperCase()}</td><td><button class="btn-icon text-red-400 delete-exercise-log" data-id="${log.id}"><i data-lucide="trash-2"></i></button></td></tr>`;
                 });
                 listHtml += `</tbody></table>`;
-                exerciseLogsList.innerHTML = listHtml;
                 renderLucideIcons();
+                exerciseLogsList.innerHTML = listHtml;
                 exerciseLogsList.querySelectorAll('.delete-exercise-log').forEach(button => {
                     button.onclick = async (event) => {
                         const idToDelete = event.currentTarget.dataset.id;
@@ -1906,6 +1977,17 @@ GENERER LA RECETTE DETAILLEE : `.trim();
                 const exerciseCounts = {};
                 workoutLogs.forEach(log => { exerciseCounts[log.exerciseName] = (exerciseCounts[log.exerciseName] || 0) + 1; });
                 const labels = Object.keys(exerciseCounts), data = Object.values(exerciseCounts);
+
+                // Dynamically set canvas width based on number of bars
+                // Each bar and its label needs some space. Adjust multiplier as needed.
+                const minWidth = 300; // Minimum width for the chart
+                const widthPerBar = 50; // Estimated width needed per bar (including padding/label)
+                const calculatedWidth = Math.max(minWidth, labels.length * widthPerBar);
+
+                // Set the canvas width directly. Chart.js will handle responsiveness within this width.
+                ctx.canvas.width = calculatedWidth;
+                ctx.canvas.style.width = `${calculatedWidth}px`; // Ensure CSS also reflects this
+
                 exerciseChartInstance = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -1920,7 +2002,7 @@ GENERER LA RECETTE DETAILLEE : `.trim();
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
+                        maintainAspectRatio: false, // Allow chart to stretch horizontally if needed
                         plugins: { legend: { display: false }, title: { display: true, text: 'FREQUENCE DES EXERCICES', color: '#e2e8f0' } },
                         scales: {
                             x: { ticks: { color: '#e2e8f0' }, grid: { display: false } },
@@ -1964,74 +2046,177 @@ GENERER LA RECETTE DETAILLEE : `.trim();
             });
         }
 
+        // Fonction pour exporter toutes les donnees de l'application
+        function exportProgramData() {
+            const programData = {
+                userProfile: userProfile,
+                weeklyMealPlan: weeklyMealPlan,
+                workoutLogs: workoutLogs,
+                weightHistory: weightHistory,
+                intervalSequences: intervalSequences,
+                shifts: shifts,
+                workoutProgram: workoutProgram,
+                sleepRoutines: sleepRoutines // Include sleep routines
+            };
+
+            const dataStr = JSON.stringify(programData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fitquest_program_backup.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage("PROGRAMME EXPORTE AVEC SUCCES !", 'success');
+        }
+
+        // Fonction pour importer les donnees de l'application
+        async function importProgramData(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                showMessage("AUCUN FICHIER SELECTIONNE.", 'warning');
+                return;
+            }
+
+            if (file.type !== 'application/json') {
+                showMessage("ERREUR: VEUILLEZ SELECTIONNER UN FICHIER JSON VALIDE.", 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+
+                    if (await showConfirmModal("ATTENTION: IMPORTER CE FICHIER REMPLACERA TOUTES VOS DONNEES ACTUELLES (PROFIL, PLANS, HISTORIQUES, ETC.). ETES-VOUS SUR ?")) {
+                        // Update global variables with imported data
+                        userProfile = importedData.userProfile || userProfile;
+                        weeklyMealPlan = importedData.weeklyMealPlan || weeklyMealPlan;
+                        workoutLogs = importedData.workoutLogs || workoutLogs;
+                        weightHistory = importedData.weightHistory || weightHistory;
+                        intervalSequences = importedData.intervalSequences || intervalSequences;
+                        shifts = importedData.shifts || shifts;
+                        workoutProgram = importedData.workoutProgram || workoutProgram;
+                        // Special handling for sleepRoutines if they were not part of the original export structure
+                        if (importedData.sleepRoutines) {
+                            // Merge imported sleepRoutines into the existing const sleepRoutines object
+                            // This allows updating individual routines without reassigning the const itself
+                            Object.assign(sleepRoutines, importedData.sleepRoutines);
+                        }
+
+                        // Re-save all to localStorage
+                        saveToLocalStorage('userProfile', userProfile);
+                        saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
+                        saveToLocalStorage('workoutLogs', workoutLogs);
+                        saveToLocalStorage('weightHistory', weightHistory);
+                        saveToLocalStorage('intervalSequences', intervalSequences);
+                        saveToLocalStorage('shifts', shifts);
+                        saveToLocalStorage('savedWorkoutProgram', workoutProgram);
+                        // No direct save for sleepRoutines as it's a const, but its content is updated.
+
+                        // Reinitialize relevant parts of the app to reflect changes
+                        initializeGlobalState(); // Re-loads all from updated localStorage
+                        updateProfileDisplay();
+                        updateXPBar();
+                        renderPage(currentPage); // Re-render current page
+
+                        showMessage("PROGRAMME IMPORTE AVEC SUCCES ! L'APPLICATION A ETE MISE A JOUR.", 'success');
+                    } else {
+                        showMessage("IMPORTATION ANNULEE.", 'info');
+                    }
+                } catch (parseError) {
+                    console.error("Erreur lors de l'analyse du fichier JSON importe:", parseError);
+                    showMessage("ERREUR: FICHIER JSON INVALIDE OU CORROMPU.", 'error');
+                }
+            };
+            reader.onerror = () => {
+                console.error("Erreur lors de la lecture du fichier:", reader.error);
+                showMessage("ERREUR: IMPOSSIBLE DE LIRE LE FICHIER.", 'error');
+            };
+            reader.readAsText(file);
+        }
+
+
         // Rend la vue des options
         function renderOptionsView(container) {
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">OPTIONS</h2><div class="space-y-4"><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">AUDIO :</h3><div class="flex items-center mb-2"><input type="checkbox" id="audio-toggle" class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" ${isAudioActive ? 'checked' : ''} /><label for="audio-toggle" class="text-gray-200 text-sm font-bold">ACTIVER LES EFFETS SONORES ET LA SYNTHESE VOCALE</label></div><div class="mb-2"><label for="master-volume" class="block text-gray-200 text-sm font-bold mb-1">VOLUME GENERAL :</label><input type="range" id="master-volume" min="0" max="1" step="0.05" value="${masterVolume}" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" /></div></div><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES DONNEES :</h3><button id="reset-app-btn" class="btn-retro-red w-full">REINITIALISER L'APPLICATION (SUPPRIMER TOUTES LES DONNEES)</button></div><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">CLE API GEMINI :</h3><p class="text-gray-300 text-sm mb-2">POUR ACTIVER LA GENERATION DE CONSEILS PAR L'IA (POXEL), ENTREE VOTRE CLE API GEMINI. (LAISSER VIDE POUR DESACTIVER)</p><input type="password" id="api-key-input" class="input-retro" placeholder="VOTRE CLE API GEMINI" value="${userProfile.apiKey || ''}" /><button id="save-api-key-btn" class="btn-retro-green w-full mt-3">SAUVEGARDER CLE API</button></div></div></div>`;
+            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">OPTIONS</h2><div class="space-y-4"><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">AUDIO :</h3><div class="flex items-center mb-2"><input type="checkbox" id="audio-toggle" class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" ${isAudioActive ? 'checked' : ''} /><label for="audio-toggle" class="text-gray-200 text-sm font-bold">ACTIVER LES EFFETS SONORES ET LA SYNTHESE VOCALE</label></div><div class="mb-4"><label for="masterVolume" class="block text-gray-200 text-sm font-bold mb-2">VOLUME GENERAL :</label><div class="flex items-center"><input type="range" id="masterVolume" min="0" max="1" step="0.01" value="${masterVolume}" class="flex-1" /><span id="volume-percentage" class="ml-3 text-sm font-bold text-yellow-300 w-12 text-right">${Math.round(masterVolume * 100)}%</span></div></div></div><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">API KEY :</h3><p class="text-gray-300 text-sm mb-2">ENTREZ VOTRE CLE API POUR ACTIVER LES CONSEILS PERSONNALISES DE L'IA POUR LES EXERCICES ET LA GENERATION DE RECETTES.</p><div class="flex items-center"><input type="password" id="apiKeyInput" class="input-retro flex-1" placeholder="VOTRE CLE API GEMINI" value="${userProfile.apiKey || ''}" /><button id="saveApiKeyBtn" class="btn-retro-green ml-2 px-4 py-2 text-sm">SAUVEGARDER</button></div><p class="text-xs text-gray-400 mt-2">LA CLE API EST STOCKEE LOCALEMENT ET N'EST PAS TRANSMISE.</p></div><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES DONNEES :</h3><button id="export-data-btn" class="btn-retro-purple w-full mb-2">EXPORTER LE PROGRAMME</button><input type="file" id="import-data-input" accept=".json" class="hidden" /><button id="import-data-btn" class="btn-retro-green w-full">IMPORTER UN PROGRAMME</button><p class="text-xs text-gray-400 mt-2 text-center">L'IMPORTATION REMPLACERA TOUTES LES DONNEES ACTUELLES.</p></div><div class="p-4 rounded-lg border-2 border-red-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">REINITIALISATION :</h3><button id="reset-app-btn" class="btn-retro-red w-full">REINITIALISER L'APPLICATION</button><p class="text-xs text-gray-400 mt-2 text-center">CETTE ACTION SUPPRIMERA TOUTES VOS DONNEES LOCALES ET REINITIALISERA L'APPLICATION.</p></div></div></div>`;
             container.innerHTML = html;
-            const audioToggle = document.getElementById('audio-toggle'), masterVolumeSlider = document.getElementById('master-volume'), resetAppBtn = document.getElementById('reset-app-btn'), apiKeyInput = document.getElementById('api-key-input'), saveApiKeyBtn = document.getElementById('save-api-key-btn');
+
+            const audioToggle = document.getElementById('audio-toggle'), masterVolumeInput = document.getElementById('masterVolume'), apiKeyInput = document.getElementById('apiKeyInput'), saveApiKeyBtn = document.getElementById('saveApiKeyBtn'), resetAppBtn = document.getElementById('reset-app-btn');
+            const exportDataBtn = document.getElementById('export-data-btn');
+            const importDataBtn = document.getElementById('import-data-btn');
+            const importDataInput = document.getElementById('import-data-input');
+            const volumePercentage = document.getElementById('volume-percentage'); // Référence au span du pourcentage
 
             audioToggle.onchange = toggleAudioActive;
-            masterVolumeSlider.oninput = (event) => {
+
+            // Fonction pour mettre à jour l'apparence de la barre de volume
+            function updateVolumeSliderAppearance(value) {
+                const percentage = value * 100;
+                masterVolumeInput.style.setProperty('--volume-fill', `${percentage}%`);
+                volumePercentage.textContent = `${Math.round(percentage)}%`;
+            }
+
+            masterVolumeInput.oninput = (event) => {
                 masterVolume = parseFloat(event.target.value);
                 Tone.Master.volume.value = masterVolume === 0 ? -Infinity : 20 * Math.log10(masterVolume);
                 saveToLocalStorage('masterVolume', masterVolume);
+                updateVolumeSliderAppearance(masterVolume);
             };
 
-            resetAppBtn.onclick = async () => {
-                if (await showConfirmModal("ATTENTION: CELA SUPPRIMERA TOUTES VOS DONNEES (PROFIL, PLANS, HISTORIQUES, TROPHEES). ETES-VOUS SUR ?")) {
-                    localStorage.clear();
-                    userProfile = { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [] };
-                    weeklyMealPlan = null;
-                    workoutLogs = [];
-                    weightHistory = [];
-                    intervalSequences = [];
-                    shifts = [];
-                    workoutProgram = JSON.parse(JSON.stringify(defaultWorkoutProgramStructure));
-                    previousLevel = 0;
-                    chronoIntervals = [];
-                    chronoCurrentTime = 0;
-                    chronoCurrentIntervalIndex = -1;
-                    isChronoRunning = false;
-                    isChronoPaused = false;
-                    enableChronoPreCountdown = true;
-                    chronoPreCountdownDuration = 10;
-                    contextualMealCache = new Map();
-
-                    showMessage("APPLICATION REINITIALISEE. TOUTES LES DONNEES ONT ETE SUPPRIMEES.", 'success');
-                    updateProfileDisplay();
-                    updateXPBar();
-                    renderPage('daily_plan');
-                }
-            };
+            // Initialiser l'apparence de la barre de volume au chargement de la vue des options
+            updateVolumeSliderAppearance(masterVolume);
 
             saveApiKeyBtn.onclick = () => {
                 userProfile.apiKey = apiKeyInput.value.trim();
                 saveToLocalStorage('userProfile', userProfile);
                 showMessage("CLE API SAUVEGARDEE !", 'success');
             };
+
+            resetAppBtn.onclick = async () => {
+                if (await showConfirmModal("ETES-VOUS SUR DE VOULOIR REINITIALISER L'APPLICATION ? TOUTES VOS DONNEES SERONT SUPPRIMEES DEFINITIVEMENT.")) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            };
+
+            exportDataBtn.onclick = exportProgramData;
+            importDataBtn.onclick = () => importDataInput.click();
+            importDataInput.onchange = importProgramData;
         }
 
-        // Attache tous les ecouteurs d'evenements globaux
-        function attachEventListeners() {
-            document.querySelectorAll('.nav-item').forEach(button => { button.onclick = (event) => renderPage(event.currentTarget.dataset.page); });
-            document.getElementById('save-profile-btn').onclick = handleSaveProfile;
-            document.getElementById('home-button').onclick = () => renderPage('daily_plan'); // Attach event listener for the new home button
-        }
-
-        // Affiche une modale de confirmation
+        // Fonction pour afficher une modale de confirmation (remplace window.confirm)
         function showConfirmModal(message) {
-            return new Promise(resolve => {
-                const modalDiv = document.createElement('div');
-                modalDiv.id = 'confirm-modal';
-                modalDiv.className = `fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 font-vt323`;
-                modalDiv.innerHTML = `<div class="bg-gray-800 p-6 rounded-lg border-4 border-yellow-500 shadow-xl w-full max-w-sm text-white text-center"><p class="text-lg sm:text-xl mb-6">${String(message).toUpperCase()}</p><div class="flex justify-center space-x-4"><button id="confirm-no-btn" class="btn-retro-red">NON</button><button id="confirm-yes-btn" class="btn-retro-green">OUI</button></div></div>`;
-                document.getElementById('global-modals-container').appendChild(modalDiv);
-                document.getElementById('confirm-yes-btn').onclick = () => { modalDiv.remove(); resolve(true); };
-                document.getElementById('confirm-no-btn').onclick = () => { modalDiv.remove(); resolve(false); };
+            return new Promise((resolve) => {
+                const modalContainer = document.getElementById('global-modals-container');
+                const modalHtml = `<div id="confirm-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 font-vt323"><div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-sm text-white text-center"><p class="text-lg sm:text-xl mb-6">${String(message).toUpperCase()}</p><div class="flex justify-around space-x-4"><button id="confirm-yes" class="btn-retro-green w-1/2">OUI</button><button id="confirm-no" class="btn-retro-red w-1/2">NON</button></div></div></div>`;
+                modalContainer.innerHTML = modalHtml;
+
+                const confirmModal = document.getElementById('confirm-modal');
+                const confirmYesBtn = document.getElementById('confirm-yes');
+                const confirmNoBtn = document.getElementById('confirm-no');
+
+                confirmYesBtn.onclick = () => {
+                    confirmModal.remove();
+                    resolve(true);
+                };
+                confirmNoBtn.onclick = () => {
+                    confirmModal.remove();
+                    resolve(false);
+                };
             });
         }
 
-        // Initialise l'application lorsque le DOM est charge
+        // Attache les ecouteurs d'evenements globaux
+        function attachEventListeners() {
+            document.querySelectorAll('nav button').forEach(button => { button.onclick = (event) => renderPage(event.currentTarget.dataset.page); });
+            document.getElementById('save-profile-btn').onclick = handleSaveProfile;
+            document.getElementById('home-button').onclick = () => renderPage('daily_plan');
+        }
+
+        // Demarre l'application
         document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
