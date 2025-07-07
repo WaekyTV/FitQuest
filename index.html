@@ -152,6 +152,7 @@
         let weightChartInstance = null, exerciseChartInstance = null, userId = 'local_user';
         let editingIntervalIndex = -1; // New variable to track the index of the interval being edited
         let regeneratingMeal = null; // Global variable to track meal regeneration status
+        let chronoCurrentInterval = null; // Variable to hold the current interval object
 
         // Cache global pour les petits-déjeuners et collations générés par contexte (type de poste)
         let contextualMealCache = new Map(); // Key: "mealType_poste", Value: meal object
@@ -161,7 +162,7 @@
         
         // Supprime les anciennes listes d'ingrédients statiques et les types de recettes prédéfinis
         // L'IA générera désormais les recettes de manière dynamique
-        const recipeTemplates = {};
+        // const recipeTemplates = {}; // Supprime cette ligne car elle n'est plus utilisée
 
         // Routines de sommeil adaptées aux types de poste
         const sleepRoutines = {
@@ -211,12 +212,12 @@
                         name: "SEANCE TYPE : HIIT (HIGH-INTENSITY INTERVAL TRAINING)",
                         desc: "DUREE ESTIMEE : 30-40 MINUTES. FREQUENCE : 1 A 2 FOIS PAR SEMAINE MAXIMUM POUR COMMENCER. ATTENTION : LE HIIT EST INTENSE. ECOUTE IMPERATIVEMENT TON CORPS. LES JOURS OU LA FATIGUE LIEE A TA SEP EST PLUS PRESENTE, REMPLACE CETTE SEANCE PAR DU CARDIO LEGER OU DU REPOS ACTIF. CORPS DE SEANCE (20-25 MINUTES) : STRUCTURE : REALISE 3 A 4 TOURS DU CIRCUIT SUIVANT. CHAQUE EXERCICE : 40 SECONDES D'EFFORT MAXIMAL, SUIVIES DE 20 SECONDES DE REPOS TOTAL. ENTRE CHAQUE TOUR COMPLET DU CIRCUIT : 1 MINUTE 30 DE REPOS ACTIF (MARCHE LEGERE, HYDRATATION).",
                         exercises: [
-                            { name: "BURPEES (MODIFIES)", desc: "DESCENDS EN SQUAT, POSE LES MAINS AU SOL, JETTE LES JAMBES EN ARRIERE POUR TE METTRE EN PLANCHE (SANS POMPE SI TU DEBUTES), RAMENE LES PIEDS ENTRE LES MAINS, RELEVE-TOI.", type: "hiit" },
+                            { name: "BURPEES (MODIFIES)", desc: "DESCENDS EN SQUAT, POSE LES MAINS AU SOL, JETTE LES JAMBES EN ARRIERE POUR TE METTRE EN PLANCHE (SANS POMPE SI TU DEBUTTES), RAMENE LES PIEDS ENTRE LES MAINS, RELEVE-TOI.", type: "hiit" },
                             { name: "MOUNTAIN CLIMBERS", desc: "EN POSITION DE PLANCHE, RAMENE ALTERNATIVEMENT LES GENOUX VERS LA POITRINE, COMME SI TU 'COURAIS' SUR PLACE.", type: "hiit" },
                             { name: "JUMPING JACKS", desc: "SAUTE EN ECARTANT LES JAMBES ET EN LEVANT LES BRAS AU-DESSUS DE LA TETE, PUIS REVIENS EN POSITION INITIALE. (SI LES SAUTS SONT TROP INTENSES, FAIS UN PAS SUR LE COTE AVEC UN BRAS QUI MONTE, PUIS L'AUTRE).", type: "hiit" },
                             { name: "KETTLEBELL SWING", desc: "MOUVEMENT DE BALANCIER EN POUSSANT LES HANCHES VERS L'AVANT (PAS AVEC LES BRAS !). POIDS SUGGERE : 6-10 KG.", type: "hiit" },
                             { name: "FENTES SAUTEES", desc: "SAUTE POUR CHANGER DE JAMBE EN L'AIR ET ATTERRIS EN FENTE AVEC L'AUTRE JAMBE DEVANT. MODIFICATION : SI LES SAUTS SONT TROP INTENSES, FAIS DES FENTES ALTERNEES CLASSIQUES EN TE RELEVANT RAPIDEMENT ENTRE CHAQUE.", type: "hiit" },
-                            { name: "MONTEES DE GENOUX RAPIDES", desc: "COURS SUR PLACE EN LEVANT LES GENOUX LE PLUS HAUT POSSIBLE, EN UTILISANT TES BRAS.", type: "hiit" }
+                            { name: "MONTEES DE GENOUX RAPIDES", desc: "COURS SUR PLACE EN LEVANT LES GENOUX LE PLUS HAUT POSSIBLER, EN UTILISANT TES BRAS.", type: "hiit" }
                         ]
                     }
                 }
@@ -744,7 +745,7 @@
                 saveToLocalStorage('shifts', shifts);
                 showMessage("SUCCES: POSTE AJOUTE !", 'success');
                 shiftDateInput.value = ''; workoutTypeSelect.value = 'aucun';
-                renderDailyPlanView(container); // Re-render pour afficher la liste mise a jour
+                renderDailyPlanView(container); // Re-render pour afficher la liste mise à jour
             };
             renderShiftsList(shiftsListDiv, shifts);
         }
@@ -781,7 +782,7 @@
                         }
 
                         showMessage("SUCCES: POSTE ET REPAS ASSOCIES SUPPRIMES !", 'success');
-                        renderDailyPlanView(document.getElementById('main-content')); // Re-render pour afficher la liste mise a jour
+                        renderDailyPlanView(document.getElementById('main-content')); // Re-render pour afficher la liste mise à jour
                         renderRecipeView(document.getElementById('main-content')); // Re-render recipe view to update meal plan
                     }
                 };
@@ -919,39 +920,99 @@
             else { imcAdaptation = "Waeky a un poids normal. Maintenez un equilibre macro-nutritionnel pour soutenir son niveau d'activite sans exces."; }
             mealSpecificConstraints.push(imcAdaptation);
 
-            let mealContextDescription = "";
-            if (mealType === 'petit_dejeuner') {
-                mealContextDescription = "Petit-dejeuner";
-                mealSpecificConstraints.push("Doit etre sucre, en evitant les saveurs salees (sauf si les oeufs sont integres dans une preparation sucree comme des crepes/pancakes).");
-                mealSpecificConstraints.push("Les oeufs ne peuvent etre utilises que s'ils sont integres dans des preparations comme des crepes, des pancakes ou des porridges, PAS comme plat principal (ex: oeufs brouilles, omelette).");
-                mealSpecificConstraints.push("PAS DE PATES, SEMOULE OU SAUCE TOMATE.");
-                mealSpecificConstraints.push("AJOUTEZ UNE TRES GRANDE VARIETE DE PETITS-DEJEUNERS : TARTINES (MIEL, BEURRE, BEURRE DE CACAHUETE), THE (AVEC OU SANS LAIT), PORRIDGE, SHAKE DE WHEY (SI CONTEXTE SPORTIF LE PERMET), CEREALES, FRUITS, YAOURTS. ADAPTEZ LES OPTIONS AU TYPE DE SEANCE (EX: PORRIDGE POUR RENFORCEMENT, SHAKE POUR CARDIO) POUR EVITER LES DEPENSES INUTILES.");
-            } else if (mealType === 'dejeuner') {
-                mealContextDescription = "Dejeuner";
-                mealSpecificConstraints.push("Doit etre un repas equilibre pour maintenir l'energie tout au long de la journee.");
-                mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
-                mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
-                mealSpecificConstraints.push("VARIEZ EGALEMENT LES STYLES CULINAIRES ET LES SAVEURS A CHAQUE REPAS PRINCIPAL. BIEN QUE LA REPETITION SOIT POSSIBLE SI LE CONTEXTE DE POSTE ET DE SPORT EST IDENTIQUE, PRIVILEGIEZ LA NOUVEAUTE POUR CES REPAS AFIN DE MAINTENIR L'INTERET.");
-            } else if (mealType === 'diner') {
-                mealContextDescription = "Diner";
-                mealSpecificConstraints.push("Doit etre un repas facilement digestible favorisant un bon sommeil.");
-                mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
-                mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
-                mealSpecificConstraints.push("VARIEZ EGALEMENT LES STYLES CULINAIRES ET LES SAVEURS A CHAQUE REPAS PRINCIPAL. BIEN QUE LA REPETITION SOIT POSSIBLE SI LE CONTEXTE DE POSTE ET DE SPORT EST IDENTIQUE, PRIVILEGIEZ LA NOUVEAUTE POUR CES REPAS AFIN DE MAINTENIR L'INTERET.");
-            } else if (mealType.startsWith('collation')) {
-                mealContextDescription = "Collation";
-                mealSpecificConstraints.push("Doit etre rapide, facile a transporter et energisante.");
-                mealSpecificConstraints.push("AJOUTEZ UNE TRES GRANDE VARIETE DE COLLATIONS : BANANES, FRUITS SECS, BARRES PROTEINEES (MAISON OU COMMERCIALES), YAOURTS, SHAKES PROTEINES, GALETTES DE RIZ, LEGUMES COUPES AVEC HOUKOUS, FROMAGE BLANC. ADAPTEZ LES OPTIONS AU PROGRAMME NUTRITIONNEL ET SPORTIF.");
+            // Add general nutritional principles to constraints
+            mealSpecificConstraints.push("Priorite aux Proteines et aux Fibres: Essentielles pour la satiete, maintien masse musculaire. Inclure a chaque repas principal et collations. Fibres des legumes, fruits, glucides complexes pour digestion, glycemie, satiete. Legumes a volonte a chaque repas.");
+            mealSpecificConstraints.push("Glucides Complexes pour l'Energie: Carburant. Privilegier faible indice glycemique pour energie durable (riz, pommes de terre, patate douce, quinoa, flocons d'avoine, pain complet). Adapter quantite a l'activite (plus les jours d'entrainement/rondes intenses, moins les jours sedentaires).");
+            mealSpecificConstraints.push("Graisses Saines avec Moderation: Importantes pour sante hormonale et absorption vitamines. Huiles vegetales (olive, colza), avocats, oleagineux (amandes, noix), poissons gras (saumon, maquereau). Utiliser avec parcimonie.");
+            mealSpecificConstraints.push("Aliments pour la Sclerose en Plaques (SEP): Privilegier Omega-3 (poissons gras, graines de lin/chia, noix), antioxydants (fruits et legumes colores), Vitamine D (exposition soleil, poissons gras, champignons).");
+            mealSpecificConstraints.push("POUR OPTIMISER LES COURSES ET REDUIRE LE COUT, PRIVILEGIEZ L'UTILISATION D'INGREDIENTS COMMUNS DANS DIFFERENTES RECETTES AU COURS DE LA SEMAINE. PAR EXEMPLE, SI DES LENTILLES OU DU POULET SONT UTILISES UN JOUR, PROPOSEZ D'AUTRES RECETTES QUI PEUVENT UTILISER CES MEMES INGREDIENT DANS D'AUTRES RECETTES DE LA SEMAINE, AFIN DE MINIMISER LES DECHETS ET LES COUTS.");
+            mealSpecificConstraints.push("POUR LES REPAS QUI SE REPETENT (SI LE CONTEXTE DE POSTE ET DE SPORT EST IDENTIQUE), ASSUREZ-VOUS QU'ILS NE SOIENT PAS SYSTEMATIQUEMENT LES MEMES. VARIEZ-LES LEGEREMENT OU PROPOSEZ DES ALTERNATIVES POUR EVITER LA MONOTONIE, TOUT EN MAINTENANT LA COHERENCE POUR LES ACHATS.");
+
+            // Add specific meal guidelines based on mealType and dayContext
+            if (dayContext.poste === '6h-18h' || dayContext.poste === '7h-18h') { // Day Shifts
+                if (mealType === 'petit_dejeuner') {
+                    mealSpecificConstraints.push("PETIT-DEJEUNER (avant de partir) : Boisson : Grande tasse de the ou tisane (fruits rouges, verveine, menthe, etc.) avec moitie the infuse, moitie lait demi-ecreme, 2 sucres, 1 cuillere de miel. Option 1 (preferee) : Galette/pancake a base de 50g flocons d'avoine mixes avec 20-30g whey proteine (vanille, chocolat, neutre), 1 banane ecrasee (ou poignee fruits rouges), un peu d'eau ou lait demi-ecreme/vegetal. Cuisson poele. Option 2 (simple/rapide) : 50g flocons d'avoine (porridge eau/lait demi-ecreme, sans sucre) OU 2 tranches pain complet (60-80g) avec fine couche pure d'oleagineux (amande, cacahuete sans sucre) ou miel. Fruit : Un fruit entier a croquer (pomme, poire, orange...).");
+                    mealSpecificConstraints.push("Doit etre sucre, en evitant les saveurs salees (sauf si les oeufs sont integres dans une preparation sucree comme des crepes/pancakes).");
+                    mealSpecificConstraints.push("Les oeufs ne peuvent etre utilises que s'ils sont integres dans des preparations comme des crepes, des pancakes ou des porridges, PAS comme plat principal (ex: oeufs brouilles, omelette).");
+                    mealSpecificConstraints.push("PAS DE PATES, SEMOULE OU SAUCE TOMATE.");
+                    mealSpecificConstraints.push("AJOUTEZ UNE TRES GRANDE VARIETE DE PETITS-DEJEUNERS : TARTINES (MIEL, BEURRE, BEURRE DE CACAHUETE), THE (AVEC OU SANS LAIT), PORRIDGE, SHAKE DE WHEY (SI CONTEXTE SPORTIF LE PERMET), CEREALES, FRUITS, YAOURTS. ADAPTEZ LES OPTIONS AU TYPE DE SEANCE (EX: PORRIDGE POUR RENFORCEMENT, SHAKE POUR CARDIO) POUR EVITER LES DEPENSES INUTILES.");
+                } else if (mealType === 'collation_matin') {
+                    mealSpecificConstraints.push("COLLATION MATINALE (optionnel, si faim ou PDJ tot) : Un fruit (pomme + 10 amandes) OU petite poignee d'oleagineux (15-20 amandes ou noix) OU yaourt grec nature (100-150g).");
+                } else if (mealType === 'dejeuner') {
+                    mealSpecificConstraints.push("DEJEUNER : Legumes : Portion genereuse a volonte (brocoli, courgette, epinards, haricots verts, salade composee avec concombre, tomate, poivron...). Proteines (120-150g cuits). Feculents (150-200g cuits, ajuster selon activite) : Riz (basmati, complet), pommes de terre (vapeur, a l'eau), patate douce, quinoa, semoule. Matiere grasse : 1 cuillere a soupe huile d'olive ou de colza.");
+                    mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
+                    mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
+                } else if (mealType === 'collation_apresmidi') {
+                    mealSpecificConstraints.push("COLLATION APRES-MIDI (vers 17h ou fin de poste, si journee longue) : Un fruit (pomme ou poire) OU yaourt nature ou fromage blanc (0% ou 20%) OU shaker de whey proteine OU petite poignee noix de cajou ou amandes (15g).");
+                } else if (mealType === 'diner') {
+                    mealSpecificConstraints.push("DINER (apres travail, vers 19h) : Legumes : Portion genereuse (soupe, poelee, salade). Proteines (100-120g cuits). Feculents (100-120g cuits, optionnel si sedentaire) : Quelques pommes de terre (100g) ou petite portion riz (80g). Matiere grasse : Petite cuillere huile d'olive ou de colza. Fruit (si faim) : Pomme ou autre fruit leger.");
+                    mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
+                    mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
+                }
+            } else if (dayContext.poste === '18h-6h') { // Night Shifts
+                if (mealType === 'diner') { // This is "Repas AVANT POSTE" for night shifts
+                    mealSpecificConstraints.push("REPAS AVANT POSTE (vers 17h) : Ton 'diner' principal. Legumes : Portion genereuse (salade composee, legumes vapeur, poelee). Proteines (120-150g cuits). Feculents (150-200g cuits) : Riz, pommes de terre, patate douce, quinoa. Matiere grasse : 1 cuillere a soupe huile d'olive ou de colza.");
+                    mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
+                    mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
+                } else if (mealType === 'collation_matin') { // This is "Collation de debut de nuit"
+                    mealSpecificConstraints.push("COLLATION DE DEBUT DE NUIT (vers 22h-23h - facultatif) : Legere. Un fruit (banane ou pomme) + 10-15g oleagineux (amandes ou noix) OU 2 tartines pain complet + pure d'amande.");
+                } else if (mealType === 'dejeuner') { // This is "Repas PENDANT le poste" for night shifts
+                    mealSpecificConstraints.push("REPAS PENDANT LE POSTE ('Mini-repas', vers 2h-3h, leger/facile a digerer) : Legumes : Portion de legumes (crudites faciles, reste legumes cuits, soupe). Proteines (80-100g cuits) : Poisson blanc (cabillaud, colin) ou thon au naturel (petite boite) OU un oeuf dur OU fromage blanc/yaourt grec. Alternative : Petit shaker de whey proteine (20-25g) avec eau. Feculents (80-100g cuits) : Tres petite portion riz, pommes de terre ou patate douce, ou tranche pain complet. Ajuster selon rondes. Matiere grasse : Filet d'huile.");
+                    mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
+                    mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
+                } else if (mealType === 'collation_apresmidi') { // This is "Collation de fin de nuit"
+                    mealSpecificConstraints.push("COLLATION DE FIN DE NUIT (vers 4h-5h - facultatif) : Un fruit OU un yaourt nature OU petite poignee de noix.");
+                } else if (mealType === 'petit_dejeuner') { // This is "Repas APRES POSTE" for night shifts
+                    mealSpecificConstraints.push("REPAS APRES POSTE (vers 6h30-7h, avant de dormir) : Important pour recuperation et satiete. Boisson : The/tisane prefere (the fruits rouges, lait demi-ecreme, 2 sucres, 1 cuillere miel). Source glucides complexes et proteines : Galette/Pancake proteine (50g flocons d'avoine, 20-30g whey proteine, 1 banane ecrasee ou fruits rouges, eau/lait). OU Option simple : 50g flocons d'avoine en porridge (eau/lait), ou 2 tranches pain complet avec pure d'oleagineux/miel. Fruit : Un fruit entier a croquer (kiwi, pomme).");
+                    mealSpecificConstraints.push("Doit etre sucre, en evitant les saveurs salees (sauf si les oeufs sont integres dans une preparation sucree comme des crepes/pancakes).");
+                    mealSpecificConstraints.push("Les oeufs ne peuvent etre utilises que s'ils sont integres dans des preparations comme des crepes, des pancakes ou des porridges, PAS comme plat principal (ex: oeufs brouilles, omelette).");
+                    mealSpecificConstraints.push("PAS DE PATES, SEMOULE OU SAUCE TOMATE.");
+                    mealSpecificConstraints.push("AJOUTEZ UNE TRES GRANDE VARIETE DE PETITS-DEJEUNERS : TARTINES (MIEL, BEURRE, BEURRE DE CACAHUETE), THE (AVEC OU SANS LAIT), PORRIDGE, SHAKE DE WHEY (SI CONTEXTE SPORTIF LE PERMET), CEREALES, FRUITS, YAOURTS. ADAPTEZ LES OPTIONS AU TYPE DE SEANCE (EX: PORRIDGE POUR RENFORCEMENT, SHAKE POUR CARDIO) POUR EVITER LES DEPENSES INUTILES.");
+                }
+            } else if (dayContext.poste === 'repos' || dayContext.poste === 'repos_sport') { // Rest/Creative/Chill Days
+                if (mealType === 'petit_dejeuner') { // This is "Petit-dejeuner ou Brunch"
+                    mealSpecificConstraints.push("PETIT-DEJEUNER OU BRUNCH (selon reveil, entre 8h et 10h) : Boisson : Une grande tasse de the ou tisane (avec lait demi-ecreme, 2 sucres et 1 cuillere de miel). Option 1 (galette/pancake) : Galette a base de 50g de flocons d'avoine mixes avec 20-30g de whey proteine, 1 banane ecrasee (ou fruits rouges), et un peu d'eau ou de lait demi-ecreme/vegetal. Option 2 (variete !) : 50g flocons d'avoine en porridge (avec fruits rouges + yaourt nature + 1 cuillere de miel). OU 2-3 tranches pain complet toastees avec pure d'oleagineux/miel + 1 banane en tranches. OU Bowl proteine : quinoa + fromage blanc + fruits secs (raisins, abricots).");
+                    mealSpecificConstraints.push("Doit etre sucre, en evitant les saveurs salees (sauf si les oeufs sont integres dans une preparation sucree comme des crepes/pancakes).");
+                    mealSpecificConstraints.push("Les oeufs ne peuvent etre utilises que s'ils sont integres dans des preparations comme des crepes, des pancakes ou des porridges, PAS comme plat principal (ex: oeufs brouilles, omelette).");
+                    mealSpecificConstraints.push("PAS DE PATES, SEMOULE OU SAUCE TOMATE.");
+                    mealSpecificConstraints.push("AJOUTEZ UNE TRES GRANDE VARIETE DE PETITS-DEJEUNERS : TARTINES (MIEL, BEURRE, BEURRE DE CACAHUETE), THE (AVEC OU SANS LAIT), PORRIDGE, SHAKE DE WHEY (SI CONTEXTE SPORTIF LE PERMET), CEREALES, FRUITS, YAOURTS. ADAPTEZ LES OPTIONS AU TYPE DE SEANCE (EX: PORRIDGE POUR RENFORCEMENT, SHAKE POUR CARDIO) POUR EVITER LES DEPENSES INUTILES.");
+                } else if (mealType === 'collation_matin') {
+                    mealSpecificConstraints.push("COLLATION MATINALE (si besoin, entre 10h30 et 11h30) : Un fruit (pomme ou poire) OU petite poignee d'oleagineux (15-20 amandes ou noix) OU yaourt grec nature (100-150g).");
+                } else if (mealType === 'dejeuner') {
+                    mealSpecificConstraints.push("DEJEUNER (vers 13h) : Legumes : Portion genereuse de legumes varies. Proteines (120-150g cuits, varie tes sources !) : Viande blanche (poulet, dinde) ou poisson maigre (cabillaud, colin). Poissons gras : 1 a 2 fois par semaine, du saumon, maquereau ou sardines pour les precieux Omega-3. Alternatives : Legumineuses (lentilles, pois chiches, haricots rouges - 150-200g cuits), tofu. Feculents (150-200g cuits, ajuster) : Riz, pommes de terre, patate douce, quinoa, semoule. Matiere grasse : 1 cuillere a soupe huile d'olive ou de colza.");
+                    mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
+                    mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
+                } else if (mealType === 'collation_apresmidi') {
+                    mealSpecificConstraints.push("COLLATION APRES-MIDI (si besoin, vers 16h-17h) : Un fruit OU un yaourt nature ou fromage blanc (0% ou 20%) OU un shaker de whey proteine avec de l'eau OU une petite poignee de noix de cajou ou amandes (15g). Option 'plaisir maison' : 1 part de gateau flocons d'avoine/whey maison (type banana bread proteine).");
+                } else if (mealType === 'diner') {
+                    mealSpecificConstraints.push("DINER (vers 19h-20h) : Legumes : Portion genereuse (soupe, poelee, legumes vapeur). Proteines (100-120g cuits). Feculents (100-150g cuits, optionnel si sedentaire) : Portion moderee de riz, pommes de terre ou patate douce. Reduire si jour de repos sans sport. Matiere grasse : Petite cuillere huile d'olive ou de colza. Fruit (si faim) : Pomme ou autre fruit leger.");
+                    mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
+                    mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
+                }
             }
 
+            // Add protein source constraints based on allowMeatFish
             if (!allowMeatFish) {
                 mealSpecificConstraints.push("Utilisez une source de proteines vegetarienne (lentilles, pois chiches, haricots rouges, tofu, seitan, tempeh, oeufs - si applicable au repas, produits laitiers comme fromage blanc, yaourt grec). NE PROPOSEZ PAS DE VIANDE, DE POISSON NI DE WHEY PROTEIN. ASSUREZ UNE GRANDE DIVERSITE ENTRE CES SOURCES VEGETARIENNES ET LAITIERES, NE VOUS LIMITEZ PAS UNIQUEMENT AUX LENTILLES.");
             } else {
                 mealSpecificConstraints.push("POUR UNE DIVERSITE MAXIMALE ET UN APPORT NUTRITIONNEL COMPLET, VARIEZ SYSTEMATIQUEMENT LES SOURCES DE PROTEINES : ALTERNEZ ENTRE VIANDE (POULET, BOEUF MAIGRE, DINDE), POISSON (SAUMON, CABILLAUD, THON), LEGUMINEUSES (LENTILLES, POIS CHICHES), OEUFS, TOFU, PRODUITS LAITIERS (FROMAGE BLANC, YAOURT GREC) ET WHEY PROTEIN. EVITEZ DE PROPOSER LA MEME SOURCE DE PROTEINES DE SUITE OU TROP FREQUEMMENT.");
             }
 
-            mealSpecificConstraints.push("POUR OPTIMISER LES COURSES ET REDUIRE LE COUT, PRIVILEGIEZ L'UTILISATION D'INGREDIENTS COMMUNS DANS DIFFERENTES RECETTES AU COURS DE LA SEMAINE. PAR EXEMPLE, SI DES LENTILLES OU DU POULET SONT UTILISES UN JOUR, PROPOSEZ D'AUTRES RECETTES QUI PEUVENT UTILISER CES MEMES INGREDIENT DANS D'AUTRES RECETTES DE LA SEMAINE, AFIN DE MINIMISER LES DECHETS ET LES COUTS.");
-            mealSpecificConstraints.push("POUR LES REPAS QUI SE REPETENT (SI LE CONTEXTE DE POSTE ET DE SPORT EST IDENTIQUE), ASSUREZ-VOUS QU'ILS NE SOIENT PAS SYSTEMATIQUEMENT LES MEMES. VARIEZ-LES LEGEREMENT OU PROPOSEZ DES ALTERNATIVES POUR EVITER LA MONOTONIE, TOUT EN MAINTENANT LA COHERENCE POUR LES ACHATS.");
+            // General variety constraints that apply to all meals (if not already covered by specific meal type guidelines)
+            if (!mealType.startsWith('collation')) { // These are already covered for collations
+                mealSpecificConstraints.push("PROPOSEZ UNE TRES GRANDE VARIETE DE RECETTES POUR EVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITES, POMMES DE TERRE, RIZ, PATES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTEINES, SANDWICHS EQUILIBRES), BURGERS ET WRAPS (ADAPTES AU PROGRAMME NUTRITIONNEL).");
+                mealSpecificConstraints.push("ALTERNEZ SYSTEMATIQUEMENT LES TYPES DE PROTEINES, GLUCIDES ET LEGUMES. INCLUEZ FREQUEMMENT PATES COMPLETES, SPAGHETTIS, PATES FRAICHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLETE. LEGUMES VARIES: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, EPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
+            }
+            if (mealType === 'petit_dejeuner') {
+                 mealSpecificConstraints.push("Doit etre sucre, en evitant les saveurs salees (sauf si les oeufs sont integres dans une preparation sucree comme des crepes/pancakes).");
+                 mealSpecificConstraints.push("Les oeufs ne peuvent etre utilises que s'ils sont integres dans des preparations comme des crepes, des pancakes ou des porridges, PAS comme plat principal (ex: oeufs brouilles, omelette).");
+                 mealSpecificConstraints.push("PAS DE PATES, SEMOULE OU SAUCE TOMATE.");
+                 mealSpecificConstraints.push("AJOUTEZ UNE TRES GRANDE VARIETE DE PETITS-DEJEUNERS : TARTINES (MIEL, BEURRE, BEURRE DE CACAHUETE), THE (AVEC OU SANS LAIT), PORRIDGE, SHAKE DE WHEY (SI CONTEXTE SPORTIF LE PERMET), CEREALES, FRUITS, YAOURTS. ADAPTEZ LES OPTIONS AU TYPE DE SEANCE (EX: PORRIDGE POUR RENFORCEMENT, SHAKE POUR CARDIO) POUR EVITER LES DEPENSES INUTILES.");
+            }
+            if (mealType.startsWith('collation')) {
+                mealSpecificConstraints.push("Doit etre rapide, facile a transporter et energisante.");
+                mealSpecificConstraints.push("AJOUTEZ UNE TRES GRANDE VARIETE DE COLLATIONS : BANANES, FRUITS SECS, BARRES PROTEINEES (MAISON OU COMMERCIALES), YAOURTS, SHAKES PROTEINES, GALETTES DE RIZ, LEGUMES COUPES AVEC HOUKOUS, FROMAGE BLANC. ADAPTEZ LES OPTIONS AU PROGRAMME NUTRITIONNEL ET SPORTIF.");
+            }
 
             const sportImpact = dayContext.sport !== 'aucun' ? `Waeky a une seance de sport de type '${dayContext.sport}' prevue. Les glucides complexes et les proteines sont importants pour l'energie et la recuperation.` : `Waeky n'a pas de sport prevu pour cette journee. Les repas doivent rester equilibres.`;
             const posteImpact = `Waeky est sur un poste de type '${dayContext.poste}'. N'oubliez pas d'adapter la digestion et l'energie en fonction de cet horaire.`;
@@ -964,6 +1025,92 @@ LE CONTEXTE DE WAEKY :
 - Besoins en proteines estimes : ${userProfileForPrompt.proteinNeeds} g/jour
 - Ce repas est pour ${finalNumberOfPeople} personne(s).
 
+PROGRAMME NUTRITIONNEL DE WAEKY :
+✨ 1. HYDRATATION OPTIMALE : Boire 3 grands verres d'eau avant chaque repas. Bouteille d'eau a portee de main, boire regulierement. Tisanes et the non sucres sont des alternatives.
+✨ 2. PRIORITE AUX PROTEINES ET AUX FIBRES : Essentielles pour la satiete, maintien masse musculaire. Inclure a chaque repas principal et collations. Fibres des legumes, fruits, glucides complexes pour digestion, glycemie, satiete. Legumes a volonte a chaque repas.
+✨ 3. GLUCIDES COMPLEXES POUR L'ENERGIE : Carburant. Privilegier faible indice glycemique pour energie durable (riz, pommes de terre, patate douce, quinoa, flocons d'avoine, pain complet). Adapter quantite a l'activite (plus les jours d'entrainement/rondes intenses, moins les jours sedentaires).
+✨ 4. GRAISSES SAINES AVEC MODERATION : Importantes pour sante hormonale et absorption vitamines. Huiles vegetales (olive, colza), avocats, oleagineux (amandes, noix), poissons gras (saumon, maquereau). Utiliser avec parcimonie.
+✨ 5. GESTION DU SUCRE ET DU GRAS ("PLAISIRS") : Monster Energy une fois/semaine (week-end, dessin/jeu). Sorties au bar a jeux ou "cheat meals" planifies, sans culpabilite, pas une routine.
+✨ 6. ALIMENTS POUR LA SCLEROSE EN PLAQUES (SEP) : Privilegier Omega-3 (poissons gras, graines de lin/chia, noix), antioxydants (fruits et legumes colores), Vitamine D (exposition soleil, poissons gras, champignons).
+
+**1. JOURS DE TRAVAIL : POSTES DE JOUR (6H-18H OU 7H-18H)**
+    - PETIT-DEJEUNER (vers 5h00-6h30, avant de partir) :
+        - Boisson : Grande tasse de the ou tisane (fruits rouges, verveine, menthe, etc.) avec moitie the infuse, moitie lait demi-ecreme, 2 sucres, 1 cuillere de miel.
+        - Option 1 (preferee) : Galette/pancake a base de 50g flocons d'avoine mixes avec 20-30g whey proteine (vanille, chocolat, neutre), 1 banane ecrasee (ou poignee fruits rouges), un peu d'eau ou lait demi-ecreme/vegetal. Cuisson poele.
+        - Option 2 (simple/rapide) : 50g flocons d'avoine (porridge eau/lait demi-ecreme, sans sucre) OU 2 tranches pain complet (60-80g) avec fine couche pure d'oleagineux (amande, cacahuete sans sucre) ou miel.
+        - Fruit : Un fruit entier a croquer (pomme, poire, orange...).
+    - COLLATION MATINALE (optionnel, si faim ou PDJ tot, vers 9h-10h) : Un fruit (pomme + 10 amandes) OU petite poignee d'oleagineux (15-20 amandes ou noix) OU yaourt grec nature (100-150g).
+    - DEJEUNER (vers 12h-13h) :
+        - Legumes : Portion genereuse a volonte (brocoli, courgette, epinards, haricots verts, salade composee avec concombre, tomate, poivron...).
+        - Proteines (120-150g cuits, adaptes a ton budget et tes preferences) : Filet de poulet grille, filet de dinde, cabillaud vapeur, thon au naturel (1 boite). Alternatives economiques : Lentilles, pois chiches, haricots rouges (environ 150-200g cuits). Option si pas d'autre choix : 1 shaker de whey proteine (30g) melange a eau ou yaourt grec nature.
+        - Feculents (150-200g cuits, a ajuster selon ton activite) : Riz (basmati, complet), pommes de terre (vapeur, a l'eau), patate douce, quinoa, semoule.
+        - Matiere grasse : Une cuillere a soupe d'huile d'olive ou de colza pour assaisonner.
+    - COLLATION APRES-MIDI (vers 17h ou fin de poste, si journee longue) : Un fruit (ex: 1 pomme ou 1 poire) OU un yaourt nature ou fromage blanc (0% ou 20%) OU un shaker de whey proteine OU une petite poignee de noix de cajou ou amandes (15g).
+    - DINER (apres travail, vers 19h) :
+        - Legumes : Une portion genereuse (soupe de legumes, poelee de legumes, salade).
+        - Proteines (100-120g cuits) : Poisson maigre (cabillaud, sole) OU viande blanche (poulet, dinde) OU tofu (100-120g) OU 1 shaker de whey proteine (30g).
+        - Feculents (100-120g cuits, optionnel si journee tres sedentaire) : Quelques pommes de terre (environ 100g) ou une petite portion de riz (environ 80g).
+        - Matiere grasse : Une petite cuillere d'huile d'olive ou de colza.
+        - Fruit (si faim) : Une pomme ou un autre fruit leger.
+
+**2. JOURS DE TRAVAIL : POSTES DE NUIT (18H-6H)**
+    - REPAS AVANT POSTE (vers 17h) : C'est ton "diner" principal, il doit t'apporter suffisamment d'energie pour la premiere partie de la nuit.
+        - Legumes : Une portion genereuse (salade composee, legumes vapeur, poelee).
+        - Proteines (120-150g cuits, adaptes a ton budget et tes preferences) : Viande blanche (poulet, dinde) ou poisson (saumon occasionnellement pour les omega-3, ou poisson blanc).
+        - Feculents (150-200g cuits) : Riz, pommes de terre, patate douce, quinoa.
+        - Matiere grasse : 1 cuillere a soupe d'huile d'olive ou de colza.
+    - COLLATION DE DEBUT DE NUIT (vers 22h-23h - facultatif, selon ta faim et tes rondes) : Legere pour maintenir ton energie.
+        - Un fruit (banane ou pomme) + 10-15g oleagineux (amandes ou noix).
+        - OU 2 tartines de pain complet + pure d'amande.
+    - REPAS PENDANT LE POSTE ("Mini-repas", vers 2h-3h, leger et facile a digerer) :
+        - Legumes : Une portion de legumes (crudites faciles a manger, reste de legumes cuits du diner, ou une soupe de legumes).
+        - Proteines (80-100g cuits) : Poisson blanc (cabillaud, colin) ou thon au naturel (petite boite) OU un oeuf dur (si ok) OU du fromage blanc/yaourt grec.
+        - Alternative proteine en poudre : Un petit shaker de whey proteine (20-25g) avec de l'eau, si tu preferes une option tres legere et rapide.
+        - Feculents (80-100g cuits) : Une tres petite portion de riz, pommes de terre ou patate douce, ou une tranche de pain complet. A ajuster en fonction de tes rondes : si tu as fait une ronde intense, une petite portion peut etre utile.
+        - Matiere grasse : Un filet d'huile pour assaisonner.
+    - COLLATION DE FIN DE NUIT (vers 4h-5h - facultatif, si tu as fait une seconde ronde et sens un coup de barre) :
+        - Un fruit OU un yaourt nature OU une petite poignee de noix.
+    - REPAS APRES POSTE (vers 6h30-7h, avant de dormir) : Ce repas est important pour la recuperation et la satiete avant le sommeil.
+        - Boisson : Ton the/tisane prefere (the aux fruits rouges, lait demi-ecreme, 2 sucres, 1 cuillere de miel).
+        - Source de glucides complexes et proteines :
+        - Galette/Pancake proteine : 50g de flocons d'avoine, 20-30g de whey proteine, 1 banane ecrasee (ou fruits rouges), un peu d'eau/lait. Cuit a la poele.
+        - Option simple : 50g de flocons d'avoine en porridge (eau/lait), ou 2 tranches de pain complet avec pure d'oleagineux/miel.
+        - Fruit : Un fruit entier a croquer (kiwi, pomme).
+
+**3. JOURS DE REPOS / CREATIFS / CHILL**
+    - PETIT-DEJEUNER OU BRUNCH (selon ton reveil, entre 8h et 10h) :
+        - Boisson : Une grande tasse de the ou tisane (avec lait demi-ecreme, 2 sucres et 1 cuillere de miel).
+        - Option 1 (galette/pancake) : Galette a base de 50g de flocons d'avoine mixes avec 20-30g de whey proteine, 1 banane ecrasee (ou fruits rouges), et un peu d'eau ou de lait demi-ecreme/vegetal.
+        - Option 2 (variete !) :
+        - 50g de flocons d'avoine en porridge (avec fruits rouges + yaourt nature + 1 cuillere de miel).
+        - OU 2-3 tranches de pain complet toastees avec pure d'oleagineux/miel + 1 banane en tranches.
+        - OU Bowl proteine : quinoa + fromage blanc + fruits secs (raisins, abricots).
+    - COLLATION MATINALE (si besoin, entre 10h30 et 11h30) : Un fruit (pomme ou poire) OU petite poignee d'oleagineux (15-20 amandes ou noix) OU yaourt grec nature (100-150g).
+    - DEJEUNER (vers 13h) :
+        - Legumes : Une portion genereuse de legumes varies.
+        - Proteines (120-150g cuits, varie tes sources !) :
+        - Viande blanche (poulet, dinde) ou poisson maigre (cabillaud, colin).
+        - Poissons gras : 1 a 2 fois par semaine, du saumon, maquereau ou sardines pour les precieux Omega-3.
+        - Alternatives : Legumineuses (lentilles, pois chiches, haricots rouges - environ 150-200g cuits), tofu.
+        - Feculents (150-200g cuits, a ajuster) : Riz, pommes de terre, patate douce, quinoa, semoule.
+        - Matiere grasse : Une cuillere a soupe d'huile d'olive ou de colza.
+    - COLLATION APRES-MIDI (si besoin, vers 16h-17h) :
+        - Un fruit OU un yaourt nature ou fromage blanc (0% ou 20%) OU un shaker de whey proteine avec de l'eau OU une petite poignee de noix de cajou ou amandes (15g).
+        - Option "plaisir maison" : 1 part de gateau flocons d'avoine/whey maison (type banana bread proteine).
+    - DINER (vers 19h-20h) :
+        - Legumes : Une portion genereuse (soupe, poelee, legumes vapeur).
+        - Proteines (100-120g cuits) : Poisson maigre (cabillaud, sole) OU viande blanche (poulet, dinde) OU tofu OU whey proteine.
+        - Feculents (100-150g cuits, optionnel si journee tres sedentaire) : Une portion moderee de riz, pommes de terre ou patate douce. Si c'est un jour de repos sans sport, tu peux reduire legerement.
+        - Matiere grasse : Une petite cuillere d'huile d'olive ou de colza.
+        - Fruit (si faim) : Une pomme ou un autre fruit leger.
+
+NOTES GENERALES POUR TA NUTRITION :
+- Varie les plaisirs ! Change les fruits et legumes selon la saison.
+- Cuissons douces : Privilegie la vapeur, le four, les sautes rapides.
+- Assaisonnement : Limite les sauces industrielles. Prefere huile d'olive, jus de citron, vinaigre, herbes fraiches et epices.
+- Hydratation : Bois beaucoup d'eau, the et tisanes tout au long de la journee.
+- Preparation (Batch Cooking) : Profite de tes jours de repos pour preparer certains repas ou ingredients a l'avance (ex: cuire une grande quantite de riz, couper des legumes, preparer des portions de proteines).
+
 L'EMPLOI DU TEMPS DU JOUR :
 - Poste : ${dayContext.poste}
 - Sport : ${dayContext.sport} (${sportImpact})
@@ -971,7 +1118,7 @@ L'EMPLOI DU TEMPS DU JOUR :
 
 TYPE DE REPAS A CREER : ${mealContextDescription.toUpperCase()}
 
-CONTRAINTES SPECIFIQUES :
+CONTRAINTES SPECIFIQUES POUR CE REPAS, BASEES SUR LE PROGRAMME NUTRITIONNEL ET LE CONTEXTE DU JOUR :
 ${mealSpecificConstraints.map(c => `- ${c}`).join('\n')}
 - Toutes les informations (titre, description, ingredients, etapes de preparation, conseils, notes) doivent etre STRICTEMENT EN FRANCAIS.
 - POUR LES REPAS PRINCIPAUX (DEJEUNER ET DINER) : Bien que la variete soit la priorite, si le contexte (type de poste et seance sportive) est identique a un jour precedent, vous pouvez proposer une recette similaire ou reutiliser des ingredients cles pour optimiser les courses, mais EFFORCEZ-VOUS DE RENDRE CHAQUE RECETTE UNIQUE OU AVEC UNE TOUCHE DIFFERENTE.
@@ -1290,7 +1437,7 @@ GENERER LA RECETTE DETAILLEE : `.trim();
                             showMessage(`ERREUR: Echec de la regeneration du repas. ${error.message}`, 'error');
                         } finally {
                             regeneratingMeal = null;
-                            renderRecipeView(container); // Re-render pour masquer l'etat de chargement et afficher le repas mis a jour
+                            renderRecipeView(container); // Re-render pour masquer l'etat de chargement et afficher le repas mis à jour
                         }
                     };
                 });
@@ -1318,22 +1465,40 @@ GENERER LA RECETTE DETAILLEE : `.trim();
         // Attache les ecouteurs d'evenements pour les elements "collapsible" (qui s'ouvrent/se ferment)
         function attachCollapsibleListeners() {
             document.querySelectorAll('[data-toggle]').forEach(toggleElement => {
-                toggleElement.onclick = () => {
-                    const targetId = toggleElement.dataset.toggle, targetContent = document.getElementById(targetId), icon = toggleElement.querySelector('i[data-lucide]');
+                // Ensure event listener is added only once
+                if (toggleElement.dataset.listenerAttached) {
+                    return;
+                }
+                toggleElement.dataset.listenerAttached = 'true';
+
+                toggleElement.onclick = (event) => {
+                    // Prevent event bubbling if nested collapsibles
+                    event.stopPropagation();
+
+                    const targetId = toggleElement.dataset.toggle;
+                    const targetContent = document.getElementById(targetId);
+                    const icon = toggleElement.querySelector('i[data-lucide]');
+
                     if (targetContent) {
+                        console.log(`Toggling ${targetId}. Current max-height: ${targetContent.style.maxHeight}, has max-h-0: ${targetContent.classList.contains('max-h-0')}`);
+
                         if (targetContent.classList.contains('max-h-0')) {
                             // Expand
                             targetContent.style.maxHeight = targetContent.scrollHeight + 'px'; // Set to actual scroll height
                             targetContent.classList.remove('max-h-0');
                             if (icon) icon.classList.add('rotate-180');
                             targetContent.classList.add('open');
-                            // After transition, remove maxHeight to allow content to grow naturally if more is added
+
+                            // After transition, set max-height to a large value instead of 'none'
+                            // to ensure smooth re-collapsing and consistent behavior.
                             targetContent.addEventListener('transitionend', function handler() {
-                                targetContent.style.maxHeight = 'none';
+                                if (targetContent.classList.contains('open')) { // Only if still open
+                                    targetContent.style.maxHeight = '9999px'; // Use a large value
+                                }
                                 targetContent.removeEventListener('transitionend', handler);
                             }, { once: true });
-                        }
-                        else {
+
+                        } else {
                             // Collapse
                             targetContent.style.maxHeight = targetContent.scrollHeight + 'px'; // Set current height before collapse
                             requestAnimationFrame(() => {
@@ -1436,119 +1601,135 @@ GENERER LA RECETTE DETAILLEE : `.trim();
             // Met a jour l'affichage du chronometre
             function updateChronoDisplay() {
                 const displayTime = chronoCurrentIntervalIndex === -1 ? `PRET: ${String(chronoCurrentTime).padStart(2, '0')}` : `${String(Math.floor(chronoCurrentTime / 60)).padStart(2, '0')}:${String(chronoCurrentTime % 60).padStart(2, '0')}`;
-                const currentInstruction = chronoCurrentIntervalIndex === -1 ? "COMPTE A REBOURS PRE-DEPART" : String(chronoIntervals[chronoCurrentIntervalIndex]?.instruction || "FIN DE SEQUENCE").toUpperCase();
+                const currentInstruction = chronoCurrentInterval ? chronoCurrentInterval.instruction : (chronoCurrentIntervalIndex === -1 ? "COMPTE A REBOURS PRE-DEPART" : "FIN DE LA SEQUENCE");
                 chronoDisplay.textContent = displayTime;
-                chronoInstruction.textContent = currentInstruction;
-                startChronoBtn.disabled = isChronoRunning && !isChronoPaused;
-                pauseChronoBtn.disabled = !isChronoRunning || isChronoPaused;
-                resetChronoBtn.disabled = !isChronoRunning && chronoCurrentIntervalIndex === -1 && chronoCurrentTime === 0;
-                skipIntervalBtn.disabled = !isChronoRunning; // Disable skip button if chrono is not running
+                chronoInstruction.textContent = String(currentInstruction).toUpperCase();
             }
 
-            // Boucle principale du chronometre
-            function chronoLoop() {
-                if (!isChronoRunning || isChronoPaused) { clearInterval(chronoIntervalTimerRef); chronoIntervalTimerRef = null; return; }
-                chronoCurrentTime--;
-                if (chronoCurrentIntervalIndex === -1) { // Phase de pre-compte a rebours
-                    if (chronoCurrentTime <= 0) {
-                        chronoCurrentIntervalIndex = 0;
-                        chronoCurrentTime = chronoIntervals[0].duration;
-                        speak(String(chronoIntervals[0].instruction).toUpperCase());
-                        showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono');
-                    } else if (chronoCurrentTime <= 3 && chronoCurrentTime > 0) {
-                        playMarioKartStartSound();
-                    }
-                } else { // Phase d'intervalles
-                    if (chronoCurrentTime <= 0) {
-                        const nextIndex = chronoCurrentIntervalIndex + 1;
-                        if (nextIndex < chronoIntervals.length) {
-                            chronoCurrentIntervalIndex = nextIndex;
-                            chronoCurrentTime = chronoIntervals[nextIndex].duration;
-                            speak(String(chronoIntervals[nextIndex].instruction).toUpperCase());
-                            showMessage(String(chronoIntervals[nextIndex].instruction).toUpperCase(), 'chrono');
-                            playBeep(1000, 0.2); // Son pour le changement d'intervalle
-                        } else {
-                            // Fin de la sequence
-                            isChronoRunning = false;
-                            isChronoPaused = false;
-                            chronoCurrentIntervalIndex = -1;
-                            chronoCurrentTime = 0;
-                            speak("SEQUENCE TERMINEE!");
-                            showMessage("SEQUENCE TERMINEE !", 'success');
-                            clearInterval(chronoIntervalTimerRef);
-                            chronoIntervalTimerRef = null;
-                        }
-                    } else if (chronoCurrentTime <= 10 && chronoCurrentTime > 0) {
-                        playBeep(880, 0.05); // Bip d'avertissement avant la fin de l'intervalle
-                    }
+            // Passe a l'intervalle suivante
+            function nextInterval() {
+                if (chronoCurrentIntervalIndex < chronoIntervals.length - 1) {
+                    chronoCurrentIntervalIndex++;
+                    chronoCurrentInterval = chronoIntervals[chronoCurrentIntervalIndex];
+                    chronoCurrentTime = chronoCurrentInterval.duration;
+                    speak(chronoCurrentInterval.instruction);
+                    playBeep(880, 0.2); // Higher pitch beep for new interval
+                } else {
+                    resetChrono();
+                    showMessage("SEQUENCE TERMINEE !", 'success');
+                    speak("Sequence terminee !");
+                    playTrophySound(); // Play trophy sound at the end of the sequence
                 }
-                updateLocalStorageChronoState();
                 updateChronoDisplay();
+                updateLocalStorageChronoState();
             }
 
-            // Fonction pour passer a l'intervalle suivante
-            function skipToNextInterval() {
-                if (!isChronoRunning) {
-                    showMessage("LE CHRONO N'EST PAS EN COURS.", 'warning');
+            // Demarre le chronometre
+            function startChrono() {
+                if (isChronoRunning) return;
+                if (chronoIntervals.length === 0) { showMessage("ERREUR: VEUILLEZ AJOUTER DES INTERVALLES.", 'error'); return; }
+
+                isChronoRunning = true;
+                isChronoPaused = false;
+                startChronoBtn.disabled = true;
+                pauseChronoBtn.disabled = false;
+                resetChronoBtn.disabled = false;
+                skipIntervalBtn.disabled = false;
+
+                if (enableChronoPreCountdown && chronoCurrentIntervalIndex === -1) {
+                    chronoCurrentTime = chronoPreCountdownDuration;
+                    chronoInstruction.textContent = "COMPTE A REBOURS PRE-DEPART";
+                    speak("Pre-depart");
+                    playMarioKartStartSound(); // Play Mario Kart start sound for pre-countdown
+                } else if (chronoCurrentIntervalIndex === -1) { // No pre-countdown, start directly with first interval
+                    chronoCurrentIntervalIndex = 0;
+                    chronoCurrentInterval = chronoIntervals[chronoCurrentIntervalIndex];
+                    chronoCurrentTime = chronoCurrentInterval.duration;
+                    speak(chronoCurrentInterval.instruction);
+                    playBeep(880, 0.2);
+                } else {
+                    // Resuming from pause
+                    speak("Reprise.");
+                }
+
+                updateChronoDisplay();
+                chronoIntervalTimerRef = setInterval(() => {
+                    chronoCurrentTime--;
+                    updateChronoDisplay();
+
+                    if (chronoCurrentTime <= 3 && chronoCurrentTime > 0) {
+                        playBeep(600 + (3 - chronoCurrentTime) * 100); // Increasing pitch beeps
+                    } else if (chronoCurrentTime === 0) {
+                        playBeep(1000, 0.3); // Final higher pitch beep
+                        if (chronoCurrentIntervalIndex === -1 && enableChronoPreCountdown) {
+                            // Pre-countdown finished, start first interval
+                            chronoCurrentIntervalIndex = 0;
+                            chronoCurrentInterval = chronoIntervals[chronoCurrentIntervalIndex];
+                            chronoCurrentTime = chronoCurrentInterval.duration;
+                            speak(chronoCurrentInterval.instruction);
+                            playBeep(880, 0.2);
+                        } else {
+                            nextInterval();
+                        }
+                    }
+                }, 1000);
+                updateLocalStorageChronoState();
+            }
+
+            // Met en pause le chronometre
+            function pauseChrono() {
+                if (!isChronoRunning) return;
+                isChronoRunning = false;
+                isChronoPaused = true;
+                clearInterval(chronoIntervalTimerRef);
+                startChronoBtn.disabled = false;
+                pauseChronoBtn.disabled = true;
+                speak("Pause.");
+                showMessage("CHRONOMETRE EN PAUSE.", 'chrono');
+                updateLocalStorageChronoState();
+            }
+
+            // Reinitialise le chronometre
+            function resetChrono() {
+                isChronoRunning = false;
+                isChronoPaused = false;
+                clearInterval(chronoIntervalTimerRef);
+                chronoCurrentTime = 0;
+                chronoCurrentIntervalIndex = -1;
+                chronoCurrentInterval = null; // Reset current interval object
+                startChronoBtn.disabled = false;
+                pauseChronoBtn.disabled = true;
+                resetChronoBtn.disabled = true;
+                skipIntervalBtn.disabled = true;
+                updateChronoDisplay();
+                speak("Chronomètre reinitialise.");
+                showMessage("CHRONOMETRE REINITIALISE.", 'chrono');
+                updateLocalStorageChronoState();
+            }
+
+            // Attache les evenements
+            startChronoBtn.onclick = startChrono;
+            pauseChronoBtn.onclick = pauseChrono;
+            resetChronoBtn.onclick = resetChrono;
+            skipIntervalBtn.onclick = nextInterval;
+
+            addUpdateIntervalBtn.onclick = () => {
+                const durationMinutes = parseInt(newDurationMinutesInput.value);
+                const instruction = newInstructionInput.value.trim();
+
+                if (isNaN(durationMinutes) || durationMinutes <= 0 || !instruction) {
+                    showMessage("ERREUR: DUREE ET INSTRUCTION VALIDES REQUISES.", 'error');
                     return;
                 }
-
-                clearInterval(chronoIntervalTimerRef); // Stop current timer
-                chronoIntervalTimerRef = null;
-
-                if (chronoCurrentIntervalIndex === -1) { // If in pre-countdown
-                    chronoCurrentIntervalIndex = 0; // Jump to first interval
-                    if (chronoIntervals.length > 0) {
-                        chronoCurrentTime = chronoIntervals[0].duration;
-                        speak(String(chronoIntervals[0].instruction).toUpperCase());
-                        showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono');
-                    } else {
-                        // No intervals defined, end chrono
-                        isChronoRunning = false;
-                        isChronoPaused = false;
-                        chronoCurrentIntervalIndex = -1;
-                        chronoCurrentTime = 0;
-                        speak("AUCUNE INTERVALLE SUIVANTE. SEQUENCE TERMINEE.");
-                        showMessage("AUCUNE INTERVALLE SUIVANTE. SEQUENCE TERMINEE.", 'warning');
-                    }
-                } else { // If in an interval
-                    const nextIndex = chronoCurrentIntervalIndex + 1;
-                    if (nextIndex < chronoIntervals.length) {
-                        chronoCurrentIntervalIndex = nextIndex;
-                        chronoCurrentTime = chronoIntervals[nextIndex].duration;
-                        speak(String(chronoIntervals[nextIndex].instruction).toUpperCase());
-                        showMessage(String(chronoIntervals[nextIndex].instruction).toUpperCase(), 'chrono');
-                        playBeep(1000, 0.2); // Sound for interval change
-                    } else {
-                        // End of sequence
-                        isChronoRunning = false;
-                        isChronoPaused = false;
-                        chronoCurrentIntervalIndex = -1;
-                        chronoCurrentTime = 0;
-                        speak("SEQUENCE TERMINEE!");
-                        showMessage("SEQUENCE TERMINEE !", 'success');
-                    }
-                }
-                updateLocalStorageChronoState();
-                updateChronoDisplay();
-                if (isChronoRunning) { // Restart timer if still running
-                    chronoIntervalTimerRef = setInterval(chronoLoop, 1000);
-                }
-            }
-
-
-            // Attache les ecouteurs d'evenements pour les boutons du chronometre
-            addUpdateIntervalBtn.onclick = () => {
-                const duration = newDurationMinutesInput.value, instruction = newInstructionInput.value;
-                if (duration === '' || instruction.trim() === '') { showMessage("ERREUR: LA DUREE ET L'INSTRUCTION SONT REQUISES.", 'error'); return; }
+                const durationSeconds = durationMinutes * 60;
 
                 if (editingIntervalIndex !== -1) {
                     // Update existing interval
-                    chronoIntervals[editingIntervalIndex] = { duration: parseInt(duration) * 60, instruction: instruction.trim() };
+                    chronoIntervals[editingIntervalIndex] = { duration: durationSeconds, instruction: instruction };
                     showMessage("INTERVALLE MISE A JOUR !", 'success');
                 } else {
                     // Add new interval
-                    chronoIntervals.push({ duration: parseInt(duration) * 60, instruction: instruction.trim() });
+                    chronoIntervals.push({ duration: durationSeconds, instruction: instruction });
                     showMessage("INTERVALLE AJOUTEE !", 'success');
                 }
                 updateLocalStorageChronoState();
@@ -1556,244 +1737,257 @@ GENERER LA RECETTE DETAILLEE : `.trim();
                 resetIntervalForm();
             };
 
-            enablePreCountdownCheckbox.onchange = (e) => { enableChronoPreCountdown = e.target.checked; preCountdownDurationSetting.classList.toggle('hidden', !enableChronoPreCountdown); updateLocalStorageChronoState(); };
-            chronoPreCountdownDurationInput.onchange = (e) => { chronoPreCountdownDuration = Math.max(1, parseInt(e.target.value) || 1); updateLocalStorageChronoState(); };
-            startChronoBtn.onclick = () => { if (chronoIntervals.length === 0) { showMessage("ERREUR: AJOUTEZ DES INTERVALLES AVANT DE COMMENCER.", 'error'); return; } if (isChronoRunning && !isChronoPaused) return; isChronoRunning = true; isChronoPaused = false; chronoCurrentIntervalIndex = -1; if (enableChronoPreCountdown) chronoCurrentTime = chronoPreCountdownDuration; else { chronoCurrentIntervalIndex = 0; chronoCurrentTime = chronoIntervals[0].duration; speak(String(chronoIntervals[0].instruction).toUpperCase()); showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono'); } updateLocalStorageChronoState(); updateChronoDisplay(); showMessage("CHRONO DEMARRE !", 'chrono'); if (!chronoIntervalTimerRef) chronoIntervalTimerRef = setInterval(chronoLoop, 1000); };
-            pauseChronoBtn.onclick = () => { isChronoPaused = true; updateLocalStorageChronoState(); updateChronoDisplay(); showMessage("CHRONO EN PAUSE.", 'info'); clearInterval(chronoIntervalTimerRef); chronoIntervalTimerRef = null; };
-            resetChronoBtn.onclick = () => { isChronoRunning = false; isChronoPaused = false; chronoCurrentIntervalIndex = -1; chronoCurrentTime = 0; updateLocalStorageChronoState(); updateChronoDisplay(); showMessage("CHRONO REINITIALISE.", 'success'); clearInterval(chronoIntervalTimerRef); chronoIntervalTimerRef = null; resetIntervalForm(); };
-            skipIntervalBtn.onclick = skipToNextInterval; // Attach event listener for the new skip button
-
-
-            // Gere la sauvegarde d'une sequence d'intervalles
-            saveSequenceBtn.onclick = () => {
-                const modalDiv = document.createElement('div');
-                modalDiv.id = 'save-sequence-modal'; modalDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50';
-                modalDiv.innerHTML = `<div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-md text-white"><h3 class="text-xl sm:text-2xl font-bold mb-4 text-yellow-300">SAUVEGARDER LA SEQUENCE</h3><label for="saveSequenceName" class="block text-gray-200 text-sm font-bold mb-2">NOM :</label><input type="text" id="saveSequenceName" class="input-retro" placeholder="DONNEZ UN NOM A VOTRE SEQUENCE" value="${document.getElementById('sequenceName').value}" /><div class="flex justify-end space-x-4 mt-6"><button id="cancel-save-sequence-btn" class="btn-retro-red">ANNULER</button><button id="confirm-save-sequence-btn" class="btn-retro-green">SAUVEGARDER</button></div></div>`;
-                document.getElementById('global-modals-container').appendChild(modalDiv);
-                document.getElementById('cancel-save-sequence-btn').onclick = () => modalDiv.remove();
-                document.getElementById('confirm-save-sequence-btn').onclick = () => { const name = document.getElementById('saveSequenceName').value; if (!name.trim()) { showMessage("ERREUR: NOM DE LA SEQUENCE REQUIS.", 'error'); return; } if (chronoIntervals.length === 0) { showMessage("ERREUR: AJOUTEZ DES INTERVALLES AVANT DE SAUVEGARDER.", 'error'); return; } intervalSequences.push({ id: generateUniqueId(), name: name.trim(), intervals: JSON.stringify(chronoIntervals) }); saveToLocalStorage('intervalSequences', intervalSequences); showMessage("SUCCES: SEQUENCE ENREGISTREE !", 'success'); modalDiv.remove(); document.getElementById('sequenceName').value = ''; };
+            enablePreCountdownCheckbox.onchange = (event) => {
+                enableChronoPreCountdown = event.target.checked;
+                preCountdownDurationSetting.classList.toggle('hidden', !enableChronoPreCountdown);
+                updateLocalStorageChronoState();
             };
 
-            // Gere le chargement d'une sequence d'intervalles
-            loadSequenceBtn.onclick = () => {
-                const modalDiv = document.createElement('div');
-                modalDiv.id = 'load-sequence-modal'; modalDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50';
-                let sequencesListHtml = intervalSequences.length === 0 ? '<p class="text-gray-400">AUCUNE SEQUENCE ENREGISTREE.</p>' : `<ul class="space-y-2 max-h-60 overflow-y-auto pr-2">${intervalSequences.map(seq => `<li class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-700 p-2 rounded-md border border-gray-600"><span class="text-gray-100 text-base sm:text-lg">${String(seq.name).toUpperCase()}</span><div class="flex gap-2 mt-2 sm:mt-0"><button class="btn-retro-green text-xs px-2 py-1 load-sequence-item-btn" data-id="${seq.id}">CHARGER</button><button class="btn-retro-purple text-xs px-2 py-1 edit-sequence-name-btn" data-id="${seq.id}">MODIFIER NOM</button><button class="btn-retro-green text-xs px-2 py-1 duplicate-sequence-item-btn" data-id="${seq.id}">DUPLIQUER</button><button class="btn-retro-red text-xs px-2 py-1 delete-sequence-item-btn" data-id="${seq.id}">SUPPRIMER</button></div></li>`).join('')}</ul>`;
-                modalDiv.innerHTML = `<div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-sm text-white"><h3 class="text-xl sm:text-2xl font-bold mb-4 text-yellow-300">CHARGER LA SEQUENCE</h3>${sequencesListHtml}<div class="flex justify-end mt-6"><button id="close-load-sequence-btn" class="btn-retro-red">FERMER</button></div></div>`;
-                document.getElementById('global-modals-container').appendChild(modalDiv);
-
-                modalDiv.querySelectorAll('.load-sequence-item-btn').forEach(button => {
-                    button.onclick = (event) => {
-                        const idToLoad = event.target.dataset.id, sequence = intervalSequences.find(s => s.id === idToLoad);
-                        if (sequence) {
-                            chronoIntervals = JSON.parse(sequence.intervals);
-                            updateLocalStorageChronoState();
-                            showMessage(`SUCCES: SEQUENCE "${String(sequence.name).toUpperCase()}" CHARGEE !`, 'success');
-                            modalDiv.remove();
-                            isChronoRunning = false;
-                            isChronoPaused = false;
-                            chronoCurrentIntervalIndex = -1;
-                            chronoCurrentTime = 0;
-                            updateChronoDisplay();
-                            renderIntervalsList();
-                            resetIntervalForm();
-                        } else {
-                            showMessage("ERREUR: SEQUENCE INTROUVABLE.", 'error');
-                        }
-                    };
-                });
-
-                modalDiv.querySelectorAll('.duplicate-sequence-item-btn').forEach(button => {
-                    button.onclick = async (event) => {
-                        const idToDuplicate = event.target.dataset.id;
-                        const originalSequence = intervalSequences.find(s => s.id === idToDuplicate);
-                        if (originalSequence) {
-                            const newName = `${originalSequence.name}_COPIE`;
-                            intervalSequences.push({ id: generateUniqueId(), name: newName, intervals: originalSequence.intervals });
-                            saveToLocalStorage('intervalSequences', intervalSequences);
-                            showMessage(`SUCCES: SEQUENCE "${String(originalSequence.name).toUpperCase()}" DUPLIQUEE EN "${String(newName).toUpperCase()}" !`, 'success');
-                            modalDiv.remove();
-                            loadSequenceBtn.click(); // Re-open the load modal to show the new sequence
-                        } else {
-                            showMessage("ERREUR: SEQUENCE INTROUVABLE POUR LA DUPLICATION.", 'error');
-                        }
-                    };
-                });
-
-                modalDiv.querySelectorAll('.edit-sequence-name-btn').forEach(button => {
-                    button.onclick = (event) => {
-                        const idToEdit = event.target.dataset.id;
-                        const sequenceToEdit = intervalSequences.find(s => s.id === idToEdit);
-                        if (sequenceToEdit) {
-                            const editNameModalDiv = document.createElement('div');
-                            editNameModalDiv.id = 'edit-sequence-name-modal';
-                            editNameModalDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50';
-                            editNameModalDiv.innerHTML = `<div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-md text-white"><h3 class="text-xl sm:text-2xl font-bold mb-4 text-yellow-300">MODIFIER NOM DE LA SEQUENCE</h3><label for="newSequenceName" class="block text-gray-200 text-sm font-bold mb-2">NOUVEAU NOM :</label><input type="text" id="newSequenceName" class="input-retro" placeholder="NOUVEAU NOM" value="${sequenceToEdit.name}" /><div class="flex justify-end space-x-4 mt-6"><button id="cancel-edit-name-btn" class="btn-retro-red">ANNULER</button><button id="confirm-edit-name-btn" class="btn-retro-green">ENREGISTRER</button></div></div>`;
-                            document.getElementById('global-modals-container').appendChild(editNameModalDiv);
-
-                            document.getElementById('cancel-edit-name-btn').onclick = () => editNameModalDiv.remove();
-                            document.getElementById('confirm-edit-name-btn').onclick = () => {
-                                const newName = document.getElementById('newSequenceName').value.trim();
-                                if (!newName) {
-                                    showMessage("ERREUR: LE NOM NE PEUT PAS ETRE VIDE.", 'error');
-                                    return;
-                                }
-                                sequenceToEdit.name = newName;
-                                saveToLocalStorage('intervalSequences', intervalSequences);
-                                showMessage("SUCCES: NOM DE LA SEQUENCE MIS A JOUR !", 'success');
-                                editNameModalDiv.remove();
-                                modalDiv.remove(); // Close the load sequence modal
-                                loadSequenceBtn.click(); // Re-open to show updated name
-                            };
-                        } else {
-                            showMessage("ERREUR: SEQUENCE INTROUVABLE POUR LA MODIFICATION DU NOM.", 'error');
-                        }
-                    };
-                });
-
-                modalDiv.querySelectorAll('.delete-sequence-item-btn').forEach(button => {
-                    button.onclick = async (event) => {
-                        const idToDelete = event.target.dataset.id;
-                        if (await showConfirmModal("CONFIRMER LA SUPPRESSION DE LA SEQUENCE ?")) {
-                            intervalSequences = intervalSequences.filter(s => s.id !== idToDelete);
-                            saveToLocalStorage('intervalSequences', intervalSequences);
-                            showMessage("SUCCES: SEQUENCE SUPPRIMEE !", 'success');
-                            modalDiv.remove();
-                            loadSequenceBtn.click(); // Re-open the load modal to show updated list
-                        }
-                    };
-                });
-                document.getElementById('close-load-sequence-btn').onclick = () => modalDiv.remove();
+            chronoPreCountdownDurationInput.onchange = (event) => {
+                chronoPreCountdownDuration = Math.max(1, parseInt(event.target.value) || 1);
+                updateLocalStorageChronoState();
             };
 
-            renderIntervalsList(); // Rend la liste des intervalles au chargement de la vue
-            updateChronoDisplay(); // Met a jour l'affichage du chronometre
-            if (isChronoRunning && !isChronoPaused && !chronoIntervalTimerRef) { chronoIntervalTimerRef = setInterval(chronoLoop, 1000); } // Reprend le chronometre si necessaire
+            saveSequenceBtn.onclick = async () => {
+                const sequenceNameInput = document.getElementById('sequenceName');
+                const name = sequenceNameInput.value.trim();
+                if (!name) { showMessage("ERREUR: NOM DE LA SEQUENCE REQUIS.", 'error'); return; }
+                if (chronoIntervals.length === 0) { showMessage("ERREUR: AJOUTEZ DES INTERVALLES POUR SAUVEGARDER.", 'error'); return; }
+                intervalSequences.push({ id: generateUniqueId(), name: name, intervals: chronoIntervals, createdAt: new Date().toISOString() });
+                saveToLocalStorage('intervalSequences', intervalSequences);
+                showMessage(`SEQUENCE "${name.toUpperCase()}" SAUVEGARDEE !`, 'success');
+                sequenceNameInput.value = '';
+                renderChronoIntervalleView(container); // Re-render to update the loaded sequences list
+            };
+
+            loadSequenceBtn.onclick = async () => {
+                const sequenceNameInput = document.getElementById('sequenceName');
+                const name = sequenceNameInput.value.trim();
+                if (!name) { showMessage("ERREUR: NOM DE LA SEQUENCE A CHARGER REQUIS.", 'error'); return; }
+                const sequenceToLoad = intervalSequences.find(seq => seq.name.toLowerCase() === name.toLowerCase());
+                if (sequenceToLoad) {
+                    if (await showConfirmModal(`CHARGER LA SEQUENCE "${sequenceToLoad.name.toUpperCase()}" ? CELA REMPLACERA LA SEQUENCE ACTUELLE.`)) {
+                        chronoIntervals = [...sequenceToLoad.intervals];
+                        resetChrono(); // Reset chrono state
+                        updateLocalStorageChronoState();
+                        showMessage(`SEQUENCE "${sequenceToLoad.name.toUpperCase()}" CHARGEE !`, 'success');
+                        renderIntervalsList();
+                    }
+                } else {
+                    showMessage(`ERREUR: SEQUENCE "${name.toUpperCase()}" INTROUVABLE.`, 'error');
+                }
+            };
+
+            // Initial render calls
+            renderIntervalsList();
+            updateChronoDisplay();
+
+            // Set initial button states
+            startChronoBtn.disabled = isChronoRunning;
+            pauseChronoBtn.disabled = !isChronoRunning;
+            resetChronoBtn.disabled = !isChronoRunning && chronoCurrentIntervalIndex === -1;
+            skipIntervalBtn.disabled = !isChronoRunning || chronoCurrentIntervalIndex === -1;
         }
 
-        // Rend la vue de progression (historique de poids et d'exercices)
+        // Rend la vue de progression
         function renderProgressView(container) {
-            let selectedExerciseForChart = loadFromLocalStorage('selectedExerciseForChart', 'SELECTIONNER UN EXERCICE'), selectedExerciseMetrics = loadFromLocalStorage('selectedExerciseMetrics', ['Volume']);
-            const hideExerciseHistory = userProfile.hideExerciseHistory;
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">MA PROGRESSION</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">HISTORIQUE DE POIDS :</h3><div style="width: 100%; max-width: 1000px; margin: 0 auto;"><canvas id="weight-chart"></canvas></div><p id="weight-chart-message" class="text-gray-400 text-center mt-2 hidden">AUCUN HISTORIQUE DE POIDS ENCORE.</p></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">PROGRESSION PAR EXERCICE :</h3><label for="exerciseSelectChart" class="block text-gray-200 text-sm font-bold mb-2">CHOISIR UN EXERCICE :</label><select id="exerciseSelectChart" class="select-retro mb-4"><option value="SELECTIONNER UN EXERCICE">SELECTIONNER UN EXERCICE</option></select><div class="mb-4"><h4 class="text-base sm:text-lg font-bold text-gray-200 mb-2">METRIQUES A AFFICHER :</h4><div id="metric-checkboxes" class="flex flex-wrap gap-x-4 gap-y-2"></div></div><div style="width: 100%; max-width: 1000px; margin: 0 auto;"><canvas id="exercise-chart"></canvas></div><p id="exercise-chart-message" class="text-gray-400 text-center mt-2 hidden">SELECTIONNEZ UN EXERCICE ET AU MOINS UNE METRIQUE POUR VOIR LE GRAPHIQUE DE PROGRESSION.</p></div><div id="workout-logs-section" class="${hideExerciseHistory ? 'hidden' : ''}"><h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">HISTORIQUE DES ENTRAINEMENTS :</h3><div id="workout-logs-list" class="space-y-4"></div></div></div>`;
+            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">MA PROGRESSION</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">HISTORIQUE DE POIDS ET IMC :</h3><div class="mb-4"><canvas id="weightChart"></canvas></div><div id="weight-history-list" class="space-y-2"></div></div><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3 flex items-center justify-between">HISTORIQUE D'EXERCICES : <button id="toggle-exercise-history" class="btn-retro-purple text-sm px-3 py-1">${userProfile.hideExerciseHistory ? 'AFFICHER' : 'MASQUER'}</button></h3><div id="exercise-history-content" class="${userProfile.hideExerciseHistory ? 'hidden' : ''}"><canvas id="exerciseChart" class="mb-4"></canvas><div id="exercise-logs-list" class="space-y-2"></div></div></div></div>`;
             container.innerHTML = html;
-            const weightChartCanvas = document.getElementById('weight-chart'), weightChartMessage = document.getElementById('weight-chart-message'), exerciseSelectChart = document.getElementById('exerciseSelectChart'), metricCheckboxes = document.getElementById('metric-checkboxes'), exerciseChartCanvas = document.getElementById('exercise-chart'), exerciseChartMessage = document.getElementById('exercise-chart-message'), workoutLogsListDiv = document.getElementById('workout-logs-list'), workoutLogsSection = document.getElementById('workout-logs-section');
+            const weightHistoryList = document.getElementById('weight-history-list'), exerciseLogsList = document.getElementById('exercise-logs-list'), toggleExerciseHistoryBtn = document.getElementById('toggle-exercise-history'), exerciseHistoryContent = document.getElementById('exercise-history-content');
+
+            // Rend l'historique de poids
+            function renderWeightHistory() {
+                weightHistoryList.innerHTML = '';
+                if (weightHistory.length === 0) { weightHistoryList.innerHTML = '<p class="text-gray-400">AUCUN HISTORIQUE DE POIDS ENREGISTRE.</p>'; return; }
+                let listHtml = `<table class="table-retro"><thead><tr><th>DATE</th><th>POIDS (KG)</th><th>IMC</th><th>CATEGORIE</th><th>ACTIONS</th></tr></thead><tbody>`;
+                [...weightHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).forEach(entry => {
+                    listHtml += `<tr><td>${new Date(entry.date).toLocaleDateString('fr-FR')}</td><td>${entry.weight}</td><td>${entry.imc}</td><td>${String(entry.imcCategory).toUpperCase()}</td><td><button class="btn-icon text-red-400 delete-weight-entry" data-id="${entry.id}"><i data-lucide="trash-2"></i></button></td></tr>`;
+                });
+                listHtml += `</tbody></table>`;
+                weightHistoryList.innerHTML = listHtml;
+                renderLucideIcons();
+                weightHistoryList.querySelectorAll('.delete-weight-entry').forEach(button => {
+                    button.onclick = async (event) => {
+                        const idToDelete = event.currentTarget.dataset.id;
+                        if (await showConfirmModal("CONFIRMER LA SUPPRESSION DE CETTE ENTREE DE POIDS ?")) {
+                            weightHistory = weightHistory.filter(entry => entry.id !== idToDelete);
+                            saveToLocalStorage('weightHistory', weightHistory);
+                            showMessage("ENTREE DE POIDS SUPPRIMEE !", 'success');
+                            renderWeightHistory();
+                            renderWeightChart();
+                        }
+                    };
+                });
+            }
 
             // Rend le graphique de poids
             function renderWeightChart() {
-                if (weightChartInstance) weightChartInstance.destroy();
-                if (weightHistory.length === 0) { weightChartMessage.classList.remove('hidden'); weightChartCanvas.classList.add('hidden'); return; }
-                weightChartMessage.classList.add('hidden'); weightChartCanvas.classList.remove('hidden');
-                const labels = weightHistory.map(entry => new Date(entry.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })), weights = weightHistory.map(entry => entry.weight), imcs = weightHistory.map(entry => entry.imc);
-                const ctx = weightChartCanvas.getContext('2d');
-                weightChartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'POIDS (KG)', data: weights, borderColor: '#FCD34D', backgroundColor: 'rgba(252, 211, 77, 0.2)', borderWidth: 2, fill: false, tension: 0.3, pointBackgroundColor: '#FCD34D', pointBorderColor: '#fff', pointBorderWidth: 1, pointRadius: 5 }, { label: 'IMC', data: imcs, borderColor: '#8B5CF6', backgroundColor: 'rgba(139, 92, 246, 0.2)', borderWidth: 2, fill: false, tension: 0.3, yAxisID: 'y1', pointBackgroundColor: '#8B5CF6', pointBorderColor: '#fff', pointBorderWidth: 1, pointRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { title: { display: true, text: 'HISTORIQUE POIDS ET IMC', color: '#E2E8F0', font: { family: 'VT323', size: 20 } }, tooltip: { callbacks: { title: ctx => `DATE: ${ctx[0].label}`, label: ctx => `${ctx.dataset.label || ''}: ${ctx.parsed.y !== null ? ctx.parsed.y + (ctx.dataset.label === 'POIDS (KG)' ? ' KG' : '') : ''}` }, titleFont: { family: 'VT323', size: 14 }, bodyFont: { family: 'VT323', size: 12 }, backgroundColor: 'rgba(45, 55, 72, 0.9)', borderColor: '#A78BFA', borderWidth: 1, borderRadius: 6 } }, scales: { x: { title: { display: true, text: 'DATE', color: '#E2E8F0', font: { family: 'VT323', size: 16 } }, ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }, y: { title: { display: true, text: 'POIDS (KG)', color: '#E2E8F0', font: { family: 'VT323', size: 16 } }, ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }, y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'IMC', color: '#E2E8F0', font: { family: 'VT323', size: 16 } }, ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } }, grid: { drawOnChartArea: false } } } } });
-            }
-
-            // Remplit le selecteur d'exercices avec les noms uniques des exercices enregistres
-            const uniqueExerciseNames = ['SELECTIONNER UN EXERCICE', ...new Set(workoutLogs.map(log => log.exerciseName))].sort();
-            exerciseSelectChart.innerHTML = uniqueExerciseNames.map(name => `<option value="${name}" ${name === selectedExerciseForChart ? 'selected' : ''}>${name}</option>`).join('');
-
-            // Definit les metriques disponibles pour le graphique d'exercices
-            const metrics = ['Repetitions/Duree', 'Series/Rounds', 'Poids', 'Volume'];
-            metricCheckboxes.innerHTML = metrics.map(metric => `<label class="flex items-center text-gray-300 text-sm sm:text-base"><input type="checkbox" data-metric="${metric}" ${selectedExerciseMetrics.includes(metric) ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" />${metric.toUpperCase()}</label>`).join('');
-
-            // Gere le changement de l'exercice selectionne
-            exerciseSelectChart.onchange = (e) => { selectedExerciseForChart = e.target.value; saveToLocalStorage('selectedExerciseForChart', selectedExerciseForChart); renderExerciseChart(); };
-            // Gere le changement des metriques selectionnees
-            metricCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(checkbox => { checkbox.onchange = (e) => { const metric = e.target.dataset.metric; if (e.target.checked) { if (!selectedExerciseMetrics.includes(metric)) selectedExerciseMetrics.push(metric); } else { selectedExerciseMetrics = selectedExerciseMetrics.filter(m => m !== metric); } saveToLocalStorage('selectedExerciseMetrics', selectedExerciseMetrics); renderExerciseChart(); }; });
-
-            // Rend le graphique de progression par exercice
-            function renderExerciseChart() {
-                if (exerciseChartInstance) exerciseChartInstance.destroy();
-                if (!selectedExerciseForChart || selectedExerciseForChart === 'SELECTIONNER UN EXERCICE' || selectedExerciseMetrics.length === 0) { exerciseChartMessage.classList.remove('hidden'); exerciseChartCanvas.classList.add('hidden'); return; }
-                const filteredLogs = workoutLogs.filter(log => log.exerciseName === selectedExerciseForChart).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-                if (filteredLogs.length === 0) { exerciseChartMessage.textContent = `AUCUNE DONNEE POUR "${selectedExerciseForChart.toUpperCase()}".`; exerciseChartMessage.classList.remove('hidden'); exerciseChartCanvas.classList.add('hidden'); return; }
-                exerciseChartMessage.classList.add('hidden'); exerciseChartCanvas.classList.remove('hidden');
-
-                const labels = filteredLogs.map(log => new Date(log.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })), datasets = [];
-                const colors = ['#FCD34D', '#A78BFA', '#10B981', '#EF4444']; // Couleurs pour les differents datasets
-
-                selectedExerciseMetrics.forEach((metric, index) => {
-                    let data = [], label = metric.toUpperCase(), yAxisID = `y${index}`;
-                    if (metric === 'Volume') {
-                        data = filteredLogs.map(log => {
-                            const sets = parseFloat(String(log.sets)) || 0;
-                            let reps = parseFloat(String(log.reps)) || 0;
-                            const weight = parseFloat(String(log.weight)) || 0;
-                            if (String(log.reps).toUpperCase().includes('MIN')) reps = parseFloat(String(log.reps).match(/(\d+(\.\d+)?)\s*MIN/i)[1]) * 60;
-                            else if (String(log.reps).toUpperCase().includes('SEC')) reps = parseFloat(String(log.reps).match(/(\d+(\.\d+)?)\s*SEC/i)[1]);
-                            return (sets * reps * (weight > 0 ? weight : 1));
-                        });
-                        label = 'VOLUME (KG OU UNITE TEMPS)';
+                const ctx = document.getElementById('weightChart').getContext('2d');
+                if (weightChartInstance) { weightChartInstance.destroy(); }
+                const sortedHistory = [...weightHistory].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                weightChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: sortedHistory.map(entry => new Date(entry.date).toLocaleDateString('fr-FR')),
+                        datasets: [{
+                            label: 'POIDS (KG)',
+                            data: sortedHistory.map(entry => entry.weight),
+                            borderColor: '#a78bfa',
+                            backgroundColor: 'rgba(167, 139, 250, 0.2)',
+                            tension: 0.3,
+                            fill: true
+                        }, {
+                            label: 'IMC',
+                            data: sortedHistory.map(entry => entry.imc),
+                            borderColor: '#fcd34d',
+                            backgroundColor: 'rgba(252, 211, 77, 0.2)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#e2e8f0' } },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) { return context[0].label; },
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) { label += ': '; }
+                                        if (context.parsed.y !== null) { label += `${context.parsed.y} ${context.dataset.label.includes('IMC') ? '' : 'KG'}`; }
+                                        if (context.dataset.label.includes('IMC')) {
+                                            const entry = sortedHistory[context.dataIndex];
+                                            label += ` (${String(entry.imcCategory).toUpperCase()})`;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#e2e8f0' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            y: { beginAtZero: true, ticks: { color: '#e2e8f0' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                        }
                     }
-                    else if (metric === 'Poids') { data = filteredLogs.map(log => log.weight); label = 'POIDS (KG)'; }
-                    else if (metric === 'Series/Rounds') { data = filteredLogs.map(log => parseFloat(String(log.sets)) || 0); label = 'SERIES / ROUNDS'; }
-                    else if (metric === 'Repetitions/Duree') {
-                        data = filteredLogs.map(log => {
-                            let reps = parseFloat(String(log.reps)) || 0;
-                            if (String(log.reps).toUpperCase().includes('MIN')) reps = parseFloat(String(log.reps).match(/(\d+(\.\d+)?)\s*MIN/i)[1]);
-                            else if (String(log.reps).toUpperCase().includes('SEC')) reps = parseFloat(String(log.reps).match(/(\d+(\.\d+)?)\s*SEC/i)[1]);
-                            return reps;
-                        });
-                        label = 'REPETITIONS / DUREE';
-                    }
-                    datasets.push({ label: label, data: data, borderColor: colors[index % colors.length], backgroundColor: Chart.helpers.color(colors[index % colors.length]).alpha(0.2).rgbString(), borderWidth: 2, fill: false, tension: 0.3, pointBackgroundColor: colors[index % colors.length], pointBorderColor: '#fff', pointBorderWidth: 1, pointRadius: 5, yAxisID: yAxisID });
                 });
-
-                const ctx = exerciseChartCanvas.getContext('2d');
-                exerciseChartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: datasets }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { title: { display: true, text: `PROGRESSION POUR ${selectedExerciseForChart.toUpperCase()}`, color: '#E2E8F0', font: { family: 'VT323', size: 20 } }, tooltip: { callbacks: { title: ctx => `DATE: ${ctx[0].label}`, label: ctx => `${ctx.dataset.label || ''}: ${ctx.parsed.y !== null ? ctx.parsed.y + (ctx.dataset.label === 'POIDS (KG)' ? ' KG' : (ctx.dataset.label.includes('DUREE') || (ctx.dataset.label.includes('VOLUME') && !ctx.dataset.label.includes('KG')) ? ' s' : '')) : ''}` }, titleFont: { family: 'VT323', size: 14 }, bodyFont: { family: 'VT323', size: 12 }, backgroundColor: 'rgba(45, 55, 72, 0.9)', borderColor: '#A78BFA', borderWidth: 1, borderRadius: 6 } }, scales: { x: { title: { display: true, text: 'DATE', color: '#E2E8F0', font: { family: 'VT323', size: 16 } }, ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }, y: { title: { display: true, text: datasets[0]?.label || 'VALEUR', color: '#E2E8F0', font: { family: 'VT323', size: 16 } }, ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }, ...(selectedExerciseMetrics.length > 1 && { y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } }, title: { display: true, text: datasets[1]?.label || 'VALEUR', color: '#E2E8F0', font: { family: 'VT323', size: 16 } } }, y2: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } }, title: { display: true, text: datasets[2]?.label || 'VALEUR', color: '#E2E8F0', font: { family: 'VT323', size: 16 } } }, y3: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } }, title: { display: true, text: datasets[3]?.label || 'VALEUR', color: '#E2E8F0', font: { family: 'VT323', size: 16 } } } }) } } });
             }
 
-            renderWeightChart(); // Rend le graphique de poids au chargement
-            renderExerciseChart(); // Rend le graphique d'exercices au chargement
+            // Rend l'historique d'exercices
+            function renderExerciseHistory() {
+                exerciseLogsList.innerHTML = '';
+                if (workoutLogs.length === 0) { exerciseLogsList.innerHTML = '<p class="text-gray-400">AUCUN ENTRAINEMENT ENREGISTRE.</p>'; return; }
+                let listHtml = `<table class="table-retro"><thead><tr><th>DATE</th><th>EXERCICE</th><th>SERIES/ROUNDS</th><th>REPS/DUREE</th><th>POIDS (KG)</th><th>RESSENTI</th><th>ACTIONS</th></tr></thead><tbody>`;
+                [...workoutLogs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).forEach(log => {
+                    listHtml += `<tr><td>${new Date(log.date).toLocaleDateString('fr-FR')}</td><td>${String(log.exerciseName).toUpperCase()}</td><td>${String(log.sets).toUpperCase()}</td><td>${String(log.reps).toUpperCase()}</td><td>${log.weight > 0 ? log.weight : '-'}</td><td>${String(log.feeling).toUpperCase()}</td><td><button class="btn-icon text-red-400 delete-exercise-log" data-id="${log.id}"><i data-lucide="trash-2"></i></button></td></tr>`;
+                });
+                listHtml += `</tbody></table>`;
+                exerciseLogsList.innerHTML = listHtml;
+                renderLucideIcons();
+                exerciseLogsList.querySelectorAll('.delete-exercise-log').forEach(button => {
+                    button.onclick = async (event) => {
+                        const idToDelete = event.currentTarget.dataset.id;
+                        if (await showConfirmModal("CONFIRMER LA SUPPRESSION DE CET ENTRAINEMENT ?")) {
+                            workoutLogs = workoutLogs.filter(log => log.id !== idToDelete);
+                            saveToLocalStorage('workoutLogs', workoutLogs);
+                            showMessage("ENTRAINEMENT SUPPRIME !", 'success');
+                            renderExerciseHistory();
+                            renderExerciseChart();
+                        }
+                    };
+                });
+            }
 
-            // Affiche ou masque l'historique des entrainements
-            if (!hideExerciseHistory) {
-                workoutLogsListDiv.innerHTML = '';
-                if (workoutLogs.length === 0) { workoutLogsListDiv.innerHTML = '<p class="text-gray-400 text-center">AUCUN ENTRAINEMENT ENREGISTRE. COMMENCEZ A JOURNALISER VOS SEANCES !</p>'; }
-                else {
-                    let logsHtml = `<div class="space-y-4">`;
-                    workoutLogs.forEach((log) => { const logDate = new Date(log.date); logsHtml += `<div class="bg-gray-700 p-4 rounded-lg border-2 border-blue-700 shadow-md"><div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2"><p class="text-sm sm:text-base text-gray-200 font-bold">${logDate.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}</p><button class="btn-retro-red text-xs px-2 py-1 mt-2 sm:mt-0 delete-log-btn" data-id="${log.id}">SUPPRIMER</button></div><div class="text-gray-300 text-sm"><p>EXERCICE : <span class="font-medium">${String(log.exerciseName).toUpperCase()}</span></p><p>SERIES : <span class="font-medium">${String(log.sets).toUpperCase()}</span></p><p>REPETITIONS : <span class="font-medium">${String(log.reps).toUpperCase()}</span></p>${log.weight && log.weight !== '' && parseFloat(log.weight) > 0 ? `<p>POIDS : <span class="font-medium">${String(log.weight).toUpperCase()} KG</span></p>` : ''}<p>RESSENTI : <span class="font-medium">${String(log.feeling).toUpperCase()}</span></p>${log.notes && log.notes !== '' ? `<p>NOTES : <span class="italic">${String(log.notes).toUpperCase()}</span></p>` : ''}<p class="text-xs text-gray-400 mt-2">PHASE : ${String(log.phase).toUpperCase()}</p></div></div>`; });
-                    logsHtml += `</div>`;
-                    workoutLogsListDiv.innerHTML = logsHtml;
-                    // Attache les ecouteurs d'evenements pour les boutons de suppression de journal
-                    workoutLogsListDiv.querySelectorAll('.delete-log-btn').forEach(button => { button.onclick = async (event) => { const idToDelete = event.target.dataset.id; if (await showConfirmModal("CONFIRMER LA SUPPRESSION DU JOURNAL ?")) { workoutLogs = workoutLogs.filter(log => log.id !== idToDelete); saveToLocalStorage('workoutLogs', workoutLogs); showMessage("SUCCES: JOURNAL SUPPRIME !", 'success'); renderProgressView(container); } }; });
+            // Rend le graphique d'exercices (simple pour l'instant)
+            function renderExerciseChart() {
+                const ctx = document.getElementById('exerciseChart').getContext('2d');
+                if (exerciseChartInstance) { exerciseChartInstance.destroy(); }
+                const exerciseCounts = {};
+                workoutLogs.forEach(log => { exerciseCounts[log.exerciseName] = (exerciseCounts[log.exerciseName] || 0) + 1; });
+                const labels = Object.keys(exerciseCounts), data = Object.values(exerciseCounts);
+                exerciseChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'NOMBRE D\'ENTRAINEMENTS',
+                            data: data,
+                            backgroundColor: '#a78bfa',
+                            borderColor: '#9333ea',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, title: { display: true, text: 'FREQUENCE DES EXERCICES', color: '#e2e8f0' } },
+                        scales: {
+                            x: { ticks: { color: '#e2e8f0' }, grid: { display: false } },
+                            y: { beginAtZero: true, ticks: { color: '#e2e8f0', precision: 0 }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                        }
+                    }
+                });
+            }
+
+            toggleExerciseHistoryBtn.onclick = () => {
+                userProfile.hideExerciseHistory = !userProfile.hideExerciseHistory;
+                saveToLocalStorage('userProfile', userProfile);
+                exerciseHistoryContent.classList.toggle('hidden', userProfile.hideExerciseHistory);
+                toggleExerciseHistoryBtn.textContent = userProfile.hideExerciseHistory ? 'AFFICHER' : 'MASQUER';
+                if (!userProfile.hideExerciseHistory) {
+                    renderExerciseChart();
+                    renderExerciseHistory();
                 }
-            } else { workoutLogsSection.innerHTML = ''; }
+            };
+
+            renderWeightHistory();
+            renderWeightChart();
+            if (!userProfile.hideExerciseHistory) {
+                renderExerciseChart();
+                renderExerciseHistory();
+            }
         }
 
         // Rend la vue de la salle des trophees
         function renderTrophyRoomView(container) {
-            const currentLevel = calculateLevelAndXP(userProfile.currentXP).level, earnedTrophies = allTrophies.filter(trophy => currentLevel >= trophy.levelRequired), upcomingTrophies = allTrophies.filter(trophy => currentLevel < trophy.levelRequired).sort((a, b) => a.levelRequired - b.levelRequired);
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">SALLE DES TROPHEES</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">MES TROPHEES GAGNES (${earnedTrophies.length}) :</h3><div id="earned-trophies-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">${earnedTrophies.length === 0 ? `<p class="text-gray-400 text-center col-span-full">AUCUN TROPHEE GAGNE POUR L'INSTANT. ATTEIGNEZ LE NIVEAU 1 POUR VOTRE PREMIER !</p>` : earnedTrophies.map(trophy => `<div class="bg-gray-800 p-3 rounded-lg border-2 border-green-500 shadow-md text-center"><span class="text-4xl">🏆</span><p class="text-lg font-bold text-yellow-300 mt-2">${String(trophy.name).toUpperCase()}</p><p class="text-sm text-gray-300">${String(trophy.description).toUpperCase()}</p><p class="text-xs text-blue-400 mt-1">NIVEAU REQUIS : ${trophy.levelRequired}</p></div>`).join('')}</div></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">TROPHEES A VENIR (${upcomingTrophies.length}) :</h3><div id="upcoming-trophies-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">${upcomingTrophies.length === 0 ? `<p class="text-gray-400 text-center col-span-full">VOUS AVEZ GAGNE TOUS LES TROPHEES DISPONIBLES !</p>` : upcomingTrophies.map(trophy => `<div class="bg-gray-800 p-3 rounded-lg border-2 border-gray-500 shadow-md text-center opacity-70"><span class="text-4xl">🔒</span><p class="text-lg font-bold text-gray-400 mt-2">${String(trophy.name).toUpperCase()}</p><p class="text-sm text-gray-500 italic">${String(trophy.description).toUpperCase()}</p><p class="text-xs text-red-400 mt-1">NIVEAU REQUIS : ${trophy.levelRequired}</p></div>`).join('')}</div></div></div>`;
+            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">SALLE DES TROPHEES</h2><div id="trophies-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div></div>`;
             container.innerHTML = html;
+            const trophiesGrid = document.getElementById('trophies-grid');
+            const sortedTrophies = [...allTrophies].sort((a, b) => a.levelRequired - b.levelRequired); // Trie par niveau requis
+            sortedTrophies.forEach(trophy => {
+                const earned = userProfile.earnedTrophies.some(t => t.id === trophy.id);
+                const trophyDiv = document.createElement('div');
+                trophyDiv.className = `p-4 rounded-lg border-4 ${earned ? 'border-yellow-500 bg-yellow-900' : 'border-gray-600 bg-gray-800 opacity-50'} text-center shadow-lg`;
+                trophyDiv.innerHTML = `<span class="text-5xl mb-2 block">${earned ? '🏆' : '🔒'}</span><h3 class="font-bold text-lg ${earned ? 'text-yellow-300' : 'text-gray-400'}">${String(trophy.name).toUpperCase()}</h3><p class="text-sm ${earned ? 'text-gray-200' : 'text-gray-500'}">${String(trophy.description).toUpperCase()}</p><p class="text-xs mt-2 ${earned ? 'text-yellow-200' : 'text-gray-600'}">NIVEAU REQUIS : ${trophy.levelRequired}</p>`;
+                trophiesGrid.appendChild(trophyDiv);
+            });
         }
 
-        // Rend la vue des options de l'application
+        // Rend la vue des options
         function renderOptionsView(container) {
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">OPTIONS</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">REGLAGES AUDIO :</h3><div class="flex items-center justify-center mb-4"><label for="masterVolume" class="block text-gray-200 text-sm font-bold mr-3">VOLUME GLOBAL :</label><input type="range" id="masterVolume" min="0" max="1" step="0.05" value="${masterVolume}" class="w-full accent-purple-500" /><span id="volume-display" class="ml-3 text-gray-300">${(masterVolume * 100).toFixed(0)}%</span></div><button id="toggle-audio-btn" class="btn-retro ${isAudioActive ? 'btn-retro-red' : 'btn-retro-green'} w-full">${isAudioActive ? "DESACTIVER LE SON" : "ACTIVER LE SON"}</button><p class="text-xs text-gray-400 mt-2 text-center">${isAudioActive ? "LE SON EST ACTUELLEMENT ACTVE." : "LE SON EST ACTUELLEMENT DESACTIVE. Cliquez pour activer et profiter des effets sonores et de la synthese vocale !"}</p></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">REGLAGES D'AFFICHAGE :</h3><div class="flex items-center mb-2"><input type="checkbox" id="toggleExerciseHistory" ${userProfile.hideExerciseHistory ? '' : 'checked'} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" /><label for="toggleExerciseHistory" class="text-gray-200 text-sm font-bold">AFFICHER L'HISTORIQUE D'EXERCICE</label></div></div><div class="p-4 rounded-lg border-2 border-yellow-500 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">CLE API (POUR IA) :</h3><label for="apiKeyInput" class="block text-gray-200 text-sm font-bold mb-2">ENTREZ VOTRE CLE API GEMINI :</label><input type="password" id="apiKeyInput" class="input-retro" placeholder="VOTRE CLE API" value="${userProfile.apiKey}" /><button id="save-api-key-btn" class="btn-retro-green w-full mt-4">ENREGISTRER CLE API</button><p class="text-xs text-gray-400 mt-2 text-center">NECESSAIRE POUR LA GENERATION DE CONSEILS IA. (LAISSEZ VIDE POUR DESACTIVER)</p></div><div class="p-4 rounded-lg border-2 border-red-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES DONNEES :</h3><button id="reset-app-btn" class="btn-retro-red w-full">REINITIALISER L'APPLICATION (SUPPRIME TOUTES LES DONNEES)</button><p class="text-xs text-gray-400 mt-2 text-center">ATTENTION: CETTE ACTION EST IRREVERSIBLE.</p></div></div>`;
+            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">OPTIONS</h2><div class="space-y-4"><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">AUDIO :</h3><div class="flex items-center mb-2"><input type="checkbox" id="audio-toggle" class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" ${isAudioActive ? 'checked' : ''} /><label for="audio-toggle" class="text-gray-200 text-sm font-bold">ACTIVER LES EFFETS SONORES ET LA SYNTHESE VOCALE</label></div><div class="mb-2"><label for="master-volume" class="block text-gray-200 text-sm font-bold mb-1">VOLUME GENERAL :</label><input type="range" id="master-volume" min="0" max="1" step="0.05" value="${masterVolume}" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" /></div></div><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES DONNEES :</h3><button id="reset-app-btn" class="btn-retro-red w-full">REINITIALISER L'APPLICATION (SUPPRIMER TOUTES LES DONNEES)</button></div><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">CLE API GEMINI :</h3><p class="text-gray-300 text-sm mb-2">POUR ACTIVER LA GENERATION DE CONSEILS PAR L'IA (POXEL), ENTREE VOTRE CLE API GEMINI. (LAISSER VIDE POUR DESACTIVER)</p><input type="password" id="api-key-input" class="input-retro" placeholder="VOTRE CLE API GEMINI" value="${userProfile.apiKey || ''}" /><button id="save-api-key-btn" class="btn-retro-green w-full mt-3">SAUVEGARDER CLE API</button></div></div></div>`;
             container.innerHTML = html;
-            const masterVolumeControl = document.getElementById('masterVolume'), volumeDisplay = document.getElementById('volume-display'), toggleAudioBtn = document.getElementById('toggle-audio-btn'), toggleExerciseHistoryCheckbox = document.getElementById('toggleExerciseHistory'), apiKeyInput = document.getElementById('apiKeyInput'), saveApiKeyBtn = document.getElementById('save-api-key-btn'), resetAppBtn = document.getElementById('reset-app-btn');
+            const audioToggle = document.getElementById('audio-toggle'), masterVolumeSlider = document.getElementById('master-volume'), resetAppBtn = document.getElementById('reset-app-btn'), apiKeyInput = document.getElementById('api-key-input'), saveApiKeyBtn = document.getElementById('save-api-key-btn');
 
-            // Attache les ecouteurs d'evenements pour les options
-            masterVolumeControl.oninput = (e) => { masterVolume = parseFloat(e.target.value); volumeDisplay.textContent = `${(masterVolume * 100).toFixed(0)}%`; Tone.Master.volume.value = masterVolume === 0 ? -Infinity : 20 * Math.log10(masterVolume); saveToLocalStorage('masterVolume', masterVolume); };
-            toggleAudioBtn.onclick = () => { toggleAudioActive(); };
-            toggleExerciseHistoryCheckbox.onchange = (e) => { userProfile.hideExerciseHistory = !e.target.checked; saveToLocalStorage('userProfile', userProfile); showMessage(`HISTORIQUE D'EXERCICE ${userProfile.hideExerciseHistory ? 'MASQUE' : 'AFFICHE'}.`, 'info'); if (currentPage === 'progress') renderProgressView(document.getElementById('main-content')); };
-            saveApiKeyBtn.onclick = () => { userProfile.apiKey = apiKeyInput.value.trim(); saveToLocalStorage('userProfile', userProfile); showMessage("CLE API ENREGISTREE !", 'success'); };
+            audioToggle.onchange = toggleAudioActive;
+            masterVolumeSlider.oninput = (event) => {
+                masterVolume = parseFloat(event.target.value);
+                Tone.Master.volume.value = masterVolume === 0 ? -Infinity : 20 * Math.log10(masterVolume);
+                saveToLocalStorage('masterVolume', masterVolume);
+            };
+
             resetAppBtn.onclick = async () => {
-                if (await showConfirmModal("ETES-VOUS SUR DE VOULOIR REINITIALISER L'APPLICATION ? TOUTES LES DONNEES SERONT PERDUES.")) {
-                    localStorage.clear(); // Supprime toutes les donnees du localStorage
-                    // Reinitialise toutes les variables d'etat globales a leurs valeurs par defaut
+                if (await showConfirmModal("ATTENTION: CELA SUPPRIMERA TOUTES VOS DONNEES (PROFIL, PLANS, HISTORIQUES, TROPHEES). ETES-VOUS SUR ?")) {
+                    localStorage.clear();
                     userProfile = { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [] };
-                    weeklyMealPlan = { semaine: [] };
+                    weeklyMealPlan = null;
                     workoutLogs = [];
                     weightHistory = [];
                     intervalSequences = [];
                     shifts = [];
                     workoutProgram = JSON.parse(JSON.stringify(defaultWorkoutProgramStructure));
                     previousLevel = 0;
-                    isAudioActive = true;
-                    masterVolume = 0.5;
                     chronoIntervals = [];
                     chronoCurrentTime = 0;
                     chronoCurrentIntervalIndex = -1;
@@ -1801,19 +1995,25 @@ GENERER LA RECETTE DETAILLEE : `.trim();
                     isChronoPaused = false;
                     enableChronoPreCountdown = true;
                     chronoPreCountdownDuration = 10;
-                    clearInterval(chronoIntervalTimerRef); // Arrete le chronometre s'il est en cours
-                    chronoIntervalTimerRef = null;
+                    contextualMealCache = new Map();
+
+                    showMessage("APPLICATION REINITIALISEE. TOUTES LES DONNEES ONT ETE SUPPRIMEES.", 'success');
                     updateProfileDisplay();
                     updateXPBar();
-                    showMessage("APPLICATION REINITIALISEE AVEC SUCCES !", 'success');
-                    renderPage('daily_plan'); // Revient a la page de planning
+                    renderPage('daily_plan');
                 }
+            };
+
+            saveApiKeyBtn.onclick = () => {
+                userProfile.apiKey = apiKeyInput.value.trim();
+                saveToLocalStorage('userProfile', userProfile);
+                showMessage("CLE API SAUVEGARDEE !", 'success');
             };
         }
 
-        // Attache les ecouteurs d'evenements initiaux de l'application
+        // Attache tous les ecouteurs d'evenements globaux
         function attachEventListeners() {
-            document.querySelectorAll('.nav-item').forEach(button => { button.onclick = (event) => { const page = event.currentTarget.dataset.page; renderPage(page); }; });
+            document.querySelectorAll('.nav-item').forEach(button => { button.onclick = (event) => renderPage(event.currentTarget.dataset.page); });
             document.getElementById('save-profile-btn').onclick = handleSaveProfile;
             document.getElementById('home-button').onclick = () => renderPage('daily_plan'); // Attach event listener for the new home button
         }
@@ -1831,7 +2031,7 @@ GENERER LA RECETTE DETAILLEE : `.trim();
             });
         }
 
-        // Initialise l'application lorsque le DOM est entierement charge
+        // Initialise l'application lorsque le DOM est charge
         document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
