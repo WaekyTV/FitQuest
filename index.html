@@ -139,7 +139,7 @@
             <div id="loading-progress-text" class="absolute inset-0 flex items-center justify-center text-lg font-bold text-gray-900">0% CHARGEMENT...</div>
         </div>
         <div id="loading-message" class="mt-8 p-3 rounded-md hidden"></div>
-        <p id="audio-inactive-message" class="text-gray-400 text-sm sm:text-base mt-4 text-center hidden">AUDIO DÉSACTIVÉ. ACTIVEZ LE SON VIA LES OPTIONS POUR LES EFFETS AUDIO ET LA SYNTHÈSE VOCALE.</p>
+        <p id="audio-inactive-message" class="text-gray-400 text-sm sm:text-base mt-4 text-center hidden"></p>
     </div>
     <div id="app-container" class="min-h-screen flex flex-col hidden">
         <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-yellow-300 p-5 shadow-md border-b-4 border-purple-500 rounded-b-lg">
@@ -222,7 +222,47 @@
         let chronoIntervals = [], chronoCurrentTime = 0, chronoCurrentIntervalIndex = -1, isChronoRunning = false, isChronoPaused = false, enableChronoPreCountdown = true, chronoPreCountdownDuration = 10, chronoIntervalTimerRef = null;
         let weightChartInstance = null, exerciseChartInstance = null, userId = 'local_user';
         let editingIntervalIndex = -1;
-        let regeneratingMeal = null;
+        let regeneratingMeal = null; // State for meal generation, can be true (for full plan) or {dateKey, mealType} (for single meal)
+
+        // Nutritional program text to be passed to the AI
+        const nutritionalProgramText = `
+Principes Généraux de ta Nutrition :
+1. Hydratation Optimale : Bois 3 grands verres d'eau avant chaque repas. Aie toujours une bouteille d'eau à portée de main. Les tisanes et le thé non sucrés sont d'excellentes alternatives.
+2. Priorité aux Protéines et aux Fibres : Essentielles pour la satiété, le maintien de la masse musculaire et sa réparation. Inclus-en à chaque repas principal et dans les collations si besoin. Mange des légumes à volonté à chaque repas.
+3. Glucides Complexes pour l'Énergie : Privilégie les glucides complexes à faible indice glycémique pour une énergie durable (riz, pommes de terre, patate douce, quinoa, flocons d'avoine, pain complet). Adapte la quantité à ton niveau d'activité.
+4. Graisses Saines avec Modération : Importantes pour la santé hormonale et l'absorption des vitamines. Concentre-toi sur les graisses saines : huiles végétales (olive, colza), avocats, oléagineux, poissons gras. Utilise avec parcimonie.
+5. Gestion du Sucre et du Gras ("Plaisirs") : Monster Energy une fois par semaine. Les sorties au bar à jeux ou les "cheat meals" sont importants pour le moral, mais ne pas en faire une routine quotidienne.
+6. Aliments pour la Sclérose en Plaques (SEP) : Privilégier Oméga-3 (poissons gras, graines de lin, chia, noix), antioxydants (fruits et légumes colorés), Vitamine D (exposition soleil, poissons gras, champignons).
+
+Ton Plan Nutritionnel Détaillé par Type de Jour :
+1. Jours de Travail : Postes de Jour (6h-18h ou 7h-18h)
+    - Petit-déjeuner (vers 5h00-6h30, avant de partir) : Boisson (thé/tisane avec lait, sucres, miel). Option 1: galette/pancake (50g flocons d'avoine mixés, 20-30g whey protéine, 1 banane écrasée/fruits rouges, eau/lait). Option 2: 50g flocons d'avoine en porridge OU 2 tranches pain complet (60-80g) avec purée d'oléagineux/miel. Fruit entier.
+    - Collation matinale (optionnel, vers 9h-10h) : Fruit (pomme + 10 amandes) OU petite poignée oléagineux (15-20 amandes/noix) OU yaourt grec nature (100-150g).
+    - Déjeuner (vers 12h-13h) : Légumes généreux. Protéines (120-150g cuits: poulet, dinde, cabillaud, thon naturel. Alternatives économiques: lentilles, pois chiches, haricots rouges (150-200g cuits). Option: 1 shaker whey (30g)). Féculents (150-200g cuits: riz, pommes de terre, patate douce, quinoa, semoule). Matière grasse (1 cs huile olive/colza).
+    - Collation après-midi (vers 17h) : Fruit OU yaourt nature/fromage blanc OU shaker whey OU petite poignée noix de cajou/amandes (15g).
+    - Dîner (après le travail, vers 19h) : Légumes généreux. Protéines (100-120g cuits: poisson maigre, viande blanche, tofu, whey). Féculents (100-120g cuits, optionnel: pommes de terre, riz). Matière grasse (1 petite cuillère huile olive/colza). Fruit (si faim).
+
+2. Jours de Travail : Postes de Nuit (18h-6h)
+    - Repas AVANT POSTE (vers 17h) : Légumes généreux. Protéines (120-150g cuits: viande blanche, poisson). Féculents (150-200g cuits: riz, pommes de terre, patate douce, quinoa). Matière grasse (1 cs huile olive/colza).
+    - Collation début de nuit (vers 22h-23h - facultatif) : Fruit (banane/pomme) + 10-15g oléagineux OU 2 tartines pain complet + purée d'amande.
+    - Repas PENDANT poste ("Mini-repas", vers 2h-3h) : Légumes. Protéines (80-100g cuits: poisson blanc, thon naturel, œuf dur, fromage blanc/yaourt grec. Alternative: petit shaker whey). Féculents (80-100g cuits, petite portion: riz, pommes de terre, patate douce, pain complet). Matière grasse (filet d'huile).
+    - Collation fin de nuit (vers 4h-5h - facultatif) : Fruit OU yaourt nature OU petite poignée de noix.
+    - Repas APRÈS POSTE (vers 6h30-7h, avant de dormir) : Boisson (thé/tisane avec lait, sucres, miel). Glucides complexes et protéines: Galette/Pancake protéiné (50g flocons d'avoine, 20-30g whey, 1 banane écrasée/fruits rouges, eau/lait). Option simple: 50g flocons d'avoine en porridge OU 2 tranches pain complet avec purée d'oléagineux/miel. Fruit entier.
+
+3. Jours de Repos / Créatifs / Chill
+    - Petit-déjeuner ou Brunch (selon réveil, 8h-10h) : Boisson (thé/tisane avec lait, sucres, miel). Option 1: galette/pancake protéiné. Option 2 (variété !) : 50g flocons d'avoine en porridge (avec fruits rouges + yaourt nature + miel) OU 2-3 tranches pain complet toastées avec purée d'oléagineux/miel + 1 banane. OU Bowl protéiné (quinoa + fromage blanc + fruits secs).
+    - Collation matinale (si besoin, 10h30-11h30) : Fruit OU petite poignée oléagineux OU yaourt grec nature.
+    - Déjeuner (vers 13h) : Légumes généreux. Protéines (120-150g cuits, varie tes sources !) : Viande blanche (poulet, dinde) ou poisson maigre (cabillaud, colin). 1 à 2 fois par semaine, du saumon, maquereau ou sardines pour les précieux Oméga-3. Alternatives : Légumineuses (lentilles, pois chiches, haricots rouges - environ 150-200g cuits), tofu. Féculents (150-200g cuits, à ajuster) : Riz, pommes de terre, patate douce, quinoa, semoule. Matière grasse (1 cs huile olive/colza).
+    - Collation après-midi (si besoin, 16h-17h) : Fruit OU yaourt nature ou fromage blanc (0% ou 20%) OU un shaker de whey protéine avec de l'eau OU une petite poignée de noix de cajou ou amandes (15g). Option "plaisir maison" : 1 part de gâteau flocons d'avoine/whey maison (type banana bread protéiné).
+    - Dîner (vers 19h-20h) : Légumes généreux. Protéines (100-120g cuits: poisson maigre, viande blanche, tofu, whey). Féculents (100-150g cuits, optionnel: riz, pommes de terre, patate douce). Matière grasse (1 petite cuillère huile olive/colza). Fruit (si faim).
+
+Notes générales pour ta Nutrition :
+- Varie les plaisirs ! Change les fruits et légumes selon la saison.
+- Cuissons douces : Privilégie la vapeur, le four, les sautés rapides.
+- Assaisonnement : Limite les sauces industrielles. Préfère huile d'olive, jus de citron, vinaigre, herbes fraîches et épices.
+- Hydratation : Bois beaucoup d'eau, thé et tisanes tout au long de la journée.
+- Préparation (Batch Cooking) : Profite de tes jours de repos pour préparer certains repas ou ingrédients à l'avance.
+`;
 
         // Liste de tous les trophées disponibles et leurs conditions
         const allTrophies = [
@@ -283,7 +323,7 @@
             { id: 't055', name: 'CONQUÉRANT DU PHYSIQUE', description: 'Atteindre le Niveau 55. Chaque jour est une victoire.', levelRequired: 55 },
             { id: 't056', name: 'PIONNIER DU BIEN-ÊTRE', description: 'Atteindre le Niveau 56. Vous ouvrez la voie.', levelRequired: 56 },
             { id: 't057', name: 'PILIER DE LA VITALITÉ', description: 'Atteindre le Niveau 57. Votre énergie est inépuisable.', levelRequired: 57 },
-            { id: 't058', name: 'SYNTHÈSE PARFAITE', description: 'Atteindre le Niveau 58. L\'harmonie est atteinte.', levelRequired: 58 },
+            { id: 't058', name: 'SYNTHÈSE PARFAITE', description: 'Atteindre le Niveau 58. L\'équilibre est atteint.', levelRequired: 58 },
             { id: 't059', name: 'PERFORMANCE ULTIME', description: 'Atteindre le Niveau 59. Vous défiez les limites.', levelRequired: 59 },
             { id: 't060', name: 'LE SOIXANTIÈME', description: 'Atteindre le Niveau 60. Incroyable persévérance !', levelRequired: 60 },
             { id: 't061', name: 'LÉGENDAIRE INDOMPTABLE', description: 'Atteindre le Niveau 61. Votre nom résonne.', levelRequired: 61 },
@@ -369,7 +409,7 @@
                         options: [
                             {
                                 name: "TAPIS DE COURSE (FRACTIONNÉ)",
-                                desc: "RONDE 1 (15 MINUTES) : RÉPÈTE 5 FOIS : 2 MINUTES : MARCHE RAPIDE À 6.0 KM/H, PENTE 2.0. 1 MINUTE : COURSE LÉGÈRE À 8.0 KM/H, PENTE 1.0. RÉCUPÉRATION ACTIVE (5 MINUTES) : MARCHE LENTE À 4.0 KM/H, PENTE 0.0. BOIS UN PEU D'EAU. RONDE 2 (15 MINUTES) : RÉPÈTE 5 FOIS : 2 MINUTES : MARCHE RAPIDE À 6.5 KM/H, PENTE 2.0. 1 MINUTE : COURSE LÉGÈRE À 8.5 KM/H, PENTE 1.0 (OU MARCHE RAPIDE INTENSE SI LA COURSE EST TROP DIFFICILE).",
+                                desc: "RONDE 1 (15 MINUTES) : RÉPÈTE 5 FOIS : 2 MINUTES : MARCHE RAPIDE À 6.0 KM/H, PENTE 2.0. 1 MINUTE : COURSE LÉGÈRE À 8.0 KM/H, PENTE 1.0. RÉCUPÉRATION ACTIVE (5 MINUTES) : MARCHE LENTE À 4.0 KM/H, PENTE 0.0. BOIS UN PEU D'EAU. RONDE 2 (15 MINUTES) : RÉPÈTE 5 FOIS : 2 MINUTES : MARCHE RAPIDE À 6.5 KM/H, PENTE 2.0. 1 MINUTE : COURSE LÉGÈRE À 8.5 KM/H, PENTE 1.0 (OU MARCHE RAPIDE INTENSE SI LA COURSE EST TROP DIFFicile).",
                                 type: "cardio"
                             },
                             {
@@ -468,19 +508,7 @@
         function initializeGlobalState() {
             console.log("[INITIALISATION] Chargement de l'état global depuis le localStorage...");
             userProfile = loadFromLocalStorage('userProfile', { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [] });
-            if (!Array.isArray(userProfile.likedMeals)) {
-                userProfile.likedMeals = [];
-                console.warn("[INITIALISATION] likedMeals n'était pas un tableau, réinitialisation.");
-            } else {
-                userProfile.likedMeals = userProfile.likedMeals.map(meal => {
-                    return {
-                        id: meal.id || generateUniqueId(),
-                        mealType: meal.mealType || null,
-                        dayContext: meal.dayContext || { poste: 'unknown', sport: 'unknown' },
-                        ...meal
-                    };
-                });
-            }
+            if (!Array.isArray(userProfile.likedMeals)) userProfile.likedMeals = [];
 
             weeklyMealPlan = loadFromLocalStorage('weeklyMealPlan', { semaine: [] });
             workoutLogs = loadFromLocalStorage('workoutLogs', []);
@@ -497,7 +525,7 @@
             isChronoPaused = savedChronoState.isPaused || false;
             enableChronoPreCountdown = savedChronoState.enablePreCountdown !== undefined ? savedChronoState.enablePreCountdown : true;
             chronoPreCountdownDuration = savedChronoState.preCountdownDuration || 10;
-            if (!Array.isArray(userProfile.earnedTrophies)) { userProfile.earnedTrophies = []; console.warn("[INITIALISATION] earnedTrophies n'était pas un tableau, réinitialisation."); }
+            if (!Array.isArray(userProfile.earnedTrophies)) userProfile.earnedTrophies = [];
 
             console.log("[INITIALISATION] État global chargé.");
         }
@@ -528,9 +556,7 @@
             container.appendChild(notification);
             playTrophySound();
             void notification.offsetWidth;
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 100);
+            setTimeout(() => { notification.classList.add('show'); }, 100);
             setTimeout(() => { notification.classList.remove('show'); notification.addEventListener('transitionend', () => notification.remove(), { once: true }); }, 12000);
         }
 
@@ -578,14 +604,14 @@
         }
 
         // Joue le son de trophée
-        function playTrophySound() { if (isAudioActive && Tone.context.state === 'running') { trophySoundPlayer.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n", Tone.context.currentTime); } }
+        function playTrophySound() { if (isAudioActive && Tone.context.state === 'running') trophySoundPlayer.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n", Tone.context.currentTime); }
 
         // Joue le son de montée de niveau
         function playLevelUpSound(level) {
             if (isAudioActive && Tone.context.state === 'running') {
                 const now = Tone.context.currentTime;
                 if (level > previousLevel) {
-                    if (level % 10 === 0) { majorLevelUpPlayer.triggerAttackRelease(["C4", "E4", "G4", "C5", "E5"], "2n", now); }
+                    if (level % 10 === 0) majorLevelUpPlayer.triggerAttackRelease(["C4", "E4", "G4", "C5", "E5"], "2n", now);
                     else { levelUpPlayer.triggerAttackRelease("C4", "16n", now); levelUpPlayer.triggerAttackRelease("E4", "16n", now + 0.1); levelUpPlayer.triggerAttackRelease("G4", "16n", now + 0.2); levelUpPlayer.triggerAttackRelease("C5", "8n", now + 0.3); }
                 }
             }
@@ -626,7 +652,7 @@
                 case 'repos_sport': context = "Jour de Repos (SPORT)"; break;
                 default: context = "Contexte Inconnu"; break;
             }
-            if (wType && wType !== 'aucun') { context += ` - Sport: ${wType.toUpperCase().replace('_', ' ')}`; }
+            if (wType && wType !== 'aucun') context += ` - Sport: ${wType.toUpperCase().replace('_', ' ')}`;
             return context;
         }
 
@@ -655,9 +681,7 @@
         function getLevelThresholds(level) {
             if (level === 0) return { current: 0, next: 100 };
             let xp = 0;
-            for (let i = 1; i <= level; i++) {
-                xp += (i * 50 + 50);
-            }
+            for (let i = 1; i <= level; i++) xp += (i * 50 + 50);
             const prevLevelThreshold = xp - (level * 50 + 50);
             return { current: prevLevelThreshold, next: xp };
         }
@@ -691,7 +715,7 @@
                 const step = diff / 10;
                 const interval = setInterval(() => {
                     currentLoadProgress += step;
-                    if (currentLoadProgress >= target) { clearInterval(interval); }
+                    if (currentLoadProgress >= target) clearInterval(interval);
                     loadingProgress = Math.min(100, Math.floor(currentLoadProgress));
                     document.getElementById('loading-progress-bar').style.width = `${loadingProgress}%`;
                     document.getElementById('loading-progress-text').textContent = `${loadingProgress}% CHARGEMENT...`;
@@ -724,7 +748,7 @@
                     document.getElementById('loading-screen').classList.add('hidden');
                     document.getElementById('app-container').classList.remove('hidden');
                     if (!isAudioActive && Tone.context.state !== 'running') { document.getElementById('audio-inactive-message').classList.remove('hidden'); document.getElementById('audio-inactive-message').textContent = "AUDIO DÉSACTIVÉ. CLIQUEZ OU APPUYEZ SUR UNE TOUCHE POUR ACTIVER LE SON ET LA SYNTHÈSE VOCALE."; }
-                    else if (isAudioActive && Tone.context.state === 'running') { document.getElementById('audio-inactive-message').classList.add('hidden'); }
+                    else if (isAudioActive && Tone.context.state === 'running') document.getElementById('audio-inactive-message').classList.add('hidden');
                 }, 1000);
             }
         }
@@ -734,7 +758,7 @@
             document.getElementById('loading-progress-bar').style.width = `${loadingProgress}%`;
             document.getElementById('loading-progress-text').textContent = `${loadingProgress}% CHARGEMENT...`;
             const audioInactiveMessage = document.getElementById('audio-inactive-message');
-            if (audioInactiveMessage) { audioInactiveMessage.classList.toggle('hidden', isAudioActive || loadingProgress < 100); }
+            if (audioInactiveMessage) audioInactiveMessage.classList.toggle('hidden', isAudioActive || loadingProgress < 100);
         }
 
         // Rend la page principale en fonction du nom de la page
@@ -939,7 +963,7 @@
             container.innerHTML = html;
             const phaseSelect = document.getElementById('phaseSelect'), workoutPhaseContent = document.getElementById('workout-phase-content');
             let selectedPhase = loadFromLocalStorage('selectedWorkoutPhase', 'phase1');
-            if (!workoutProgram[selectedPhase]) { selectedPhase = 'phase1'; saveToLocalStorage('selectedWorkoutPhase', selectedPhase); }
+            if (!workoutProgram[selectedPhase]) selectedPhase = 'phase1'; saveToLocalStorage('selectedWorkoutPhase', selectedPhase);
             phaseSelect.value = selectedPhase;
             function renderPhaseContent(phase) {
                 const currentPhaseData = workoutProgram[phase];
@@ -1071,12 +1095,29 @@
             });
         }
 
-        // Fonctions pour la génération de repas par l'IA
-        function getMealContextKey(mealType, dayContext) {
-            return `${mealType}_${dayContext.poste}_${dayContext.sport}`;
+        // Synchronize breakfast/snack meals across similar days
+        function syncSimilarMeals(generatedMeal, originalDateKey) {
+            if (!generatedMeal || !generatedMeal.mealType || !(generatedMeal.mealType === 'petit_dejeuner' || generatedMeal.mealType.startsWith('collation'))) return;
+
+            const originalDayContext = generatedMeal.dayContext;
+            let updatedCount = 0;
+
+            weeklyMealPlan.semaine.forEach(dayData => {
+                const isSimilarDay = dayData.dayContext.poste === originalDayContext.poste && dayData.dayContext.sport === originalDayContext.sport;
+
+                if (isSimilarDay && dayData.date !== originalDateKey) {
+                    dayData[generatedMeal.mealType] = { ...generatedMeal };
+                    updatedCount++;
+                }
+            });
+
+            if (updatedCount > 0) showMessage(`SUCCÈS: ${updatedCount} REPAS SIMILAIRES MIS À JOUR !`, 'success');
         }
 
-        async function generateInternalMeal(mealType, dayContext, existingMealsToday = [], likedMeal = null, allowMeatFish = true, userProfileData, numPeople) {
+        // Fonctions pour la génération de repas par l'IA
+        function getMealContextKey(mealType, dayContext) { return `${mealType}_${dayContext.poste}_${dayContext.sport}`; }
+
+        async function generateInternalMeal(mealType, dayContext, existingMealsToday = [], likedMeal = null, allowMeatFish = true, userProfileData, numPeople, nutritionalProgramText) {
             const apiKey = userProfileData.apiKey || "";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
@@ -1088,85 +1129,82 @@
 
             let mealContextDescription = getMealMomentContext(mealType, dayContext.poste, dayContext.sport);
             let sportImpact = "";
-            if (dayContext.sport !== 'aucun') {
-                sportImpact = "CE JOUR INCLUT UNE SÉANCE DE SPORT. LE REPAS DOIT SOUTENIR LA PERFORMANCE OU LA RÉCUPÉRATION.";
-            } else {
-                sportImpact = "CE JOUR N'INCLUT PAS DE SÉANCE DE SPORT. LE REPAS DOIT ÊTRE ÉQUILIBRÉ POUR UN JOUR MOINS ACTIF.";
-            }
+            if (dayContext.sport !== 'aucun') sportImpact = "CE JOUR INCLUT UNE SÉANCE DE SPORT. LE REPAS DOIT SOUTENIR LA PERFORMANCE OU LA RÉCUPÉRATION.";
+            else sportImpact = "CE JOUR N'INCLUT PAS DE SÉANCE DE SPORT. LE REPAS DOIT ÊTRE ÉQUILIBRÉ POUR UN JOUR MOINS ACTIF.";
 
             let posteImpact = "";
-            if (dayContext.poste === '18h-6h') {
-                posteImpact = "C'EST UN POSTE DE NUIT. L'ALIMENTATION DOIT ÊTRE ADAPTÉE POUR MAINTENIR L'ÉNERGIE ET LA VIGILANCE PENDANT LA NUIT, ET FAVORISER LE REPOS EN JOURNÉE.";
-            } else if (dayContext.poste.includes('jour')) {
-                posteImpact = "C'EST UN POSTE DE JOUR. L'ALIMENTATION DOIT APPORTER UNE ÉNERGIE DURABLE POUR LA JOURNÉE.";
-            } else if (dayContext.poste.includes('repos')) {
-                posteImpact = "C'EST UN JOUR DE REPOS. L'ALIMENTATION DOIT FAVORISER LA RÉCUPÉRATION ET LE MAINTIEN.";
-            }
+            if (dayContext.poste === '18h-6h') posteImpact = "C'EST UN POSTE DE NUIT. L'ALIMENTATION DOIT ÊTRE ADAPTÉE POUR MAINTENIR L'ÉNERGIE ET LA VIGILANCE PENDANT LA NUIT, ET FAVORISER LE REPOS EN JOURNÉE.";
+            else if (dayContext.poste.includes('jour')) posteImpact = "C'EST UN POSTE DE JOUR. L'ALIMENTATION DOIT APPORTER UNE ÉNERGIE DURABLE POUR LA JOURNÉE.";
+            else if (dayContext.poste.includes('repos')) posteImpact = "C'EST UN JOUR DE REPOS. L'ALIMENTATION DOIT FAVORISER LA RÉCUPÉRATION ET LE MAINTIEN.";
 
             let mealSpecificConstraints = [];
-            const adviceKey = mealType.includes('collation') ? `${mealType.replace('_unique', '')}_${dayContext.poste === '18h-6h' ? 'pendant' : (dayContext.sport !== 'aucun' ? 'post' : 'default')}` : dayContext.poste === '18h-6h' ? '18h-6h' : (dayContext.sport !== 'aucun' ? 'repos_sport' : 'default');
+            const adviceKey = mealType.includes('collation') ? `${mealType.replace('_unique', '')}_${dayContext.poste === '18h-6h' ? 'pendant' : (dayContext.sport !== 'aucun' ? 'post' : (dayContext.poste === '7h-18h' ? '7h-18h_apresmidi' : 'repos_default'))}` : dayContext.poste === '18h-6h' ? '18h-6h' : (dayContext.sport !== 'aucun' ? 'repos_sport' : 'default');
             const advice = specificMealAdvice[mealType]?.[adviceKey] || specificMealAdvice[mealType]?.default || "CONSEIL GÉNÉRAL : MANGEZ ÉQUILIBRÉ.";
             mealSpecificConstraints.push(advice);
 
-            if (!allowMeatFish) {
-                mealSpecificConstraints.push("EXCLURE TOUTE VIANDE (ROUGE OU BLANCHE) ET POISSON. PRIVILÉGIER LES PROTÉINES VÉGÉTALES (LÉGUMINEUSES, TOFU, TEMPEH, SEITAN, ETC.) OU LES ŒUFS/PRODUITS LAITIERS SI APPLICABLE AU TYPE DE REPAS.");
-            }
+            if (!allowMeatFish) mealSpecificConstraints.push("EXCLURE STRICTEMENT TOUTE VIANDE (ROUGE OU BLANCHE) ET POISSON. PRIVILÉGIER LES PROTÉINES VÉGÉTALES (LÉGUMINEUSES, TOFU, TEMPEH, SEITAN, QUINOA, SARRASIN, AMARANTE, NOIX, GRAINES) OU LES ŒUFS/PRODUITS LAITIERS SI APPLICABLE AU TYPE DE REPAS. ASSURER UNE DIVERSITÉ RÉELLE DES SOURCES DE PROTÉINES VÉGÉTALES, NE PAS SE LIMITER AUX LENTILLES.");
+            else mealSpecificConstraints.push("ALTERNANCE ENTRE VIANDE (ROUGE ET BLANCHE), POISSONS (MAIGRES ET GRAS), ŒUFS, TOFU ET LÉGUMINEUSES POUR ASSURER UNE DIVERSITÉ DES SOURCES DE PROTÉINES.");
 
             if (mealType === 'petit_dejeuner') {
+                mealSpecificConstraints.push("DOIT ÊTRE UN PETIT-DÉJEUNER COHÉRENT ET RÉALISTE. AUCUNE COMBINAISON ABSURDE (EX: POULET DANS UN PANCAKE SUCRÉ).");
                 mealSpecificConstraints.push("DOIT ÊTRE SUCRÉ, EN ÉVITANT LES SAVEURS SALÉES (SAUF SI LES ŒUFS SONT INTÉGRÉS DANS UNE PRÉPARATION SUCRÉE COMME DES CRÊPES/PANCAKES).");
                 mealSpecificConstraints.push("LES ŒUFS NE PEUVENT ÊTRE UTILISÉS QUE S'ILS SONT INTÉGRÉS DANS DES PRÉPARATIONS COMME DES CRÊPES, DES PANCAKES OU DES PORRIDGES, PAS COMME PLAT PRINCIPAL (EX: ŒUFS BROUILLÉS, OMELETTE).");
                 mealSpecificConstraints.push("PAS DE PÂTES, SEMOULE OU SAUCE TOMATE.");
                 mealSpecificConstraints.push("AJOUTEZ UNE TRÈS GRANDE VARIÉTÉ DE PETITS-DÉJEUNERS : TARTINES (MIEL, BEURRE, BEURRE DE CACAHUÈTE), THÉ (AVEC OU SANS LAIT), PORRIDGE, SHAKE DE WHEY (SI CONTEXTE SPORTIF LE PERMET), CÉRÉALES, FRUITS, YAOURTS. ADAPTEZ LES OPTIONS AU TYPE DE SÉANCE (EX: PORRIDGE POUR RENFORCEMENT, SHAKE POUR CARDIO) POUR ÉVITER LES DÉPENSES INUTILES.");
+                if (dayContext.sport === 'renforcement') mealSpecificConstraints.push("PRIVILÉGIER LES PORRIDGES OU LES REPAS RICHES EN GLUCIDES LENTS ET PROTÉINES POUR L'ÉNERGIE ET LA RÉCUPÉRATION MUSCULAIRE.");
+                if (dayContext.sport === 'cardio' || dayContext.sport === 'hiit') mealSpecificConstraints.push("PRIVILÉGIER LES SHAKES PROTÉINÉS OU LES OPTIONS PLUS LÉGÈRES ET RAPIDEMENT DIGESTIBLES POUR NE PAS GÊNER LA SÉANCE.");
             } else if (mealType.includes('collation')) {
-                mealSpecificConstraints.push("DOIT ÊTRE UNE COLLATON LÉGÈRE ET ÉNERGISANTE. PAS UN REPAS COMPLET.");
-                mealSpecificConstraints.push("EXEMPLES : FRUITS, YAOURTS, SHAKES PROTÉINÉS, PETITES POIGNÉES D'OLÉAGINEUX, BARRES CÉRÉALES MAISON.");
+                mealSpecificConstraints.push("DOIT ÊTRE UNE COLLATON LÉGÈRE ET ÉNERGISANTE. PAS UN REPAS COMPLET. DOIT ÊTRE FACILE À TRANSPORTER.");
+                mealSpecificConstraints.push("EXEMPLES : FRUITS (BANANE, POMME), YAOURTS, SHAKES PROTÉINÉS, PETITES POIGNÉES D'OLÉAGINEUX (AMANDES, NOIX), BARRES CÉRÉALES MAISON, FRUITS SECS.");
                 mealSpecificConstraints.push("ÉVITEZ LES ALIMENTS TROP GRAS OU TROP SUCRÉS.");
+                mealSpecificConstraints.push("PROPOSEZ UNE TRÈS GRANDE VARIÉTÉ DE COLLATIONS.");
             } else if (mealType === 'dejeuner' || mealType === 'diner') {
-                mealSpecificConstraints.push("DOIT ÊTRE UN REPAS COMPLET ET ÉQUILIBRÉ AVEC PROTÉINES, GLUCIDES ET LÉGUMES.");
+                mealSpecificConstraints.push("DOIT ÊTRE UN REPAS COMPLET ET ÉQUILIBRÉ AVEC PROTÉINES, GLUCIDES ET LÉGUMES. DOIT ÊTRE COHÉRENT ET RÉALISTE, SANS COMBINAISONS ABSURDES.");
                 mealSpecificConstraints.push("PROPOSEZ UNE TRÈS GRANDE VARIÉTÉ DE RECETTES POUR ÉVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITÉS, POMMES DE TERRE, RIZ, PÂTES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTÉINÉS, SANDWICHS ÉQUILIBRÉS), BURGERS ET WRAPS (ADAPTÉS AU PROGRAMME NUTRITIONNEL).");
                 mealSpecificConstraints.push("ALTERNEZ SYSTÉMATIQUEMENT LES TYPES DE PROTÉINES, GLUCIDES ET LÉGUMES. INCLUEZ FRÉQUEMMENT PÂTES COMPLÈTES, SPAGHETTIS, PÂTES FRAÎCHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLÈTE. LÉGUMES VARIÉS: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, ÉPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
+                mealSpecificConstraints.push("LES RECETTES PEUVENT ÊTRE ISSUES D'AUTRES CULTURES OU CUISINES DU MONDE, MAIS DOIVENT TOUJOURS RESPECTER LE PROGRAMME SPORTIF ET NUTRITIONNEL, ET ÊTRE RÉALISTES.");
             }
 
             let existingMealsPrompt = "";
             if (existingMealsToday.length > 0) {
-                existingMealsToday.forEach(meal => {
-                    existingMealsPrompt += `- ${meal.title} (${meal.mealType})\n`;
-                });
-                mealSpecificConstraints.push(`PRENEZ EN COMPTE LES REPAS DÉJÀ GÉNÉRÉS POUR CE JOUR POUR ASSURER LA VARIÉTÉ ET ÉVITER LES DOUBLONS D'INGRÉDIENTS OU DE PRÉPARATIONS. REPAS DÉJÀ PRÉVUS : ${existingMealsPrompt}`);
+                existingMealsToday.forEach(meal => { existingMealsPrompt += `- ${meal.title} (${meal.mealType})\n`; });
+                mealSpecificConstraints.push(`PRENEZ EN COMPTE LES AUTRES REPAS DÉJÀ GÉNÉRÉS POUR CE JOUR POUR ASSURER LA VARIÉTÉ ET ÉVITER LES DOUBLONS D'INGRÉDIENTS OU DE PRÉPARATIONS. REPAS DÉJÀ PRÉVUS POUR CE JOUR : ${existingMealsPrompt}`);
             }
 
-            if (likedMeal) {
-                mealSpecificConstraints.push(`L'UTILISATEUR A AIMÉ LA RECETTE SUIVANTE. UTILISEZ-LA COMME INSPIRATION POUR GÉNÉRER UNE NOUVELLE RECETTE SIMILAIRE, MAIS PAS IDENTIQUE, EN VARIANT LÉGÈREMENT LES INGRÉDIENTS OU LA PRÉPARATION POUR ÉVITER LA MONOTONIE. RECETTE AIMÉE : TITRE: ${likedMeal.title}, DESCRIPTION: ${likedMeal.description_du_plat}, INGRÉDIENTS: ${likedMeal.ingredients_list.join(', ')}.`);
-            }
+            if (likedMeal) mealSpecificConstraints.push(`L'UTILISATEUR A AIMÉ LA RECETTE SUIVANTE. UTILISEZ-LA COMME INSPIRATION POUR GÉNÉRER UNE NOUVELLE RECETTE SIMILAIRE, MAIS PAS IDENTIQUE, EN VARIANT LÉGÈREMENT LES INGRÉDIENTS OU LA PRÉPARATION POUR ÉVITER LA MONOTONIE ET CONTINUER À OFFRIR DE LA NOUVEAUTÉ. RECETTE AIMÉE : TITRE: ${likedMeal.title}, DESCRIPTION: ${likedMeal.description_du_plat}, INGRÉDIENTS: ${likedMeal.ingredients_list.join(', ')}.`);
 
             const prompt = `
-                Génère une recette de repas pour ${numPeople} personne(s) au format JSON.
-                Le repas est de type : "${mealType}".
-                Le contexte du jour est : "${getDayContextString(dayContext.poste, dayContext.sport)}".
-                Profil utilisateur : Taille: ${userHeight}cm, Poids: ${userWeight}kg, IMC: ${userImc} (${userImcCategory}), Besoins en protéines: ${userProteinNeeds}g/jour.
-                ${sportImpact}
-                ${posteImpact}
-                CONTRAINTES SPÉCIFIQUES POUR CE REPAS :
-                ${mealSpecificConstraints.map(c => `- ${c}`).join('\n')}
-                - Toutes les informations (titre, description, ingrédients, étapes de préparation, conseils, notes) doivent être STRICTEMENT EN FRANÇAIS.
-                - Les quantités des ingrédients doivent être adaptées pour ${numPeople} personne(s) et clairement indiquées (ex: 150g, 2 pièces, 1 cuillère à soupe).
-                - POUR LES REPAS PRINCIPAUX (DÉJEUNER ET DÎNER) : Bien que la variété soit la priorité, si le contexte (type de poste et séance sportive) est identique à un jour précédent, vous pouvez proposer une recette similaire ou réutiliser des ingrédients clés pour optimiser les courses, mais EFFORCEZ-VOUS DE RENDRE CHAQUE RECETTE UNIQUE OU AVEC UNE TOUCHE DIFFÉRENTE.
-                - POUR LES COLLATIONS : Proposez une TRÈS GRANDE VARIÉTÉ de collations (fruits, yaourts, shakes, galettes, etc.).
-                - POUR LES SALADES : Incluez des salades variées (salade verte, iceberg, salade de crudités, salade de pommes de terre, salade de riz, salade de pâtes, etc.) comme repas complet ou accompagnement.
-                - POUR LES RECETTES À BASE DE POMMES DE TERRE OU DE PAIN : Intégrez des recettes comme des galettes de pommes de terre, des toasts protéinés, ou des sandwichs équilibrés si cela correspond au type de repas.
+        Génère une recette de repas pour ${numPeople} personne(s) au format JSON.
+        Le repas est de type : "${mealType}".
+        Le contexte du jour est : "${getDayContextString(dayContext.poste, dayContext.sport)}".
+        Profil utilisateur : Taille: ${userHeight}cm, Poids: ${userWeight}kg, IMC: ${userImc} (${userImcCategory}), Besoins en protéines: ${userProteinNeeds}g/jour.
+        ${sportImpact}
+        ${posteImpact}
 
-                Format de sortie JSON attendu :
-                {
-                    "title": "TITRE DU PLAT (EX: POULET GRILLÉ ET LÉGUMES)",
-                    "description_du_plat": "DESCRIPTION DÉTAILLÉE DU PLAT.",
-                    "ingredients_label": "INGRÉDIENTS (POUR X PERS)",
-                    "ingredients_list": ["QUANTITÉ UNITÉ INGRÉDIENT 1", "QUANTITÉ UNITÉ INGRÉDIENT 2", ...],
-                    "preparation_steps": ["ÉTAPE 1.", "ÉTAPE 2.", ...],
-                    "ma_portion_waeky": "VOTRE PORTION (POUR WAEKY) : DÉTAILLEZ LES QUANTITÉS SPÉCIFIQUES POUR L'UTILISATEUR (EX: 150G POULET, 200G RIZ, PORTION GÉNÉREUSE DE LÉGUMES).",
-                    "conseils_reutilisation_economie": "CONSEILS POUR RÉUTILISER LES RESTES OU ÉCONOMISER.",
-                    "notes": "NOTES SUPPLÉMENTAIRES OU INFORMATIONS NUTRITIONNELLES."
-                }
-            `;
+        PROGRAMME NUTRITIONNEL DÉTAILLÉ À RESPECTER STRICTEMENT :
+        ${nutritionalProgramText}
+
+        CONTRAINTES SPÉCIFIQUES POUR CE REPAS :
+        - Toutes les informations (titre, description, ingrédients, étapes de préparation, conseils, notes) doivent être STRICTEMENT EN FRANÇAIS.
+        - Les quantités des ingrédients doivent être adaptées pour ${numPeople} personne(s) et clairement indiquées (ex: 150g, 2 pièces, 1 cuillère à soupe).
+        - GÉNÈRE UNIQUEMENT DES RECETTES EXISTANTES, RÉALISTES ET LOGIQUES. AUCUNE COMBINAISON ABSURDE OU NON EXISTANTE (EX: UN WRAP AU POULET ET AUX FRUITS ROUGES).
+        - ASSURE UNE TRÈS GRANDE VARIÉTÉ POUR ÉVITER LA MONOTONIE.
+        - POUR LES REPAS PRINCIPAUX (DÉJEUNER ET DÎNER) : Si le contexte (type de poste et séance sportive) est identique à un jour précédent, vous pouvez proposer une recette similaire ou réutiliser des ingrédients clés pour optimiser les courses, mais EFFORCEZ-VOUS DE RENDRE CHAQUE RECETTE UNIQUE OU AVEC UNE TOUCHE DIFFÉRENTE.
+        - POUR LES COLLATIONS ET PETITS-DÉJEUNERS : Les recettes doivent être variées, faciles à transporter si applicable, compatibles avec le programme sport/nutrition. Si ce repas est généré pour un jour donné, toutes les autres collations/petits-déjeuners du même type de poste ou de séance dans la même semaine devraient être identiques pour assurer la cohérence et la simplicité. Si une nouvelle génération est demandée pour ce type de repas, proposez de nouvelles recettes.
+        ${mealSpecificConstraints.map(c => `- ${c}`).join('\n')}
+
+        Format de sortie JSON attendu :
+        {
+            "title": "TITRE DU PLAT (EX: POULET GRILLÉ ET LÉGUMES)",
+            "description_du_plat": "DESCRIPTION DÉTAILLÉE DU PLAT.",
+            "ingredients_label": "INGRÉDIENTS (POUR X PERS)",
+            "ingredients_list": ["QUANTITÉ UNITÉ INGRÉDIENT 1", "QUANTITÉ UNITÉ INGRÉDIENT 2", ...],
+            "preparation_steps": ["ÉTAPE 1.", "ÉTAPE 2.", ...],
+            "ma_portion_waeky": "VOTRE PORTION (POUR WAEKY) : DÉTAILLEZ LES QUANTITÉS SPÉCIFIQUES POUR L'UTILISATEUR (EX: 150G POULET, 200G RIZ, PORTION GÉNÉREUSE DE LÉGUMES).",
+            "conseils_reutilisation_economie": "CONSEILS POUR RÉUTILISER LES RESTES OU ÉCONOMISER.",
+            "notes": "NOTES SUPPLÉMENTAIRES OU INFORMATIONS NUTRITIONNELLES."
+        }
+    `;
 
             const payload = {
                 contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -1235,7 +1273,7 @@
                 };
             } catch (error) {
                 console.error("Erreur fatale lors de l'appel LLM ou de l'analyse JSON générale:", error);
-                const fallbackTitle = `${mealContextDescription.toUpperCase()} (ERREUR SYSTÈME)`, fallbackDesc = `UNE ERREUR CRITIQUE S'EST PRODUITE. VEUILLEZ RÉESSAYER.`, fallbackIngredients = [`VÉRIFIEZ VOTRE CONNEXION INTERNET`, `CONTACTEZ LE SUPPORT SI LE PROBLÈME PERSISTE`], fallbackPreparation = ["1. ESSAYEZ DE RE-GÉNÉRER LE PLAN.", "2. ASSUREZ-VOUS QUE VOTRE PROFIL EST COMPLET."], fallbackPortion = "INDISPONIBLE EN RAISON D'UNE ERREUR.", fallbackConseils = "AUCUN CONSEIL DISPONIBLE.", fallbackNotes = "ERREUR DE COMMUNICATION MAJEURE AVEC L'IA. VEUILLEZ VÉRIFIER VOTRE CONNEXION.";
+                const fallbackTitle = `${mealContextDescription.toUpperCase()} (ERREUR SYSTÈME)`, fallbackDesc = `UNE ERREUR CRITIQUE S'EST PRODUIte. VEUILLEZ RÉESSAYER.`, fallbackIngredients = [`VÉRIFIEZ VOTRE CONNEXION INTERNET`, `CONTACTEZ LE SUPPORT SI LE PROBLÈME PERSISTE`], fallbackPreparation = ["1. ESSAYEZ DE RE-GÉNÉRER LE PLAN.", "2. ASSUREZ-VOUS QUE VOTRE PROFIL EST COMPLET."], fallbackPortion = "INDISPONIBLE EN RAISON D'UNE ERREUR.", fallbackConseils = "AUCUN CONSEIL DISPONIBLE.", fallbackNotes = "ERREUR DE COMMUNICATION MAJEURE AVEC L'IA. VEUILLEZ VÉRIFIER VOTRE CONNEXION.";
                 return { id: generateUniqueId(), title: fallbackTitle, description_du_plat: fallbackDesc, ingredients_label: `INGRÉDIENTS (POUR ${numPeople} PERS)`, ingredients_list: fallbackIngredients, preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion, conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes, mealType: mealType, dayContext: dayContext };
             }
         }
@@ -1243,7 +1281,28 @@
         // Rend la vue des recettes et gère la génération du plan de repas
         function renderRecipeView(container) {
             let numPeople = loadFromLocalStorage('recipeNumPeople', 1), allowMeatFish = loadFromLocalStorage('recipeAllowMeatFish', true);
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">PLAN DE REPAS</h2><div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GÉNÉRER MON PLAN DE REPAS :</h3><div class="mb-4"><label for="numPeople" class="block text-gray-200 text-sm font-bold mb-2">POUR COMBIEN DE PERSONNES ?</label><input type="number" id="numPeople" value="${numPeople}" min="1" class="input-retro" /></div><div class="mb-4 flex items-center"><input type="checkbox" id="allowMeatFish" ${allowMeatFish ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" /><label for="allowMeatFish" class="text-gray-200 text-sm font-bold">AUTORISER VIANDE ET POISSON (PLUS ÉCONOMIQUE SANS)</label></div><button id="generate-plan-btn" class="btn-retro-purple w-full flex items-center justify-center"><span id="generate-plan-spinner" class="spinner mr-2 ${regeneratingMeal && !regeneratingMeal.mealType ? '' : 'hidden'}"></span><span id="generate-plan-text">${regeneratingMeal && !regeneratingMeal.mealType ? 'GÉNÉRATION...' : 'GÉNÉRER PLAN DE REPAS'}</span></button><p class="text-xs text-gray-400 mt-2 text-center">LE PLAN SERA GÉNÉRÉ UNIQUEMENT POUR LES JOURS AVEC DES POSTES ENREGISTRÉS DANS L'ONGLET "PLANNING".</p></div><div id="weekly-meal-plan-content"></div></div>`;
+            let html = `
+                <div class="card-retro mb-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">PLAN DE REPAS</h2>
+                    <div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6">
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GÉNÉRER MON PLAN DE REPAS :</h3>
+                        <div class="mb-4">
+                            <label for="numPeople" class="block text-gray-200 text-sm font-bold mb-2">POUR COMBIEN DE PERSONNES ?</label>
+                            <input type="number" id="numPeople" value="${numPeople}" min="1" class="input-retro" />
+                        </div>
+                        <div class="mb-4 flex items-center">
+                            <input type="checkbox" id="allowMeatFish" ${allowMeatFish ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" />
+                            <label for="allowMeatFish" class="text-gray-200 text-sm font-bold">AUTORISER VIANDE ET POISSON (PLUS ÉCONOMIQUE SANS)</label>
+                        </div>
+                        <button id="generate-plan-btn" class="btn-retro-purple w-full flex items-center justify-center" ${regeneratingMeal ? 'disabled' : ''}>
+                            <span id="generate-plan-spinner" class="spinner mr-2 ${regeneratingMeal ? '' : 'hidden'}"></span>
+                            <span id="generate-plan-text">${regeneratingMeal ? 'GÉNÉRATION...' : 'GÉNÉRER PLAN DE REPAS'}</span>
+                        </button>
+                        <p class="text-xs text-gray-400 mt-2 text-center">LE PLAN SERA GÉNÉRÉ UNIQUEMENT POUR LES JOURS AVEC DES POSTES ENREGISTRÉS DANS L'ONGLET "PLANNING".</p>
+                    </div>
+                    <div id="weekly-meal-plan-content"></div>
+                </div>
+            `;
             container.innerHTML = html;
             const numPeopleInput = document.getElementById('numPeople'), allowMeatFishCheckbox = document.getElementById('allowMeatFish'), generatePlanBtn = document.getElementById('generate-plan-btn'), generatePlanSpinner = document.getElementById('generate-plan-spinner'), generatePlanText = document.getElementById('generate-plan-text'), weeklyMealPlanContentDiv = document.getElementById('weekly-meal-plan-content');
             numPeople = loadFromLocalStorage('recipeNumPeople', 1);
@@ -1252,13 +1311,9 @@
             allowMeatFishCheckbox.checked = allowMeatFish;
             numPeopleInput.onchange = (e) => { numPeople = Math.max(1, parseInt(e.target.value) || 1); saveToLocalStorage('recipeNumPeople', numPeople); };
             allowMeatFishCheckbox.onchange = (e) => { allowMeatFish = e.target.checked; saveToLocalStorage('recipeAllowMeatFish', allowMeatFish); };
-            if (regeneratingMeal && !regeneratingMeal.mealType) {
-                generatePlanBtn.disabled = true;
-            } else {
-                generatePlanBtn.disabled = false;
-            }
+
             generatePlanBtn.onclick = async () => {
-                regeneratingMeal = { dateKey: null, mealType: null };
+                regeneratingMeal = true;
                 renderRecipeView(container);
                 generatePlanBtn.disabled = true;
                 generatePlanSpinner.classList.remove('hidden');
@@ -1272,56 +1327,104 @@
                     if (fetchedShifts.length === 0) { showMessage("AUCUN POSTE ENREGISTRÉ POUR LES JOURS À VENIR. VEUILLEZ AJOUTER DES POSTES DANS L'ONGLET 'PLANNING' POUR GÉNÉRER UN PLAN DE REPAS.", 'warning'); return; }
                     const newMealPlan = { semaine: [] };
                     const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds };
+
                     for (const shift of fetchedShifts) {
                         const day = new Date(shift.date);
                         const dateKey = formatDateToYYYYMMDD(day);
                         const dayContext = { poste: shift.type, sport: shift.workoutType };
                         const mealsForDay = {};
                         const mealOrder = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation_apresmidi', 'diner', 'collation_unique'];
+
                         for (const mealType of mealOrder) {
-                            if (mealType.startsWith('collation') && dayContext.sport === 'aucun' && dayContext.poste === 'repos') { continue; }
-                            if (mealType === 'collation_matin' && (dayContext.poste === '18h-6h' || dayContext.poste === 'repos') && dayContext.sport === 'aucun') { continue; }
-                            if (mealType === 'collation_apresmidi' && dayContext.poste === '18h-6h') { continue; }
-                            if (mealType === 'collation_unique' && (dayContext.poste !== '18h-6h' && dayContext.sport === 'aucun' && dayContext.poste !== '7h-18h')) { continue; }
-                            if (mealType === 'collation_unique' && dayContext.poste === 'repos' && dayContext.sport === 'aucun') { continue; }
-                            const generatedMeal = await generateInternalMeal( mealType, dayContext, Object.values(mealsForDay).filter(m => typeof m === 'object' && m !== null && m.mealType && m.mealType !== mealType), null, allowMeatFish, userProfileData, numPeople );
+                            if (mealType.startsWith('collation') && dayContext.sport === 'aucun' && dayContext.poste === 'repos') continue;
+                            if (mealType === 'collation_matin' && (dayContext.poste === '18h-6h' || dayContext.poste === 'repos') && dayContext.sport === 'aucun') continue;
+                            if (mealType === 'collation_apresmidi' && dayContext.poste === '18h-6h') continue;
+                            if (mealType === 'collation_unique' && (dayContext.poste !== '18h-6h' && dayContext.sport === 'aucun' && dayContext.poste !== '7h-18h')) continue;
+                            if (mealType === 'collation_unique' && dayContext.poste === 'repos' && dayContext.sport === 'aucun') continue;
+
+                            let existingMealForType = null;
+                            if (mealType === 'petit_dejeuner' || mealType.startsWith('collation')) {
+                                const similarDayMeal = newMealPlan.semaine.find(d =>
+                                    d.dayContext.poste === dayContext.poste &&
+                                    d.dayContext.sport === dayContext.sport &&
+                                    d[mealType]
+                                );
+                                if (similarDayMeal) existingMealForType = similarDayMeal[mealType];
+                            }
+
+                            let generatedMeal;
+                            if (existingMealForType) {
+                                generatedMeal = { ...existingMealForType, id: generateUniqueId() };
+                            } else {
+                                const relevantLikedMeals = userProfile.likedMeals.filter(lm => lm.mealType === mealType);
+                                const inspirationMeal = relevantLikedMeals.length > 0 ? relevantLikedMeals[Math.floor(Math.random() * relevantLikedMeals.length)] : null;
+
+                                generatedMeal = await generateInternalMeal(
+                                    mealType,
+                                    dayContext,
+                                    Object.values(mealsForDay).filter(m => typeof m === 'object' && m !== null && m.mealType && m.mealType !== mealType),
+                                    inspirationMeal,
+                                    allowMeatFish,
+                                    userProfileData,
+                                    numPeople,
+                                    nutritionalProgramText
+                                );
+                            }
                             mealsForDay[mealType] = generatedMeal;
                         }
                         newMealPlan.semaine.push({ date: dateKey, dayContext: dayContext, ...mealsForDay });
                     }
+
                     newMealPlan.semaine.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
                     weeklyMealPlan = newMealPlan;
                     saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
                     showMessage("SUCCÈS: PLAN DE REPAS GÉNÉRÉ ET ENREGISTRÉ !", 'success');
                     speak("Plan de repas généré !");
+                    regeneratingMeal = null;
                     renderRecipeView(container);
-                } catch (error) { console.error("Erreur lors de la génération du plan de repas:", error); showMessage(`ERREUR: Échec de la génération du plan. ${error.message}`, 'error'); }
-                finally {
-                    generatePlanBtn.disabled = false;
-                    generatePlanSpinner.classList.add('hidden');
-                    generatePlanText.textContent = 'GÉNÉRER PLAN DE REPAS';
+                } catch (error) {
+                    console.error("Erreur lors de la génération du plan de repas:", error);
+                    showMessage(`ERREUR: Échec de la génération du plan. ${error.message}`, 'error');
+                    regeneratingMeal = null;
+                    renderRecipeView(container);
                 }
             };
+
             function renderWeeklyMealPlan() {
                 if (!weeklyMealPlan || !weeklyMealPlan.semaine || weeklyMealPlan.semaine.length === 0) {
-                    weeklyMealPlanContentDiv.innerHTML = ` <p class="text-gray-400 text-center"> AUCUN PLAN DE REPAS GÉNÉRÉ. CLIQUEZ SUR "GÉNÉRER PLAN DE REPAS" CI-DESSUS. </p> `; return;
+                    weeklyMealPlanContentDiv.innerHTML = `<p class="text-gray-400 text-center">AUCUN PLAN DE REPAS GÉNÉRÉ. CLIQUEZ SUR "GÉNÉRER PLAN DE REPAS" CI-DESSUS.</p>`;
+                    return;
                 }
+
                 let mealsHtml = `<div class="space-y-6"> <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3 text-center">TON PLAN DE REPAS :</h3> `;
-                weeklyMealPlan.semaine.forEach((dayData) => {
-                    mealsHtml += ` <div class="bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg"> <h4 class="text-lg sm:text-xl font-bold text-yellow-300 mb-3"> ${new Date(dayData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()} - ${getDayContextString(dayData.dayContext.poste, dayData.dayContext.sport)} </h4> <div class="space-y-4"> `;
+
+                weeklyMealPlan.semaine.forEach((dayData, dayIndex) => {
+                    const dayId = `day-panel-${dayIndex}`;
+                    const dateString = new Date(dayData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
+                    const dayContextString = getDayContextString(dayData.dayContext.poste, dayData.dayContext.sport);
+
+                    mealsHtml += `
+                        <div class="bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center cursor-pointer toggle-day-details" data-day-id="${dayId}">
+                                <h4 class="text-lg sm:text-xl font-bold text-yellow-300 mb-2 sm:mb-0">${dateString} - ${dayContextString}</h4>
+                                <i data-lucide="chevron-down" class="text-yellow-300 transition-transform duration-300"></i>
+                            </div>
+                            <div id="${dayId}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0 mt-4 space-y-4">
+                    `;
+
                     const mealOrder = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation_apresmidi', 'diner', 'collation_unique'];
                     mealOrder.forEach(mealType => {
                         const meal = dayData[mealType];
                         if (meal) {
                             const momentContext = getMealMomentContext(mealType, dayData.dayContext.poste, dayData.dayContext.sport);
-                            const adviceKey = mealType.includes('collation') ? `${mealType.replace('_unique', '')}_${dayData.dayContext.poste === '18h-6h' ? 'pendant' : (dayData.dayContext.sport !== 'aucun' ? 'post' : 'default')}` : dayData.dayContext.poste === '18h-6h' ? '18h-6h' : (dayData.dayContext.sport !== 'aucun' ? 'repos_sport' : 'default');
+                            const adviceKey = mealType.includes('collation') ? `${mealType.replace('_unique', '')}_${dayData.dayContext.poste === '18h-6h' ? 'pendant' : (dayData.dayContext.sport !== 'aucun' ? 'post' : (dayData.dayContext.poste === '7h-18h' ? '7h-18h_apresmidi' : 'repos_default'))}` : dayData.dayContext.poste === '18h-6h' ? '18h-6h' : (dayData.dayContext.sport !== 'aucun' ? 'repos_sport' : 'default');
                             const advice = specificMealAdvice[mealType]?.[adviceKey] || specificMealAdvice[mealType]?.default || "CONSEIL GÉNÉRAL : MANGEZ ÉQUILIBRÉ.";
                             const isRegeneratingCurrentMeal = regeneratingMeal && regeneratingMeal.dateKey === dayData.date && regeneratingMeal.mealType === mealType;
                             const isLiked = userProfile.likedMeals.some(lm => lm.id === meal.id);
 
                             mealsHtml += `
                                 <div class="bg-gray-800 p-3 rounded-md border border-blue-700 shadow-sm">
-                                    <div class="flex justify-between items-center cursor-pointer toggle-meal-details" data-meal-id="${meal.id}">
+                                    <div class="flex justify-between items-center">
                                         <h5 class="text-lg font-bold text-gray-100">${momentContext} : ${String(meal.title || 'Titre Indisponible').toUpperCase()}</h5>
                                         <div class="flex items-center">
                                             <button class="btn-retro-purple text-xs px-2 py-1 flex items-center justify-center regenerate-meal-btn" data-date="${dayData.date}" data-meal-type="${mealType}" ${isRegeneratingCurrentMeal ? 'disabled' : ''}>
@@ -1349,92 +1452,109 @@
                             `;
                         }
                     });
-                    mealsHtml += `</div></div></div>`;
+                    mealsHtml += `</div></div>`;
                 });
                 mealsHtml += `</div>`;
                 weeklyMealPlanContentDiv.innerHTML = mealsHtml;
                 renderLucideIcons();
                 attachCollapsibleListeners();
-
-                weeklyMealPlanContentDiv.querySelectorAll('.regenerate-meal-btn').forEach(button => {
-                    button.onclick = async (event) => {
-                        const dateKey = event.currentTarget.dataset.date;
-                        const mealType = event.currentTarget.dataset.mealType;
-                        const dayDataForRegen = weeklyMealPlan.semaine.find(d => d.date === dateKey);
-                        if (!dayDataForRegen || !dayDataForRegen.dayContext) { showMessage("ERREUR: Contexte de jour non trouvé pour la régénération du repas.", 'error'); return; }
-
-                        regeneratingMeal = { dateKey: dateKey, mealType: mealType };
-                        renderRecipeView(container); // Re-render to show spinner on the specific button
-
-                        try {
-                            const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds };
-                            const regeneratedMeal = await generateInternalMeal(
-                                mealType,
-                                dayDataForRegen.dayContext,
-                                Object.values(dayDataForRegen).filter(m => typeof m === 'object' && m !== null && m.mealType && m.mealType !== mealType), // Pass other meals of the day
-                                null, // No liked meal for regeneration
-                                allowMeatFish,
-                                userProfileData,
-                                numPeople
-                            );
-                            dayDataForRegen[mealType] = regeneratedMeal;
-                            saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
-                            showMessage("SUCCÈS: REPAS RÉGÉNÉRÉ !", 'success');
-                            speak("Repas régénéré !");
-                        } catch (error) {
-                            console.error("Erreur lors de la régénération du repas:", error);
-                            showMessage(`ERREUR: Échec de la régénération du repas. ${error.message}`, 'error');
-                        } finally {
-                            regeneratingMeal = null; // Reset regenerating state
-                            renderRecipeView(container); // Re-render to remove spinner and update content
-                        }
-                    };
-                });
-
-                weeklyMealPlanContentDiv.querySelectorAll('.like-meal-btn').forEach(button => {
-                    button.onclick = (event) => {
-                        const mealId = event.currentTarget.dataset.mealId;
-                        const dateKey = event.currentTarget.dataset.date;
-                        const mealType = event.currentTarget.dataset.mealType;
-                        const dayData = weeklyMealPlan.semaine.find(d => d.date === dateKey);
-                        const mealToLike = dayData ? dayData[mealType] : null;
-
-                        if (mealToLike) {
-                            const existingLikedIndex = userProfile.likedMeals.findIndex(lm => lm.id === mealId);
-                            if (existingLikedIndex !== -1) {
-                                userProfile.likedMeals.splice(existingLikedIndex, 1);
-                                showMessage("RECETTE RETIRÉE DES FAVORIS.", 'info');
-                            } else {
-                                userProfile.likedMeals.push({ ...mealToLike, likedAt: new Date().toISOString() });
-                                showMessage("RECETTE AJOUTÉE AUX FAVORIS !", 'success');
-                            }
-                            saveToLocalStorage('userProfile', userProfile);
-                            renderRecipeView(container); // Re-render to update heart icon
-                        }
-                    };
-                });
+                attachMealActionListeners();
             }
             renderWeeklyMealPlan();
         }
 
         // Gère l'affichage/masquage des détails de repas
         function attachCollapsibleListeners() {
-            document.querySelectorAll('.toggle-meal-details').forEach(header => {
-                header.onclick = (event) => {
-                    // Empêche le clic sur les boutons enfants de déclencher le toggle
-                    if (event.target.closest('button')) {
-                        return;
-                    }
-                    const mealId = header.dataset.mealId;
-                    const content = document.getElementById(`meal-content-${mealId}`); // Corrected: Use mealId
+            document.querySelectorAll('.toggle-day-details').forEach(header => {
+                header.onclick = () => {
+                    const dayId = header.dataset.dayId;
+                    const content = document.getElementById(dayId);
+                    const icon = header.querySelector('i[data-lucide="chevron-down"]');
+
                     if (content) {
                         if (content.classList.contains('max-h-0')) {
                             content.classList.remove('max-h-0');
-                            content.style.maxHeight = content.scrollHeight + "px"; // Définit la hauteur réelle
+                            content.style.maxHeight = content.scrollHeight + "px";
+                            icon.style.transform = 'rotate(180deg)';
                         } else {
-                            content.style.maxHeight = "0px"; // Réduit à 0 pour l'animation
+                            content.style.maxHeight = "0px";
                             content.classList.add('max-h-0');
+                            icon.style.transform = 'rotate(0deg)';
                         }
+                    }
+                };
+            });
+        }
+
+        // Attach listeners for regenerate and like buttons
+        function attachMealActionListeners() {
+            document.querySelectorAll('.regenerate-meal-btn').forEach(button => {
+                button.onclick = async (event) => {
+                    const dateKey = event.currentTarget.dataset.date;
+                    const mealType = event.currentTarget.dataset.mealType;
+                    const dayDataForRegen = weeklyMealPlan.semaine.find(d => d.date === dateKey);
+                    if (!dayDataForRegen || !dayDataForRegen.dayContext) { showMessage("ERREUR: CONTEXTE DE JOUR NON TROUVÉ POUR LA RÉGÉNÉRATION DU REPAS.", 'error'); return; }
+
+                    regeneratingMeal = { dateKey: dateKey, mealType: mealType };
+                    renderRecipeView(document.getElementById('main-content'));
+
+                    try {
+                        const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds };
+                        const regeneratedMeal = await generateInternalMeal(
+                            mealType,
+                            dayDataForRegen.dayContext,
+                            Object.values(dayDataForRegen).filter(m => typeof m === 'object' && m !== null && m.mealType && m.mealType !== mealType),
+                            null,
+                            allowMeatFish,
+                            userProfileData,
+                            numPeople,
+                            nutritionalProgramText
+                        );
+
+                        dayDataForRegen[mealType] = regeneratedMeal;
+
+                        if (mealType === 'petit_dejeuner' || mealType.startsWith('collation')) syncSimilarMeals(regeneratedMeal, dateKey);
+
+                        saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
+                        showMessage("SUCCÈS: REPAS RÉGÉNÉRÉ !", 'success');
+                        speak("Repas régénéré !");
+                    } catch (error) {
+                        console.error("Erreur lors de la régénération du repas:", error);
+                        showMessage(`ERREUR: ÉCHEC DE LA RÉGÉNÉRATION DU REPAS. ${error.message}`, 'error');
+                    } finally {
+                        regeneratingMeal = null;
+                        renderRecipeView(document.getElementById('main-content'));
+                    }
+                };
+            });
+
+            document.querySelectorAll('.like-meal-btn').forEach(button => {
+                button.onclick = (event) => {
+                    const mealId = button.dataset.mealId;
+                    const dateKey = button.dataset.date;
+                    const mealType = button.dataset.mealType;
+                    const dayData = weeklyMealPlan.semaine.find(d => d.date === dateKey);
+                    const mealToLike = dayData ? dayData[mealType] : null;
+
+                    if (mealToLike) {
+                        const existingLikedIndex = userProfile.likedMeals.findIndex(lm => lm.id === mealId);
+                        if (existingLikedIndex !== -1) {
+                            userProfile.likedMeals.splice(existingLikedIndex, 1);
+                            showMessage("RECETTE RETIRÉE DES FAVORIS.", 'info');
+                        } else {
+                            userProfile.likedMeals.push({
+                                id: mealToLike.id,
+                                title: mealToLike.title,
+                                description_du_plat: mealToLike.description_du_plat,
+                                ingredients_list: mealToLike.ingredients_list,
+                                mealType: mealToLike.mealType,
+                                dayContext: mealToLike.dayContext,
+                                likedAt: new Date().toISOString()
+                            });
+                            showMessage("RECETTE AJOUTÉE AUX FAVORIS !", 'success');
+                        }
+                        saveToLocalStorage('userProfile', userProfile);
+                        renderRecipeView(document.getElementById('main-content'));
                     }
                 };
             });
@@ -1562,7 +1682,7 @@
             function chronoLoop() {
                 if (!isChronoRunning || isChronoPaused) return;
 
-                if (chronoCurrentIntervalIndex === -1) { // Pré-compte à rebours
+                if (chronoCurrentIntervalIndex === -1) {
                     chronoCurrentTime--;
                     if (chronoCurrentTime <= 0) {
                         playMarioKartStartSound();
@@ -1570,10 +1690,8 @@
                         chronoCurrentTime = chronoIntervals[0].duration;
                         speak(String(chronoIntervals[0].instruction).toUpperCase());
                         showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono');
-                    } else if (chronoCurrentTime <= 3 && chronoCurrentTime > 0) {
-                        playBeep(660, 0.1);
-                    }
-                } else { // Intervalles
+                    } else if (chronoCurrentTime <= 3 && chronoCurrentTime > 0) playBeep(660, 0.1);
+                } else {
                     chronoCurrentTime--;
                     if (chronoCurrentTime <= 0) {
                         chronoCurrentIntervalIndex++;
@@ -1591,9 +1709,7 @@
                             clearInterval(chronoIntervalTimerRef);
                             chronoIntervalTimerRef = null;
                         }
-                    } else if (chronoCurrentTime <= 10 && chronoCurrentTime > 0) {
-                        playBeep(880, 0.05);
-                    }
+                    } else if (chronoCurrentTime <= 10 && chronoCurrentTime > 0) playBeep(880, 0.05);
                 }
                 updateLocalStorageChronoState();
                 updateChronoDisplay();
@@ -1602,9 +1718,8 @@
             // Rend la liste des intervalles
             function renderIntervalsList() {
                 let listHtml = '';
-                if (chronoIntervals.length === 0) {
-                    listHtml = '<p class="text-gray-400">AUCUN INTERVALLE AJOUTÉ.</p>';
-                } else {
+                if (chronoIntervals.length === 0) listHtml = '<p class="text-gray-400">AUCUN INTERVALLE AJOUTÉ.</p>';
+                else {
                     listHtml = `<ul class="space-y-2">`;
                     chronoIntervals.forEach((interval, index) => {
                         listHtml += `
@@ -1703,12 +1818,12 @@
                 isChronoRunning = true;
                 isChronoPaused = false;
                 chronoCurrentIntervalIndex = -1;
-                if (enableChronoPreCountdown) { chronoCurrentTime = chronoPreCountdownDuration; }
+                if (enableChronoPreCountdown) chronoCurrentTime = chronoPreCountdownDuration;
                 else { chronoCurrentIntervalIndex = 0; chronoCurrentTime = chronoIntervals[0].duration; speak(String(chronoIntervals[0].instruction).toUpperCase()); showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono'); }
                 updateLocalStorageChronoState();
                 updateChronoDisplay();
                 showMessage("CHRONO DÉMARRÉ !", 'info');
-                if (!chronoIntervalTimerRef) { chronoIntervalTimerRef = setInterval(chronoLoop, 1000); }
+                if (!chronoIntervalTimerRef) chronoIntervalTimerRef = setInterval(chronoLoop, 1000);
             };
             pauseChronoBtn.onclick = () => { isChronoPaused = true; updateLocalStorageChronoState(); updateChronoDisplay(); showMessage("CHRONO EN PAUSE.", 'info'); clearInterval(chronoIntervalTimerRef); chronoIntervalTimerRef = null; };
             resetChronoBtn.onclick = () => {
@@ -1778,7 +1893,7 @@
                 modalDiv.id = 'load-sequence-modal';
                 modalDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50';
                 let sequencesListHtml = '';
-                if (intervalSequences.length === 0) { sequencesListHtml = '<p class="text-gray-400">AUCUNE SÉQUENCE ENREGISTRÉE.</p>'; }
+                if (intervalSequences.length === 0) sequencesListHtml = '<p class="text-gray-400">AUCUNE SÉQUENCE ENREGISTRÉE.</p>';
                 else {
                     sequencesListHtml = `
                         <ul class="space-y-2 max-h-60 overflow-y-auto pr-2">
@@ -1798,43 +1913,41 @@
                     <div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-sm text-white">
                         <h3 class="text-xl sm:text-2xl font-bold mb-4 text-yellow-300">CHARGER LA SÉQUENCE</h3>
                         ${sequencesListHtml}
-                        <div class="flex justify-end mt-6">
-                            <button id="close-load-sequence-btn" class="btn-retro-red">FERMER</button>
+                        <div class="flex justify-end space-x-4 mt-6">
+                            <button id="cancel-load-sequence-btn" class="btn-retro-red">ANNULER</button>
                         </div>
                     </div>
                 `;
                 document.getElementById('global-modals-container').appendChild(modalDiv);
-                document.getElementById('close-load-sequence-btn').onclick = () => modalDiv.remove();
+                document.getElementById('cancel-load-sequence-btn').onclick = () => modalDiv.remove();
+
                 modalDiv.querySelectorAll('.load-sequence-item-btn').forEach(button => {
-                    button.onclick = (event) => {
+                    button.onclick = async (event) => {
                         const idToLoad = event.target.dataset.id;
-                        const sequence = intervalSequences.find(s => s.id === idToLoad);
-                        if (sequence) {
-                            chronoIntervals = JSON.parse(sequence.intervals);
-                            updateLocalStorageChronoState();
-                            showMessage(`SUCCÈS: SÉQUENCE "${String(sequence.name).toUpperCase()}" CHARGÉE !`, 'success');
-                            modalDiv.remove();
-                            isChronoRunning = false;
-                            isChronoPaused = false;
-                            chronoCurrentIntervalIndex = -1;
-                            chronoCurrentTime = 0;
-                            updateChronoDisplay();
-                            renderIntervalsList();
-                        } else {
-                            showMessage("ERREUR: SÉQUENCE INTROUVABLE.", 'error');
+                        const sequenceToLoad = intervalSequences.find(seq => seq.id === idToLoad);
+                        if (sequenceToLoad) {
+                            if (await showConfirmModal("CONFIRMER LE CHARGEMENT DE CETTE SÉQUENCE ? CELA REMPLACERA LA SÉQUENCE ACTUELLE.")) {
+                                chronoIntervals = JSON.parse(sequenceToLoad.intervals);
+                                updateLocalStorageChronoState();
+                                showMessage(`SUCCÈS: SÉQUENCE "${String(sequenceToLoad.name).toUpperCase()}" CHARGÉE !`, 'success');
+                                renderIntervalsList();
+                                resetIntervalForm();
+                                document.getElementById('sequenceName').value = sequenceToLoad.name;
+                                modalDiv.remove();
+                            }
                         }
                     };
                 });
+
                 modalDiv.querySelectorAll('.delete-sequence-item-btn').forEach(button => {
                     button.onclick = async (event) => {
                         const idToDelete = event.target.dataset.id;
-                        const isConfirmed = await showConfirmModal("CONFIRMER LA SUPPRESSION DE LA SÉQUENCE ?");
-                        if (isConfirmed) {
-                            intervalSequences = intervalSequences.filter(s => s.id !== idToDelete);
+                        if (await showConfirmModal("CONFIRMER LA SUPPRESSION DE CETTE SÉQUENCE ?")) {
+                            intervalSequences = intervalSequences.filter(seq => seq.id !== idToDelete);
                             saveToLocalStorage('intervalSequences', intervalSequences);
                             showMessage("SUCCÈS: SÉQUENCE SUPPRIMÉE !", 'success');
                             modalDiv.remove();
-                            loadSequenceBtn.click();
+                            loadSequenceBtn.click(); // Re-render the load modal
                         }
                     };
                 });
@@ -1842,393 +1955,202 @@
 
             renderIntervalsList();
             updateChronoDisplay();
-            if (isChronoRunning && !isChronoPaused) {
-                if (!chronoIntervalTimerRef) { chronoIntervalTimerRef = setInterval(chronoLoop, 1000); }
+            if (isChronoRunning && !isChronoPaused && !chronoIntervalTimerRef) {
+                chronoIntervalTimerRef = setInterval(chronoLoop, 1000);
             }
         }
 
-        // Rend la vue de progression
+        // Rend la vue de l'évolution (graphiques)
         function renderProgressView(container) {
-            let selectedExerciseForChart = loadFromLocalStorage('selectedExerciseForChart', 'SÉLECTIONNER UN EXERCICE');
-            let selectedExerciseMetrics = loadFromLocalStorage('selectedExerciseMetrics', ['Volume']);
-            const hideExerciseHistory = userProfile.hideExerciseHistory;
-
             let html = `
                 <div class="card-retro mb-6">
-                    <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">MA PROGRESSION</h2>
-
-                    <!-- Graphique de poids -->
+                    <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">MON ÉVOLUTION</h2>
                     <div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6">
-                        <h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">HISTORIQUE DE POIDS :</h3>
-                        <div style="width: 100%; max-width: 800px; margin: 0 auto;">
-                            <canvas id="weight-chart"></canvas>
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">HISTORIQUE DU POIDS ET IMC :</h3>
+                        <div class="relative h-64">
+                            <canvas id="weightChart"></canvas>
                         </div>
-                        <p id="weight-chart-message" class="text-gray-400 text-center mt-2 hidden">AUCUN HISTORIQUE DE POIDS ENCORE.</p>
+                        <p class="text-xs text-gray-400 mt-2 text-center">GRAPHIQUE DU POIDS (KG) ET DE L'IMC AU FIL DU TEMPS.</p>
+                        <div class="mt-4">
+                            <h4 class="font-semibold text-lg text-yellow-300 mb-2">DÉTAILS :</h4>
+                            <div id="weight-history-list" class="space-y-2 max-h-48 overflow-y-auto pr-2"></div>
+                        </div>
                     </div>
-
-                    <!-- Graphique de progression par exercice -->
-                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mb-6">
-                        <h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">PROGRESSION PAR EXERCICE :</h3>
-                        <label for="exerciseSelectChart" class="block text-gray-200 text-sm font-bold mb-2">CHOISIR UN EXERCICE :</label>
-                        <select id="exerciseSelectChart" class="select-retro mb-4">
-                            <option value="SÉLECTIONNER UN EXERCICE">SÉLECTIONNER UN EXERCICE</option>
-                            <!-- Les noms d'exercices uniques seront renseignés ici -->
-                        </select>
-                        <div class="mb-4">
-                            <h4 class="text-base sm:text-lg font-bold text-gray-200 mb-2">MÉTRIQUES À AFFICHER :</h4>
-                            <div id="metric-checkboxes" class="flex flex-wrap gap-x-4 gap-y-2">
-                                <!-- Les cases à cocher seront rendues ici -->
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl sm:text-2xl text-yellow-300">HISTORIQUE DES ENTRAÎNEMENTS :</h3>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="hideExerciseHistory" ${userProfile.hideExerciseHistory ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" />
+                                <label for="hideExerciseHistory" class="text-gray-200 text-sm font-bold">CACHER</label>
                             </div>
                         </div>
-                        <div style="width: 100%; max-width: 800px; margin: 0 auto;">
-                            <canvas id="exercise-chart"></canvas>
-                        </div>
-                        <p id="exercise-chart-message" class="text-gray-400 text-center mt-2 hidden">SÉLECTIONNEZ UN EXERCICE ET AU MOINS UNE MÉTRIQUE POUR VOIR LE GRAPHIQUE DE PROGRESSION.</p>
-                    </div>
-
-                    <!-- Historique des entraînements (déplacé dans Options) -->
-                    <div id="workout-logs-section" class="${hideExerciseHistory ? 'hidden' : ''}">
-                        <h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">HISTORIQUE DES ENTRAÎNEMENTS :</h3>
-                        <div id="workout-logs-list" class="space-y-4">
-                            <!-- Les journaux d'entraînement seront rendus ici -->
+                        <div id="exercise-history-content" class="${userProfile.hideExerciseHistory ? 'hidden' : ''}">
+                            <div class="relative h-64 mb-4">
+                                <canvas id="exerciseChart"></canvas>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2 text-center">GRAPHIQUE DU NOMBRE D'ENTRAÎNEMENTS PAR TYPE.</p>
+                            <div class="mt-4">
+                                <h4 class="font-semibold text-lg text-yellow-300 mb-2">DÉTAILS :</h4>
+                                <div id="exercise-history-list" class="space-y-2 max-h-48 overflow-y-auto pr-2"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
             container.innerHTML = html;
 
-            const weightChartCanvas = document.getElementById('weight-chart');
-            const weightChartMessage = document.getElementById('weight-chart-message');
-            const exerciseSelectChart = document.getElementById('exerciseSelectChart');
-            const metricCheckboxes = document.getElementById('metric-checkboxes');
-            const exerciseChartCanvas = document.getElementById('exercise-chart');
-            const exerciseChartMessage = document.getElementById('exercise-chart-message');
-            const workoutLogsListDiv = document.getElementById('workout-logs-list');
-            const workoutLogsSection = document.getElementById('workout-logs-section'); // Section to hide/show
+            // Weight Chart
+            const weightCtx = document.getElementById('weightChart').getContext('2d');
+            const sortedWeightHistory = [...weightHistory].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            const weightLabels = sortedWeightHistory.map(entry => new Date(entry.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }));
+            const weights = sortedWeightHistory.map(entry => entry.weight);
+            const imcs = sortedWeightHistory.map(entry => entry.imc);
 
-            // Rend le graphique de poids
-            function renderWeightChart() {
-                if (weightChartInstance) { weightChartInstance.destroy(); }
-                if (weightHistory.length === 0) { weightChartMessage.classList.remove('hidden'); weightChartCanvas.classList.add('hidden'); return; }
-                weightChartMessage.classList.add('hidden');
-                weightChartCanvas.classList.remove('hidden');
-
-                const labels = weightHistory.map(entry => new Date(entry.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
-                const weights = weightHistory.map(entry => entry.weight);
-                const imcs = weightHistory.map(entry => entry.imc);
-
-                const ctx = weightChartCanvas.getContext('2d');
-                weightChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'POIDS (KG)',
-                                data: weights,
-                                borderColor: '#FCD34D',
-                                backgroundColor: 'rgba(252, 211, 77, 0.2)',
-                                borderWidth: 2,
-                                fill: false,
-                                tension: 0.3,
-                                pointBackgroundColor: '#FCD34D',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 1,
-                                pointRadius: 5
+            weightChartInstance = new Chart(weightCtx, {
+                type: 'line',
+                data: {
+                    labels: weightLabels,
+                    datasets: [{
+                        label: 'POIDS (KG)',
+                        data: weights,
+                        borderColor: '#fcd34d',
+                        backgroundColor: 'rgba(252, 211, 77, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'IMC',
+                        data: imcs,
+                        borderColor: '#a78bfa',
+                        backgroundColor: 'rgba(167, 139, 250, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: 'white', font: { family: 'VT323' } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) label += context.parsed.y;
+                                    if (context.dataset.label === 'POIDS (KG)') label += ' KG';
+                                    return label;
+                                }
                             },
-                            {
-                                label: 'IMC',
-                                data: imcs,
-                                borderColor: '#8B5CF6',
-                                backgroundColor: 'rgba(139, 92, 246, 0.2)',
-                                borderWidth: 2,
-                                fill: false,
-                                tension: 0.3,
-                                yAxisID: 'y1',
-                                pointBackgroundColor: '#8B5CF6',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 1,
-                                pointRadius: 5
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'HISTORIQUE POIDS ET IMC',
-                                color: '#E2E8F0',
-                                font: { family: 'VT323', size: 20 }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    title: function(context) { return `DATE: ${context[0].label}`; },
-                                    label: function(context) {
-                                        let label = context.dataset.label || '';
-                                        if (label) { label += ': '; }
-                                        if (context.parsed.y !== null) { label += context.parsed.y; if (context.dataset.label === 'POIDS (KG)') label += ' KG'; }
-                                        return label;
-                                    }
-                                },
-                                titleFont: { family: 'VT323', size: 14 },
-                                bodyFont: { family: 'VT323', size: 12 },
-                                backgroundColor: 'rgba(45, 55, 72, 0.9)',
-                                borderColor: '#A78BFA',
-                                borderWidth: 1,
-                                borderRadius: 6
-                            }
-                        },
-                        scales: {
-                            x: {
-                                title: { display: true, text: 'DATE', color: '#E2E8F0', font: { family: 'VT323', size: 16 } },
-                                ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            },
-                            y: {
-                                title: { display: true, text: 'POIDS (KG)', color: '#E2E8F0', font: { family: 'VT323', size: 16 } },
-                                ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: { display: true, text: 'IMC', color: '#E2E8F0', font: { family: 'VT323', size: 16 } },
-                                ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } },
-                                grid: { drawOnChartArea: false }
-                            }
+                            titleFont: { family: 'VT323' },
+                            bodyFont: { family: 'VT323' }
                         }
+                    },
+                    scales: {
+                        x: { ticks: { color: 'white', font: { family: 'VT323' } }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: 'white', font: { family: 'VT323' } }, grid: { color: 'rgba(255,255,255,0.1)' } }
                     }
-                });
-            }
-
-            // Remplit la liste déroulante des exercices
-            const uniqueExerciseNames = ['SÉLECTIONNER UN EXERCICE', ...new Set(workoutLogs.map(log => log.exerciseName))].sort();
-            exerciseSelectChart.innerHTML = uniqueExerciseNames.map(name => `<option value="${name}" ${name === selectedExerciseForChart ? 'selected' : ''}>${name}</option>` ).join('');
-
-            // Rend les cases à cocher des métriques
-            const metrics = ['Répétitions/Durée', 'Séries/Rounds', 'Poids', 'Volume'];
-            metricCheckboxes.innerHTML = metrics.map(metric => `
-                <label class="flex items-center text-gray-300 text-sm sm:text-base">
-                    <input type="checkbox" data-metric="${metric}" ${selectedExerciseMetrics.includes(metric) ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" />
-                    ${metric.toUpperCase()}
-                </label>
-            `).join('');
-
-            // Écouteur d'événements pour la sélection d'exercice
-            exerciseSelectChart.onchange = (e) => { selectedExerciseForChart = e.target.value; saveToLocalStorage('selectedExerciseForChart', selectedExerciseForChart); renderExerciseChart(); };
-
-            // Écouteur d'événements pour les cases à cocher des métriques
-            metricCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                checkbox.onchange = (e) => {
-                    const metric = e.target.dataset.metric;
-                    if (e.target.checked) { if (!selectedExerciseMetrics.includes(metric)) { selectedExerciseMetrics.push(metric); } }
-                    else { selectedExerciseMetrics = selectedExerciseMetrics.filter(m => m !== metric); }
-                    saveToLocalStorage('selectedExerciseMetrics', selectedExerciseMetrics);
-                    renderExerciseChart();
-                };
+                }
             });
 
-            // Rend le graphique d'exercices
-            function renderExerciseChart() {
-                if (exerciseChartInstance) { exerciseChartInstance.destroy(); }
-                if (!selectedExerciseForChart || selectedExerciseForChart === 'SÉLECTIONNER UN EXERCICE' || selectedExerciseMetrics.length === 0) {
-                    exerciseChartMessage.classList.remove('hidden'); exerciseChartCanvas.classList.add('hidden'); return;
-                }
-                const filteredLogs = workoutLogs
-                    .filter(log => log.exerciseName === selectedExerciseForChart)
-                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-                if (filteredLogs.length === 0) {
-                    exerciseChartMessage.textContent = `AUCUNE DONNÉE POUR "${selectedExerciseForChart.toUpperCase()}".`;
-                    exerciseChartMessage.classList.remove('hidden'); exerciseChartCanvas.classList.add('hidden'); return;
-                }
-                exerciseChartMessage.classList.add('hidden');
-                exerciseChartCanvas.classList.remove('hidden');
-
-                const labels = filteredLogs.map(log => new Date(log.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
-                const datasets = [];
-                const colors = ['#FCD34D', '#A78BFA', '#10B981', '#EF4444'];
-
-                selectedExerciseMetrics.forEach((metric, index) => {
-                    let data = [];
-                    let label = metric.toUpperCase();
-                    let yAxisID = `y${index}`;
-
-                    if (metric === 'Volume') {
-                        data = filteredLogs.map(log => {
-                            const sets = parseFloat(String(log.sets)) || 0;
-                            let reps = parseFloat(String(log.reps)) || 0;
-                            const weight = parseFloat(String(log.weight)) || 0;
-                            if (String(log.reps).toUpperCase().includes('MIN')) {
-                                const match = String(log.reps).match(/(\d+(\.\d+)?)\s*MIN/i);
-                                if (match) reps = parseFloat(match[1]) * 60;
-                            } else if (String(log.reps).toUpperCase().includes('SEC')) {
-                                const match = String(log.reps).match(/(\d+(\.\d+)?)\s*SEC/i);
-                                if (match) reps = parseFloat(match[1]);
-                            }
-                            return (sets * reps * (weight > 0 ? weight : 1));
-                        });
-                        label = 'VOLUME (KG OU UNITÉ TEMPS)';
-                    } else if (metric === 'Poids') {
-                        data = filteredLogs.map(log => log.weight);
-                        label = 'POIDS (KG)';
-                    } else if (metric === 'Séries/Rounds') {
-                        data = filteredLogs.map(log => parseFloat(String(log.sets)) || 0);
-                        label = 'SÉRIES / ROUNDS';
-                    } else if (metric === 'Répétitions/Durée') {
-                        data = filteredLogs.map(log => {
-                            let reps = parseFloat(String(log.reps)) || 0;
-                            if (String(log.reps).toUpperCase().includes('MIN')) {
-                                const match = String(log.reps).match(/(\d+(\.\d+)?)\s*MIN/i);
-                                if (match) reps = parseFloat(match[1]);
-                            } else if (String(log.reps).toUpperCase().includes('SEC')) {
-                                const match = String(log.reps).match(/(\d+(\.\d+)?)\s*SEC/i);
-                                if (match) reps = parseFloat(match[1]);
-                            }
-                            return reps;
-                        });
-                        label = 'RÉPÉTITIONS / DURÉE';
-                    }
-
-                    datasets.push({
-                        label: label,
-                        data: data,
-                        borderColor: colors[index % colors.length],
-                        backgroundColor: Chart.helpers.color(colors[index % colors.length]).alpha(0.2).rgbString(),
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.3,
-                        pointBackgroundColor: colors[index % colors.length],
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 1,
-                        pointRadius: 5,
-                        yAxisID: yAxisID
-                    });
+            // Weight History List
+            const weightHistoryListDiv = document.getElementById('weight-history-list');
+            if (sortedWeightHistory.length === 0) { weightHistoryListDiv.innerHTML = '<p class="text-gray-400">AUCUN HISTORIQUE DE POIDS ENREGISTRÉ.</p>'; }
+            else {
+                let weightListHtml = `<ul class="space-y-1">`;
+                sortedWeightHistory.reverse().forEach(entry => {
+                    const date = new Date(entry.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+                    weightListHtml += `<li class="text-sm text-gray-300">**${date.toUpperCase()} :** POIDS: ${entry.weight} KG, IMC: ${entry.imc} (${String(entry.imcCategory).toUpperCase()})</li>`;
                 });
+                weightListHtml += `</ul>`;
+                weightHistoryListDiv.innerHTML = weightListHtml;
+            }
 
-                const ctx = exerciseChartCanvas.getContext('2d');
-                exerciseChartInstance = new Chart(ctx, {
-                    type: 'line',
+            // Exercise History
+            const hideExerciseHistoryCheckbox = document.getElementById('hideExerciseHistory');
+            const exerciseHistoryContent = document.getElementById('exercise-history-content');
+            hideExerciseHistoryCheckbox.onchange = (e) => {
+                userProfile.hideExerciseHistory = e.target.checked;
+                saveToLocalStorage('userProfile', userProfile);
+                exerciseHistoryContent.classList.toggle('hidden', userProfile.hideExerciseHistory);
+                if (!userProfile.hideExerciseHistory && !exerciseChartInstance) renderExerciseChart();
+            };
+
+            function renderExerciseChart() {
+                if (workoutLogs.length === 0) { exerciseHistoryContent.innerHTML = '<p class="text-gray-400">AUCUN ENTRAÎNEMENT ENREGISTRÉ.</p>'; return; }
+                const exerciseCounts = {};
+                workoutLogs.forEach(log => { exerciseCounts[log.exerciseType] = (exerciseCounts[log.exerciseType] || 0) + 1; });
+                const exerciseLabels = Object.keys(exerciseCounts).map(type => String(type).toUpperCase().replace('_', ' '));
+                const exerciseData = Object.values(exerciseCounts);
+                const exerciseCtx = document.getElementById('exerciseChart').getContext('2d');
+                exerciseChartInstance = new Chart(exerciseCtx, {
+                    type: 'bar',
                     data: {
-                        labels: labels,
-                        datasets: datasets
+                        labels: exerciseLabels,
+                        datasets: [{
+                            label: 'NOMBRE D\'ENTRAÎNEMENTS',
+                            data: exerciseData,
+                            backgroundColor: ['#fcd34d', '#a78bfa', '#16a34a', '#2563eb', '#dc2626', '#d97706'],
+                            borderColor: '#1a202c',
+                            borderWidth: 1
+                        }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
                         plugins: {
-                            title: {
-                                display: true,
-                                text: `PROGRESSION POUR ${selectedExerciseForChart.toUpperCase()}`,
-                                color: '#E2E8F0',
-                                font: { family: 'VT323', size: 20 }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    title: function(context) { return `DATE: ${context[0].label}`; },
-                                    label: function(context) {
-                                        let label = context.dataset.label || '';
-                                        if (label) { label += ': '; }
-                                        if (context.parsed.y !== null) {
-                                            label += context.parsed.y;
-                                            if (context.dataset.label === 'POIDS (KG)') label += ' KG';
-                                            else if (context.dataset.label.includes('DURÉE') || context.dataset.label.includes('VOLUME') && !context.dataset.label.includes('KG')) label += ' s';
-                                        }
-                                        return label;
-                                    }
-                                },
-                                titleFont: { family: 'VT323', size: 14 },
-                                bodyFont: { family: 'VT323', size: 12 },
-                                backgroundColor: 'rgba(45, 55, 72, 0.9)',
-                                borderColor: '#A78BFA',
-                                borderWidth: 1,
-                                borderRadius: 6
-                            }
+                            legend: { display: false },
+                            tooltip: { titleFont: { family: 'VT323' }, bodyFont: { family: 'VT323' } }
                         },
                         scales: {
-                            x: {
-                                title: { display: true, text: 'DATE', color: '#E2E8F0', font: { family: 'VT323', size: 16 } },
-                                ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            },
-                            y: {
-                                title: { display: true, text: datasets[0]?.label || 'VALEUR', color: '#E2E8F0', font: { family: 'VT323', size: 16 } },
-                                ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            },
-                            ...(selectedExerciseMetrics.length > 1 && {
-                                y1: {
-                                    type: 'linear',
-                                    position: 'right',
-                                    grid: { drawOnChartArea: false },
-                                    ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } },
-                                    title: { display: true, text: datasets[1]?.label || 'VALEUR', color: '#E2E8F0', font: { family: 'VT323', size: 16 } }
-                                },
-                                y2: {
-                                    type: 'linear',
-                                    position: 'right',
-                                    grid: { drawOnChartArea: false },
-                                    ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } },
-                                    title: { display: true, text: datasets[2]?.label || 'VALEUR', color: '#E2E8F0', font: { family: 'VT323', size: 16 } }
-                                },
-                                y3: {
-                                    type: 'linear',
-                                    position: 'right',
-                                    grid: { drawOnChartArea: false },
-                                    ticks: { color: '#CBD5E0', font: { family: 'VT323', size: 12 } },
-                                    title: { display: true, text: datasets[3]?.label || 'VALEUR', color: '#E2E8F0', font: { family: 'VT323', size: 16 } }
-                                }
-                            })
+                            x: { ticks: { color: 'white', font: { family: 'VT323' } }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            y: { beginAtZero: true, ticks: { color: 'white', font: { family: 'VT323' } }, grid: { color: 'rgba(255,255,255,0.1)' } }
                         }
                     }
                 });
             }
 
-            renderWeightChart();
-            renderExerciseChart();
+            // Exercise History List
+            const exerciseHistoryListDiv = document.getElementById('exercise-history-list');
+            if (userProfile.hideExerciseHistory) { exerciseHistoryListDiv.innerHTML = ''; }
+            else if (workoutLogs.length === 0) { exerciseHistoryListDiv.innerHTML = '<p class="text-gray-400">AUCUN ENTRAÎNEMENT ENREGISTRÉ.</p>'; }
+            else {
+                let exerciseListHtml = `<ul class="space-y-1">`;
+                [...workoutLogs].reverse().forEach(log => {
+                    const date = new Date(log.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    exerciseListHtml += `<li class="text-sm text-gray-300">**${date.toUpperCase()} :** ${String(log.exerciseName).toUpperCase()} (${String(log.sets).toUpperCase()} SÉRIES, ${String(log.reps).toUpperCase()}${log.weight ? `, ${log.weight} KG` : ''}) - RESSENTI: ${String(log.feeling).toUpperCase()}</li>`;
+                });
+                exerciseListHtml += `</ul>`;
+                exerciseHistoryListDiv.innerHTML = exerciseListHtml;
+            }
+
+            if (!userProfile.hideExerciseHistory) renderExerciseChart();
         }
 
-        // Rend la vue des trophées
+        // Rend la vue de la salle des trophées
         function renderTrophyRoomView(container) {
             let html = `
                 <div class="card-retro mb-6">
-                    <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">MES TROPHÉES</h2>
-                    <div id="trophies-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Les trophées seront rendus ici -->
-                    </div>
-                    <p id="no-trophies-message" class="text-gray-400 text-center mt-4 hidden">AUCUN TROPHÉE DÉBLOQUÉ POUR L'INSTANT. CONTINUEZ À VOUS ENTRAÎNER POUR EN GAGNER !</p>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">SALLE DES TROPHÉES</h2>
+                    <div id="trophies-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
             `;
             container.innerHTML = html;
-            const trophiesListDiv = document.getElementById('trophies-list');
-            const noTrophiesMessage = document.getElementById('no-trophies-message');
-
-            if (userProfile.earnedTrophies.length === 0) {
-                noTrophiesMessage.classList.remove('hidden');
-                return;
-            }
-
-            const sortedTrophies = [...userProfile.earnedTrophies].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-
-            trophiesListDiv.innerHTML = sortedTrophies.map(trophy => `
-                <div class="bg-gray-700 p-4 rounded-lg border-2 border-purple-500 shadow-lg text-center">
-                    <span class="text-5xl mb-2 block">🏆</span>
-                    <h3 class="text-xl font-bold text-yellow-300 mb-2">${String(trophy.name).toUpperCase()}</h3>
-                    <p class="text-gray-300 text-sm">${String(trophy.description).toUpperCase()}</p>
-                    <p class="text-gray-400 text-xs mt-2">DÉBLOQUÉ LE: ${new Date(trophy.timestamp).toLocaleDateString('fr-FR')}</p>
-                </div>
-            `).join('');
-            noTrophiesMessage.classList.add('hidden');
+            const trophiesGrid = document.getElementById('trophies-grid');
+            const sortedTrophies = [...allTrophies].sort((a, b) => a.levelRequired - b.levelRequired);
+            sortedTrophies.forEach(trophy => {
+                const isEarned = userProfile.earnedTrophies.some(t => t.id === trophy.id);
+                const trophyDiv = document.createElement('div');
+                trophyDiv.className = `p-4 rounded-lg border-4 ${isEarned ? 'border-yellow-500 bg-yellow-900' : 'border-gray-600 bg-gray-800'} shadow-lg text-center`;
+                trophyDiv.innerHTML = `
+                    <i data-lucide="trophy" class="text-6xl ${isEarned ? 'text-yellow-300' : 'text-gray-500'} mb-2"></i>
+                    <h3 class="text-xl font-bold ${isEarned ? 'text-yellow-200' : 'text-gray-300'}">${String(trophy.name).toUpperCase()}</h3>
+                    <p class="text-sm ${isEarned ? 'text-gray-100' : 'text-gray-400'}">${String(trophy.description).toUpperCase()}</p>
+                    <p class="text-xs mt-2 ${isEarned ? 'text-green-300' : 'text-gray-500'}">NIVEAU REQUIS : ${trophy.levelRequired}</p>
+                    ${isEarned ? `<p class="text-xs text-green-400 mt-1">DÉBLOQUÉ LE : ${new Date(userProfile.earnedTrophies.find(t => t.id === trophy.id).timestamp).toLocaleDateString('fr-FR')}</p>` : ''}
+                `;
+                trophiesGrid.appendChild(trophyDiv);
+            });
+            renderLucideIcons();
         }
 
         // Rend la vue des options
@@ -2237,98 +2159,69 @@
                 <div class="card-retro mb-6">
                     <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">OPTIONS</h2>
 
-                    <!-- Section Audio -->
                     <div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6">
-                        <h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">AUDIO :</h3>
-                        <div class="flex items-center justify-between mb-4">
-                            <label for="audio-toggle" class="text-gray-200 text-base sm:text-lg font-bold">ACTIVER LE SON :</label>
-                            <button id="audio-toggle" class="btn-retro ${isAudioActive ? 'btn-retro-green' : 'btn-retro-red'} px-4 py-2">
-                                ${isAudioActive ? 'ACTIVÉ' : 'DÉSACTIVÉ'}
-                            </button>
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">PARAMÈTRES AUDIO :</h3>
+                        <div class="flex items-center mb-4">
+                            <input type="checkbox" id="toggle-audio" ${isAudioActive ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" />
+                            <label for="toggle-audio" class="text-gray-200 text-sm font-bold">ACTIVER LE SON ET LA SYNTHÈSE VOCALE</label>
                         </div>
                         <div class="mb-4">
-                            <label for="master-volume" class="block text-gray-200 text-base sm:text-lg font-bold mb-2">VOLUME PRINCIPAL :</label>
-                            <input type="range" id="master-volume" min="0" max="1" step="0.01" value="${masterVolume}" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                            <p class="text-center text-sm text-gray-400 mt-1">VALEUR: <span id="volume-value">${Math.round(masterVolume * 100)}%</span></p>
+                            <label for="master-volume" class="block text-gray-200 text-sm font-bold mb-2">VOLUME PRINCIPAL :</label>
+                            <input type="range" id="master-volume" min="0" max="1" step="0.01" value="${masterVolume}" class="w-full" />
                         </div>
                     </div>
 
-                    <!-- Section Gestion des Données -->
                     <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mb-6">
-                        <h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">GESTION DES DONNÉES :</h3>
-                        <button id="export-data-btn" class="btn-retro w-full mb-4">EXPORTER TOUTES LES DONNÉES</button>
-                        <input type="file" id="import-data-input" class="hidden" accept="application/json" />
-                        <button id="import-data-btn" class="btn-retro-purple w-full mb-4">IMPORTER DES DONNÉES</button>
-                        <button id="reset-app-btn" class="btn-retro-red w-full">RÉINITIALISER L'APPLICATION</button>
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES DONNÉES :</h3>
+                        <div class="mb-4">
+                            <label for="api-key-input" class="block text-gray-200 text-sm font-bold mb-2">CLÉ API (POUR GÉNÉRATION DE RECETTES) :</label>
+                            <input type="password" id="api-key-input" class="input-retro" placeholder="ENTREZ VOTRE CLÉ API ICI" value="${userProfile.apiKey || ''}" />
+                            <p class="text-xs text-gray-400 mt-1">NÉCESSAIRE POUR LA GÉNÉRATION DE RECETTES PAR L'IA. VOTRE CLÉ EST STOCKÉE LOCALEMENT.</p>
+                        </div>
+                        <button id="save-api-key-btn" class="btn-retro-green w-full mb-4">SAUVEGARDER CLÉ API</button>
+                        <button id="export-data-btn" class="btn-retro w-full mb-4">EXPORTER MES DONNÉES</button>
+                        <button id="import-data-btn" class="btn-retro w-full mb-4">IMPORTER MES DONNÉES</button>
+                        <input type="file" id="import-file-input" accept=".json" class="hidden" />
+                        <button id="reset-all-data-btn" class="btn-retro-red w-full">RÉINITIALISER TOUTES LES DONNÉES</button>
                     </div>
 
-                    <!-- Section Historique des entraînements -->
-                    <div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6">
-                        <h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">HISTORIQUE DES ENTRAÎNEMENTS :</h3>
-                        <div class="flex items-center justify-between mb-4">
-                            <label for="hide-exercise-history-toggle" class="text-gray-200 text-base sm:text-lg font-bold">CACHER L'HISTORIQUE :</label>
-                            <button id="hide-exercise-history-toggle" class="btn-retro ${userProfile.hideExerciseHistory ? 'btn-retro-red' : 'btn-retro-green'} px-4 py-2">
-                                ${userProfile.hideExerciseHistory ? 'CACHÉ' : 'AFFICHÉ'}
-                            </button>
-                        </div>
-                        <div id="workout-logs-list-options" class="space-y-4 ${userProfile.hideExerciseHistory ? 'hidden' : ''}">
-                            ${workoutLogs.length === 0 ? '<p class="text-gray-400">AUCUN ENTRAÎNEMENT ENREGISTRÉ.</p>' :
-                                workoutLogs.map(log => `
-                                <div class="bg-gray-800 p-3 rounded-md border border-gray-600 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                                    <div>
-                                        <p class="text-gray-100 text-base sm:text-lg font-bold">${String(log.exerciseName).toUpperCase()}</p>
-                                        <p class="text-gray-300 text-sm">DATE: ${new Date(log.date).toLocaleDateString('fr-FR')}</p>
-                                        <p class="text-gray-300 text-sm">SÉRIES: ${log.sets} / RÉP: ${log.reps} ${log.weight ? `/ POIDS: ${log.weight} KG` : ''}</p>
-                                        <p class="text-gray-300 text-sm">RESSENTI: ${String(log.feeling).toUpperCase()}</p>
-                                    </div>
-                                    <button class="btn-retro-red text-xs px-2 py-1 mt-2 sm:mt-0 delete-workout-log-btn" data-id="${log.id}">SUPPRIMER</button>
-                                </div>
-                                `).join('')
-                            }
-                        </div>
-                    </div>
-
-                    <!-- Section API Key -->
                     <div class="p-4 rounded-lg border-2 border-yellow-500 bg-gray-700">
-                        <h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">CLÉ API (POUR L'IA) :</h3>
-                        <label for="api-key-input" class="block text-gray-200 text-sm font-bold mb-2">VOTRE CLÉ API GEMINI :</label>
-                        <input type="password" id="api-key-input" class="input-retro mb-4" placeholder="ENTREZ VOTRE CLÉ API ICI" value="${userProfile.apiKey || ''}" />
-                        <button id="save-api-key-btn" class="btn-retro-green w-full">ENREGISTRER CLÉ API</button>
-                        <p class="text-xs text-gray-400 mt-2">NÉCESSAIRE POUR LA GÉNÉRATION DE RECETTES ET DE PROGRAMMES D'ENTRAÎNEMENT PAR L'IA.</p>
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">À PROPOS :</h3>
+                        <p class="text-gray-300 text-sm mb-2">FITQUEST V1.0</p>
+                        <p class="text-gray-300 text-sm">DÉVELOPPÉ PAR WAEKY</p>
                     </div>
                 </div>
             `;
             container.innerHTML = html;
 
-            const audioToggleBtn = document.getElementById('audio-toggle');
+            const toggleAudioCheckbox = document.getElementById('toggle-audio');
             const masterVolumeSlider = document.getElementById('master-volume');
-            const volumeValueDisplay = document.getElementById('volume-value');
-            const exportDataBtn = document.getElementById('export-data-btn');
-            const importDataInput = document.getElementById('import-data-input');
-            const importDataBtn = document.getElementById('import-data-btn');
-            const resetAppBtn = document.getElementById('reset-app-btn');
-            const hideExerciseHistoryToggle = document.getElementById('hide-exercise-history-toggle');
-            const workoutLogsListOptions = document.getElementById('workout-logs-list-options');
             const apiKeyInput = document.getElementById('api-key-input');
             const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+            const exportDataBtn = document.getElementById('export-data-btn');
+            const importDataBtn = document.getElementById('import-data-btn');
+            const importFileInput = document.getElementById('import-file-input');
+            const resetAllDataBtn = document.getElementById('reset-all-data-btn');
 
-            // Initialisation de l'affichage du volume
-            volumeValueDisplay.textContent = `${Math.round(masterVolume * 100)}%`;
+            toggleAudioCheckbox.checked = isAudioActive;
+            masterVolumeSlider.value = masterVolume;
+            apiKeyInput.value = userProfile.apiKey || '';
 
-            // Gestion du volume
+            toggleAudioCheckbox.onchange = toggleAudioActive;
             masterVolumeSlider.oninput = (e) => {
                 masterVolume = parseFloat(e.target.value);
                 Tone.Master.volume.value = masterVolume === 0 ? -Infinity : 20 * Math.log10(masterVolume);
-                volumeValueDisplay.textContent = `${Math.round(masterVolume * 100)}%`;
                 saveToLocalStorage('masterVolume', masterVolume);
             };
 
-            // Toggle audio
-            audioToggleBtn.onclick = toggleAudioActive;
+            saveApiKeyBtn.onclick = () => {
+                userProfile.apiKey = apiKeyInput.value.trim();
+                saveToLocalStorage('userProfile', userProfile);
+                showMessage("CLÉ API SAUVEGARDÉE !", 'success');
+            };
 
-            // Exportation des données
             exportDataBtn.onclick = () => {
-                const data = {
+                const dataToExport = {
                     userProfile: userProfile,
                     weeklyMealPlan: weeklyMealPlan,
                     workoutLogs: workoutLogs,
@@ -2336,124 +2229,80 @@
                     intervalSequences: intervalSequences,
                     shifts: shifts,
                     savedWorkoutProgram: workoutProgram,
-                    chronoState: {
-                        intervals: chronoIntervals,
-                        currentTime: chronoCurrentTime,
-                        currentIntervalIndex: chronoCurrentIntervalIndex,
-                        isRunning: isChronoRunning,
-                        isPaused: isChronoPaused,
-                        enablePreCountdown: enableChronoPreCountdown,
-                        preCountdownDuration: chronoPreCountdownDuration
-                    }
+                    masterVolume: masterVolume
                 };
-                const dataStr = JSON.stringify(data, null, 2);
-                const blob = new Blob([dataStr], { type: "application/json" });
+                const dataStr = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `fitquest_data_${formatDateToYYYYMMDD(new Date())}.json`;
+                a.download = 'fitquest_data.json';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                showMessage("DONNÉES EXPORTÉES AVEC SUCCÈS !", 'success');
+                showMessage("DONNÉES EXPORTÉES !", 'success');
             };
 
-            // Importation des données
-            importDataBtn.onclick = () => { importDataInput.click(); };
-            importDataInput.onchange = async (event) => {
+            importDataBtn.onclick = () => { importFileInput.click(); };
+            importFileInput.onchange = (event) => {
                 const file = event.target.files[0];
-                if (!file) { return; }
-                if (await showConfirmModal("IMPORTER DES DONNÉES ÉCRASERA LES DONNÉES ACTUELLES. CONTINUER ?")) {
+                if (file) {
                     const reader = new FileReader();
-                    reader.onload = (e) => {
+                    reader.onload = async (e) => {
                         try {
                             const importedData = JSON.parse(e.target.result);
-                            userProfile = importedData.userProfile || userProfile;
-                            weeklyMealPlan = importedData.weeklyMealPlan || weeklyMealPlan;
-                            workoutLogs = importedData.workoutLogs || workoutLogs;
-                            weightHistory = importedData.weightHistory || weightHistory;
-                            intervalSequences = importedData.intervalSequences || intervalSequences;
-                            shifts = importedData.shifts || shifts;
-                            workoutProgram = importedData.savedWorkoutProgram || workoutProgram;
-                            const importedChronoState = importedData.chronoState || {};
-                            chronoIntervals = importedChronoState.intervals || [];
-                            chronoCurrentTime = importedChronoState.currentTime || 0;
-                            chronoCurrentIntervalIndex = importedChronoState.currentIntervalIndex !== undefined ? importedChronoState.currentIntervalIndex : -1;
-                            isChronoRunning = importedChronoState.isRunning || false;
-                            isChronoPaused = importedChronoState.isPaused || false;
-                            enableChronoPreCountdown = importedChronoState.enablePreCountdown !== undefined ? importedChronoState.enablePreCountdown : true;
-                            chronoPreCountdownDuration = importedChronoState.preCountdownDuration || 10;
+                            if (await showConfirmModal("CONFIRMER L'IMPORTATION ? CELA REMPLACERA TOUTES VOS DONNÉES ACTUELLES.")) {
+                                userProfile = importedData.userProfile || userProfile;
+                                weeklyMealPlan = importedData.weeklyMealPlan || weeklyMealPlan;
+                                workoutLogs = importedData.workoutLogs || workoutLogs;
+                                weightHistory = importedData.weightHistory || weightHistory;
+                                intervalSequences = importedData.intervalSequences || intervalSequences;
+                                shifts = importedData.shifts || shifts;
+                                workoutProgram = importedData.savedWorkoutProgram || workoutProgram;
+                                masterVolume = importedData.masterVolume !== undefined ? importedData.masterVolume : masterVolume;
 
-                            saveToLocalStorage('userProfile', userProfile);
-                            saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
-                            saveToLocalStorage('workoutLogs', workoutLogs);
-                            saveToLocalStorage('weightHistory', weightHistory);
-                            saveToLocalStorage('intervalSequences', intervalSequences);
-                            saveToLocalStorage('shifts', shifts);
-                            saveToLocalStorage('savedWorkoutProgram', workoutProgram);
-                            updateLocalStorageChronoState(); // Save imported chrono state
+                                saveToLocalStorage('userProfile', userProfile);
+                                saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
+                                saveToLocalStorage('workoutLogs', workoutLogs);
+                                saveToLocalStorage('weightHistory', weightHistory);
+                                saveToLocalStorage('intervalSequences', intervalSequences);
+                                saveToLocalStorage('shifts', shifts);
+                                saveToLocalStorage('savedWorkoutProgram', workoutProgram);
+                                saveToLocalStorage('masterVolume', masterVolume);
 
-                            showMessage("DONNÉES IMPORTÉES AVEC SUCCÈS ! L'APPLICATION VA SE RECHARGER.", 'success');
-                            setTimeout(() => location.reload(), 2000);
+                                showMessage("DONNÉES IMPORTÉES AVEC SUCCÈS ! RECHARGEMENT DE L'APPLICATION.", 'success');
+                                setTimeout(() => { location.reload(); }, 2000);
+                            }
                         } catch (error) {
                             console.error("Erreur lors de l'importation des données:", error);
-                            showMessage("ERREUR: FICHIER DE DONNÉES INVALIDE.", 'error');
+                            showMessage("ERREUR: FICHIER D'IMPORTATION INVALIDE OU CORROMPU.", 'error');
                         }
                     };
                     reader.readAsText(file);
                 }
             };
 
-            // Réinitialisation de l'application
-            resetAppBtn.onclick = async () => {
-                if (await showConfirmModal("CETTE ACTION SUPPRIMERA TOUTES VOS DONNÉES. ÊTES-VOUS SÛR ?")) {
-                    localStorage.clear();
-                    showMessage("APPLICATION RÉINITIALISÉE ! RECHARGEMENT...", 'success');
-                    setTimeout(() => location.reload(), 2000);
+            resetAllDataBtn.onclick = async () => {
+                if (await showConfirmModal("ATTENTION: CELA SUPPRIMERA TOUTES VOS DONNÉES ! ÊTES-VOUS SÛR ?")) {
+                    if (await showConfirmModal("CONFIRMATION FINALE: TOUTES LES DONNÉES SERONT EFFACÉES DÉFINITIVEMENT. CELA EST IRRÉVERSIBLE. CONTINUER ?")) {
+                        localStorage.clear();
+                        showMessage("TOUTES LES DONNÉES ONT ÉTÉ EFFACÉES. RECHARGEMENT DE L'APPLICATION.", 'success');
+                        setTimeout(() => { location.reload(); }, 2000);
+                    }
                 }
             };
-
-            // Toggle historique des entraînements
-            hideExerciseHistoryToggle.onclick = () => {
-                userProfile.hideExerciseHistory = !userProfile.hideExerciseHistory;
-                saveToLocalStorage('userProfile', userProfile);
-                renderOptionsView(container); // Re-render options view to update toggle button and list visibility
-                if (currentPage === 'progress') renderProgressView(document.getElementById('main-content')); // Also update progress view if on it
-            };
-
-            // Gestion de la clé API
-            saveApiKeyBtn.onclick = () => {
-                userProfile.apiKey = apiKeyInput.value.trim();
-                saveToLocalStorage('userProfile', userProfile);
-                showMessage("CLÉ API ENREGISTRÉE !", 'success');
-            };
-
-            // Rendu de l'historique des entraînements (dans les options)
-            const deleteWorkoutLogButtons = workoutLogsListOptions.querySelectorAll('.delete-workout-log-btn');
-            deleteWorkoutLogButtons.forEach(button => {
-                button.onclick = async (event) => {
-                    const logId = event.target.dataset.id;
-                    if (await showConfirmModal("CONFIRMER LA SUPPRESSION DE CET ENTRAÎNEMENT ?")) {
-                        workoutLogs = workoutLogs.filter(log => log.id !== logId);
-                        saveToLocalStorage('workoutLogs', workoutLogs);
-                        showMessage("ENTRAÎNEMENT SUPPRIMÉ !", 'success');
-                        renderOptionsView(container);
-                        if (currentPage === 'progress') renderProgressView(document.getElementById('main-content'));
-                    }
-                };
-            });
         }
 
-        // Attache les écouteurs d'événements initiaux
+        // Écouteurs d'événements pour la navigation
         function attachEventListeners() {
+            document.getElementById('home-button').onclick = () => renderPage('daily_plan');
             document.querySelectorAll('.nav-item').forEach(button => {
                 button.onclick = (event) => {
                     const page = event.currentTarget.dataset.page;
                     renderPage(page);
                 };
             });
-            document.getElementById('home-button').onclick = () => renderPage('daily_plan');
             document.getElementById('save-profile-btn').onclick = handleSaveProfile;
         }
 
