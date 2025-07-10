@@ -10,266 +10,46 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
-   /* CSS Variables for theming */
-        :root {
-            /* Base Colors (Default - Current Dark) */
-            --color-bg-body: #1a202c; /* bg-gray-900 */
-            --color-bg-card: #2d3748; /* card-retro bg, also used for some gray-700/800 */
-            --color-bg-input: #131313; /* input-retro bg */
-            --color-bg-list-item: #131313; /* For chrono list items */
-            --color-bg-table-header: #4a5568; /* table-retro th */
-            --color-bg-table-row-border: #4a5568; /* table-retro td border */
-            --color-bg-accent-light: #4a5568; /* bg-gray-600 for calories display */
-
-            --color-text-primary: #e2e8f0; /* text-white */
-            --color-text-secondary: #cbd5e0; /* text-gray-200 */
-            --color-text-tertiary: #a0aec0; /* text-gray-400 */
-            --color-text-italic: #a0aec0; /* text-gray-400 italic */
-
-            --color-accent-yellow: #fcd34d; /* text-yellow-300, yellow-500 border */
-            --color-accent-blue: #2563eb; /* btn-retro, blue-700 border */
-            --color-accent-purple: #9333ea; /* btn-retro-purple, purple-500 border */
-            --color-accent-green: #16a34a; /* btn-retro-green, green-600 */
-            --color-accent-red: #dc2626; /* btn-retro-red, red-600 */
-            --color-accent-blue-light: #60a5fa; /* blue-400 */
-            --color-accent-purple-light: #a78bfa; /* purple-300 */
-            --color-accent-green-light: #6ee7b7; /* green-300 */
-
-            --color-border-primary: #2563eb; /* blue-700 */
-            --color-border-secondary: #a78bfa; /* purple-500 */
-            --color-border-yellow: #fcd34d; /* yellow-500 */
-        }
-
-        html.dark-mode {
-            /* Dark Mode Overrides */
-            --color-bg-body: #000000;
-            --color-bg-card: #0a0a0a;
-            --color-bg-input: #000000;
-            --color-bg-list-item: #0a0a0a;
-            --color-bg-table-header: #1a1a1a;
-            --color-bg-table-row-border: #1a1a1a;
-            --color-bg-accent-light: #2a2a2a;
-
-            --color-text-primary: #ffffff;
-            --color-text-secondary: #e0e0e0;
-            --color-text-tertiary: #c0c0c0;
-            --color-text-italic: #c0c0c0;
-
-            --color-accent-yellow: #ffff00;
-            --color-accent-blue: #3366ff;
-            --color-accent-purple: #bb33ff;
-            --color-accent-green: #33cc33;
-            --color-accent-red: #ff3333;
-            --color-accent-blue-light: #99ccff;
-            --color-accent-purple-light: #c299ff;
-            --color-accent-green-light: #99ff99;
-
-            --color-border-primary: #007bff;
-            --color-border-secondary: #7b68ee;
-            --color-border-yellow: #ffff00;
-        }
-
-        /* Apply variables to base elements */
-        body {
-            font-family: 'VT323', monospace;
-            background-color: var(--color-bg-body);
-            color: var(--color-text-primary);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+   body { font-family: 'VT323', monospace; background-color: #1a202c; color: #e2e8f0; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
         .font-vt323 { font-family: 'VT323', monospace; }
-
-        /* Retro Card Styling */
-        .card-retro {
-            background-color: var(--color-bg-card);
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            border: 4px solid var(--color-border-secondary);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-            color: var(--color-text-primary);
-        }
-
-        /* Input and Select Styling */
-        .input-retro, .select-retro {
-            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.1);
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            border: 2px solid var(--color-border-primary);
-            border-radius: 0.25rem;
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            line-height: 1.25;
-            outline: none;
-            transition: all 0.1s ease-in-out;
-            color: var(--color-text-primary);
-            background-color: var(--color-bg-input);
-        }
-        .input-retro:focus, .select-retro:focus {
-            ring: 2px;
-            ring-color: var(--color-border-secondary);
-            border-color: var(--color-border-secondary);
-        }
-        .select-retro option {
-            color: var(--color-text-primary);
-            background-color: var(--color-bg-input);
-        }
-
-        /* Table Styling */
-        .table-retro {
-            min-width: 100%;
-            background-color: var(--color-bg-table-header);
-            border-radius: 0.5rem;
-            border: 2px solid var(--color-border-primary);
-        }
-        .table-retro th {
-            padding: 0.5rem 1rem;
-            text-align: left;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--color-accent-yellow);
-            border-bottom: 2px solid var(--color-border-primary);
-        }
-        .table-retro td {
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
-            border-bottom: 1px solid var(--color-bg-table-row-border);
-            color: var(--color-text-primary);
-        }
-        .table-retro tbody tr:last-child td { border-bottom: 0; }
-
-        /* Button Styling */
-        .btn-retro {
-            background-color: var(--color-accent-blue);
-            color: white;
-            font-weight: bold;
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            border: 2px solid var(--color-border-primary);
-            box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5);
-            transition: all 0.1s ease-in-out;
-            cursor: pointer;
-        }
-        .btn-retro:hover { background-color: color-mix(in srgb, var(--color-accent-blue) 90%, black); }
+        .btn-retro { background-color: #2563eb; color: white; font-weight: bold; padding: 0.75rem 1rem; border-radius: 0.375rem; border: 2px solid #1e40af; box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5); transition: all 0.1s ease-in-out; cursor: pointer; }
+        .btn-retro:hover { background-color: #1d4ed8; }
         .btn-retro:active { box-shadow: none; transform: translateX(4px) translateY(4px); }
-
-        .btn-retro-purple {
-            background-color: var(--color-accent-purple);
-            color: white;
-            font-weight: bold;
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            border: 2px solid var(--color-border-secondary);
-            box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5);
-            transition: all 0.1s ease-in-out;
-            cursor: pointer;
-        }
-        .btn-retro-purple:hover { background-color: color-mix(in srgb, var(--color-accent-purple) 90%, black); }
+        .btn-retro-purple { background-color: #9333ea; color: white; font-weight: bold; padding: 0.75rem 1rem; border-radius: 0.375rem; border: 2px solid #6b21a8; box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5); transition: all 0.1s ease-in-out; cursor: pointer; }
+        .btn-retro-purple:hover { background-color: #7e22ce; }
         .btn-retro-purple:active { box-shadow: none; transform: translateX(4px) translateY(4px); }
-
-        .btn-retro-green {
-            background-color: var(--color-accent-green);
-            color: white;
-            font-weight: bold;
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            border: 2px solid var(--color-accent-green);
-            box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5);
-            transition: all 0.1s ease-in-out;
-            cursor: pointer;
-        }
-        .btn-retro-green:hover { background-color: color-mix(in srgb, var(--color-accent-green) 90%, black); }
+        .btn-retro-green { background-color: #16a34a; color: white; font-weight: bold; padding: 0.75rem 1rem; border-radius: 0.375rem; border: 2px solid #15803d; box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5); transition: all 0.1s ease-in-out; cursor: pointer; }
+        .btn-retro-green:hover { background-color: #14713c; }
         .btn-retro-green:active { box-shadow: none; transform: translateX(4px) translateY(4px); }
-
-        .btn-retro-red {
-            background-color: var(--color-accent-red);
-            color: white;
-            font-weight: bold;
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            border: 2px solid var(--color-accent-red);
-            box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5);
-            transition: all 0.1s ease-in-out;
-            cursor: pointer;
-        }
-        .btn-retro-red:hover { background-color: color-mix(in srgb, var(--color-accent-red) 90%, black); }
+        .btn-retro-red { background-color: #dc2626; color: white; font-weight: bold; padding: 0.75rem 1rem; border-radius: 0.375rem; border: 2px solid #b91c1c; box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5); transition: all 0.1s ease-in-out; cursor: pointer; }
+        .btn-retro-red:hover { background-color: #c01b1b; }
         .btn-retro-red:active { box-shadow: none; transform: translateX(4px) translateY(4px); }
-
-        .btn-icon {
-            font-size: 1.25rem;
-            padding: 0.25rem;
-            border-radius: 9999px;
-            background-color: transparent;
-            color: var(--color-text-primary);
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-        }
-        .btn-icon:hover { background-color: var(--color-bg-table-header); }
-
-        /* Spinner for loading states */
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid var(--color-text-primary);
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
+        .card-retro { background-color: #2d3748; padding: 1.5rem; border-radius: 0.5rem; border: 4px solid #a78bfa; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); color: white; }
+        .input-retro, .select-retro { box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.1); -webkit-appearance: none; -moz-appearance: none; appearance: none; border: 2px solid #2563eb; border-radius: 0.25rem; width: 100%; padding: 0.5rem 0.75rem; line-height: 1.25; outline: none; transition: all 0.1s ease-in-out; color: #dfdfdf; background-color: #131313; }
+        .input-retro:focus, .select-retro:focus { ring: 2px; ring-color: #a78bfa; border-color: #a78bfa; }
+        .select-retro option { color: #dfdfdf; background-color: #131313; }
+        .table-retro { min-width: 100%; background-color: #4a5568; border-radius: 0.5rem; border: 2px solid #2563eb; }
+        .table-retro th { padding: 0.5rem 1rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: #fcd34d; border-bottom: 2px solid #2563eb; }
+        .table-retro td { padding: 0.75rem 1rem; font-size: 0.875rem; border-bottom: 1px solid #4a5568; color: #dfdfdf; }
+        .table-retro tbody tr:last-child td { border-bottom: 0; }
+        .btn-icon { font-size: 1.25rem; padding: 0.25rem; border-radius: 9999px; background-color: transparent; color: white; border: none; cursor: pointer; transition: background-color 0.2s ease-in-out; }
+        .btn-icon:hover { background-color: #4a5568; }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid #fff; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* XP Bar Styling */
-        .xp-bar-container {
-            position: relative;
-            width: 100%;
-            height: 24px;
-            background-color: var(--color-bg-table-header);
-            border: 2px solid var(--color-text-tertiary);
-            border-radius: 4px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
-        }
-        .xp-bar-fill {
-            height: 100%;
-            background: linear-gradient(to right, var(--color-accent-green), color-mix(in srgb, var(--color-accent-green) 80%, black));
-            transition: width 0.5s ease-in-out, background 0.5s ease-in-out;
-            position: absolute;
-            left: 0;
-            top: 0;
-            border-radius: 2px;
-            animation: xp-glow 1.5s infinite alternate;
-        }
-        @keyframes xp-glow { from { box-shadow: 0 0 5px var(--color-accent-green); } to { box-shadow: 0 0 15px color-mix(in srgb, var(--color-accent-green) 80%, black); } }
-        .xp-bar-text {
-            position: absolute;
-            color: var(--color-bg-body); /* Should contrast with fill */
-            font-size: 0.85rem;
-            font-weight: bold;
-            z-index: 10;
-            text-shadow: 0 0 2px white, 0 0 2px white, 0 0 2px white;
-        }
-
-        /* Notification Styling */
+        .xp-bar-container { position: relative; width: 100%; height: 24px; background-color: #333; border: 2px solid #a0a0a0; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); }
+        .xp-bar-fill { height: 100%; background: linear-gradient(to right, #16a34a, #15803d); transition: width 0.5s ease-in-out, background 0.5s ease-in-out; position: absolute; left: 0; top: 0; border-radius: 2px; animation: xp-glow 1.5s infinite alternate; }
+        @keyframes xp-glow { from { box-shadow: 0 0 5px #16a34a; } to { box-shadow: 0 0 15px #15803d; } }
+        .xp-bar-text { position: absolute; color: #1a202c; font-size: 0.85rem; font-weight: bold; z-index: 10; text-shadow: 0 0 2px white, 0 0 2px white, 0 0 2px white; }
         .notification-container { position: fixed; z-index: 1000; pointer-events: none; display: flex; flex-direction: column; gap: 10px; }
         .notification { padding: 1rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.5s ease-out, transform 0.5s ease-out; font-family: 'VT323', monospace; display: flex; align-items: center; gap: 0.5rem; min-width: 250px; max-width: 90%; }
         .notification-container-bottom-right { bottom: 20px; right: 20px; align-items: flex-end; }
-        .notification.general, .notification.tip { transform: translateX(100%); background-color: var(--color-accent-blue); color: white; border: 2px solid var(--color-border-primary); text-align: right; border-top-right-radius: 0; border-bottom-right-radius: 0; }
-        .notification.general.error { background-color: var(--color-accent-red); border-color: var(--color-accent-red); }
-        .notification.general.warning { background-color: #d97706; border-color: #9a3412; } /* Keep specific for warning if no variable */
-        .notification.general.success { background-color: var(--color-accent-green); border-color: var(--color-accent-green); }
-        .notification.general.chrono { background-color: var(--color-accent-purple); border-color: var(--color-border-secondary); }
-        .notification.general.ai-advice { background-color: color-mix(in srgb, var(--color-accent-blue) 80%, black); border-color: var(--color-accent-blue); }
-        .notification.tip { background-color: #059669; border-color: #065F46; } /* Keep specific for tip if no variable */
+        .notification.general, .notification.tip { transform: translateX(100%); background-color: #2563eb; color: white; border: 2px solid #1e40af; text-align: right; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+        .notification.general.error { background-color: #dc2626; border-color: #b91c1c; }
+        .notification.general.warning { background-color: #d97706; border-color: #9a3412; }
+        .notification.general.success { background-color: #16a34a; border-color: #15803d; }
+        .notification.general.chrono { background-color: #9333ea; border-color: #6b21a8; }
+        .notification.tip { background-color: #059669; border-color: #065F46; }
         .notification.general.show, .notification.tip.show { transform: translateX(0); opacity: 1; }
-
-        /* Responsive adjustments */
         @media (max-width: 640px) {
             .notification-container-bottom-right { left: 50%; transform: translateX(-50%); right: auto; width: 100%; align-items: center; top: auto; bottom: 20px; flex-direction: column-reverse; }
             .notification { width: 90%; margin: 0 auto; border-radius: 0.5rem; text-align: center; flex-direction: column; gap: 0.25rem; }
@@ -280,14 +60,12 @@
             .nav-item { flex-shrink: 0; min-width: 80px; padding: 0.5rem 0.75rem; margin: 0 0.25rem; }
             .main-content-area { padding-bottom: 6rem; }
         }
-
-        /* Range Input (Slider) Styling */
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
             height: 8px;
-            background: var(--color-bg-table-header);
+            background: #4a5568;
             border-radius: 5px;
             outline: none;
             cursor: pointer;
@@ -296,7 +74,7 @@
         input[type="range"]::-webkit-slider-runnable-track {
             width: 100%;
             height: 8px;
-            background: var(--color-bg-table-header);
+            background: #4a5568;
             border-radius: 5px;
             border: none;
         }
@@ -305,7 +83,7 @@
             appearance: none;
             width: 20px;
             height: 20px;
-            background: var(--color-accent-yellow);
+            background: #fcd34d;
             border-radius: 50%;
             cursor: pointer;
             margin-top: -6px;
@@ -314,18 +92,18 @@
         input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
-            background: var(--color-accent-yellow);
+            background: #fcd34d;
             border-radius: 50%;
             cursor: pointer;
             box-shadow: 0 0 2px rgba(0,0,0,.6);
         }
         input[type="range"]::-moz-range-track {
-            background: var(--color-bg-table-header);
+            background: #4a5568;
             border-radius: 5px;
             height: 8px;
         }
         input[type="range"]::-ms-track {
-            background: var(--color-bg-table-header);
+            background: #4a5568;
             border-radius: 5px;
             height: 8px;
             color: transparent;
@@ -333,121 +111,53 @@
         input[type="range"]::-ms-thumb {
             width: 20px;
             height: 20px;
-            background: var(--color-accent-yellow);
+            background: #fcd34d;
             border-radius: 50%;
             cursor: pointer;
             box-shadow: 0 0 2px rgba(0,0,0,.6);
         }
-
-        /* Specific element overrides using variables */
-        .header-bg {
-            background: linear-gradient(to right, var(--color-accent-blue), color-mix(in srgb, var(--color-accent-blue) 80%, black));
-        }
-        .nav-bg {
-            background-color: var(--color-bg-card);
-        }
-        .nav-border {
-            border-color: var(--color-border-primary);
-        }
-        .nav-item {
-            border-color: var(--color-bg-card); /* Default border for nav items */
-        }
-        .nav-item:hover {
-            background-color: var(--color-bg-table-header); /* Hover background for nav items */
-        }
-        .nav-item.active {
-            background-color: var(--color-accent-blue);
-            color: var(--color-text-primary);
-            border-color: var(--color-border-primary);
-        }
-
-        /* Specific card backgrounds */
-        .card-bg-blue-border {
-            background-color: var(--color-bg-card);
-            border-color: var(--color-border-primary);
-        }
-        .card-bg-purple-border {
-            background-color: var(--color-bg-card);
-            border-color: var(--color-border-secondary);
-        }
-        .card-bg-yellow-border {
-            background-color: var(--color-bg-card);
-            border-color: var(--color-border-yellow);
-        }
-
-        /* Text colors */
-        .text-primary { color: var(--color-text-primary); }
-        .text-secondary { color: var(--color-text-secondary); }
-        .text-tertiary { color: var(--color-text-tertiary); }
-        .text-accent-yellow { color: var(--color-accent-yellow); }
-        .text-accent-blue { color: var(--color-accent-blue); }
-        .text-accent-purple { color: var(--color-accent-purple); }
-        .text-accent-green { color: var(--color-accent-green); }
-        .text-accent-red { color: var(--color-accent-red); }
-        .text-accent-blue-light { color: var(--color-accent-blue-light); }
-        .text-accent-purple-light { color: var(--color-accent-purple-light); }
-        .text-accent-green-light { color: var(--color-accent-green-light); }
-
-        /* Specific element background colors */
-        .bg-blue-active { background-color: var(--color-accent-blue); } /* For workout type display */
-        .bg-list-item { background-color: var(--color-bg-list-item); } /* For chrono list items */
-        .bg-trophy-card {
-            background-color: color-mix(in srgb, var(--color-accent-yellow) 20%, var(--color-bg-card));
-        }
-        html.dark-mode .bg-trophy-card {
-            background-color: color-mix(in srgb, var(--color-accent-yellow) 10%, var(--color-bg-card));
-        }
-        .bg-accent-light { background-color: var(--color-bg-accent-light); } /* For calories display bg */
-        .form-checkbox:checked {
-            background-color: var(--color-accent-purple);
-            border-color: var(--color-accent-purple);
-        }
-        .form-checkbox.text-blue-600:checked { background-color: var(--color-accent-blue); border-color: var(--color-accent-blue); }
-        .form-checkbox.text-green-600:checked { background-color: var(--color-accent-green); border-color: var(--color-accent-green); }
-        .form-checkbox.text-purple-600:checked { background-color: var(--color-accent-purple); border-color: var(--color-accent-purple); }
-        .form-checkbox.text-red-600:checked { background-color: var(--color-accent-red); border-color: var(--color-accent-red); }
   </style>
  </head>
- <body class="font-vt323 min-h-screen flex flex-col">
+ <body class="font-vt323 text-white bg-gray-900 min-h-screen flex flex-col">
   <div class="min-h-screen flex flex-col" id="app-container">
-   <header class="header-bg text-accent-yellow p-5 shadow-md border-b-4 border-secondary rounded-b-lg">
+   <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-yellow-300 p-5 shadow-md border-b-4 border-purple-500 rounded-b-lg">
     <div class="flex items-center justify-center relative">
-     <button class="absolute left-0 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-blue-600 transition-colors duration-200 btn-icon" id="home-button" title="Retour à l'accueil">
-      <i class="text-accent-yellow text-3xl" data-lucide="home"></i>
+     <button class="absolute left-0 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-blue-600 transition-colors duration-200" id="home-button" title="Retour à l'accueil">
+      <i class="text-yellow-300 text-3xl" data-lucide="home"></i>
      </button>
      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-center tracking-widest leading-tight flex-1">FITQUEST</h1>
     </div>
     <p class="text-center text-lg sm:text-xl mt-2 opacity-90">TON PROGRAMME PERSONNALISÉ</p>
-    <p class="text-center text-sm sm:text-base mt-1 opacity-80 text-tertiary">GÉNÉRÉ PAR POXEL, TON IA PERSONNELLE</p>
-    <p class="text-center text-xs sm:text-sm mt-2 opacity-80 text-tertiary hidden" id="user-id-display">
+    <p class="text-center text-sm sm:text-base mt-1 opacity-80 text-gray-300">GÉNÉRÉ PAR POXEL, TON IA PERSONNELLE</p>
+    <p class="text-center text-xs sm:text-sm mt-2 opacity-80 text-gray-300 hidden" id="user-id-display">
      ID UTILISATEUR:
      <span class="font-mono break-all" id="user-id-value"></span>
     </p>
     <div class="flex items-center justify-center my-4 px-4">
-     <i class="text-accent-yellow text-3xl sm:text-4xl mr-2" data-lucide="zap"></i>
+     <i class="text-yellow-400 text-3xl sm:text-4xl mr-2" data-lucide="zap"></i>
      <div class="flex-1 xp-bar-container">
       <div class="xp-bar-fill" id="xp-bar-fill" style="width: 0%;"></div>
       <span class="xp-bar-text" id="xp-bar-text">LVL 0 : 0/100 XP</span>
      </div>
     </div>
-    <div class="mt-4 p-3 card-bg-blue-border">
-     <h3 class="text-lg sm:text-xl font-bold text-accent-yellow mb-2">TON PROFIL ET STATS VITALES :</h3>
+    <div class="mt-4 p-3 bg-gray-700 rounded-md border-2 border-blue-700">
+     <h3 class="text-lg sm:text-xl font-bold text-yellow-300 mb-2">TON PROFIL ET STATS VITALES :</h3>
      <div class="flex flex-col sm:flex-row sm:items-end gap-3 justify-center">
       <div class="flex-1 w-full sm:w-auto">
-       <label class="block text-secondary text-sm font-bold mb-1" for="userHeight">TAILLE (CM) :</label>
+       <label class="block text-gray-200 text-sm font-bold mb-1" for="userHeight">TAILLE (CM) :</label>
        <input class="input-retro" id="userHeight" placeholder="EX: 175" type="number"/>
       </div>
       <div class="flex-1 w-full sm:w-auto">
-       <label class="block text-secondary text-sm font-bold mb-1" for="userWeight">POIDS (KG) :</label>
+       <label class="block text-gray-200 text-sm font-bold mb-1" for="userWeight">POIDS (KG) :</label>
        <input class="input-retro" id="userWeight" placeholder="EX: 70" type="number"/>
       </div>
       <button class="btn-retro-green sm:w-auto w-full px-5 py-2" id="save-profile-btn">ENREGISTRER</button>
      </div>
-     <div class="mt-3 text-center text-lg text-primary hidden" id="imc-display">
-      <p>TON IMC : <span class="font-bold text-accent-yellow" id="imc-value"></span></p>
-      <p>CATÉGORIE : <span class="font-bold text-accent-blue-light" id="imc-category"></span></p>
-      <p>PROTÉINES ESTIMÉES : <span class="font-bold text-accent-yellow" id="protein-needs"></span></p>
-      <div class="text-xs text-tertiary mt-2">
+     <div class="mt-3 text-center text-lg text-white hidden" id="imc-display">
+      <p>TON IMC : <span class="font-bold text-yellow-300" id="imc-value"></span></p>
+      <p>CATÉGORIE : <span class="font-bold text-blue-400" id="imc-category"></span></p>
+      <p>PROTÉINES ESTIMÉES : <span class="font-bold text-yellow-300" id="protein-needs"></span></p>
+      <div class="text-xs text-gray-400 mt-2">
        <p>**IMC INF. À 16.5 :** INSUFFISANCE PONDÉRALE (DÉNUTRITION SÉVÈRE)</p>
        <p>**IMC 16.5 À 18.4 :** INSUFFISANCE PONDÉRALE</p>
        <p>**IMC 18.5 À 24.9 :** POIDS NORMAL</p>
@@ -461,34 +171,34 @@
      </div>
     </div>
    </header>
-   <nav class="nav-bg shadow-xl py-3 px-2 sm:px-4 border-y-4 nav-border rounded-b-lg mb-4 mx-2">
+   <nav class="bg-gray-800 shadow-xl py-3 px-2 sm:px-4 border-y-4 border-blue-700 rounded-b-lg mb-4 mx-2">
     <div class="nav-scroll-container">
      <div class="nav-items-wrapper">
-      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-secondary hover:bg-gray-700 hover:text-accent-yellow border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="daily_plan">
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="daily_plan">
        <i class="text-xl" data-lucide="calendar" style="width:24px; height:24px;"></i>
        <span class="text-sm mt-1">PLANNING</span>
       </button>
-      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-secondary hover:bg-gray-700 hover:text-accent-yellow border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="workout">
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="workout">
        <i class="text-xl" data-lucide="dumbbell" style="width:24px; height:24px;"></i>
        <span class="text-sm mt-1">SPORT</span>
       </button>
-      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-secondary hover:bg-gray-700 hover:text-accent-yellow border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="recipes">
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="recipes">
        <i class="text-xl" data-lucide="utensils" style="width:24px; height:24px;"></i>
        <span class="text-sm mt-1">RECETTES</span>
       </button>
-      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-secondary hover:bg-gray-700 hover:text-accent-yellow border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="chrono">
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="chrono">
        <i class="text-xl" data-lucide="timer" style="width:24px; height:24px;"></i>
        <span class="text-sm mt-1">CHRONO</span>
       </button>
-      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-secondary hover:bg-gray-700 hover:text-accent-yellow border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="progress">
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="progress">
        <i class="text-xl" data-lucide="line-chart" style="width:24px; height:24px;"></i>
        <span class="text-sm mt-1">ÉVOLUTION</span>
       </button>
-      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-secondary hover:bg-gray-700 hover:text-accent-yellow border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="trophies">
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="trophies">
        <i class="text-xl" data-lucide="trophy" style="width:24px; height:24px;"></i>
        <span class="text-sm mt-1">TROPHÉES</span>
       </button>
-      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-secondary hover:bg-gray-700 hover:text-accent-yellow border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="options">
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="options">
        <i class="text-xl" data-lucide="settings" style="width:24px; height:24px;"></i>
        <span class="text-sm mt-1">OPTIONS</span>
       </button>
@@ -496,7 +206,7 @@
     </div>
    </nav>
    <main class="flex-1 p-4 sm:p-6 main-content-area max-w-full mx-auto" id="main-content"></main>
-   <footer class="fixed bottom-0 left-0 right-0 nav-bg shadow-lg p-3 sm:hidden border-t-4 nav-border text-center text-xs text-tertiary">
+   <footer class="fixed bottom-0 left-0 right-0 bg-gray-800 shadow-lg p-3 sm:hidden border-t-4 border-blue-700 text-center text-xs text-gray-400">
     FitQuest - 2023
    </footer>
   </div>
@@ -509,7 +219,7 @@
         // Variables d'état globales de l'application
         let currentPage = 'daily_plan';
         let weeklyMealPlan = null;
-        let userProfile = { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [], isDarkMode: false };
+        let userProfile = { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [] };
         let workoutLogs = [];
         let weightHistory = [];
         let intervalSequences = [];
@@ -816,13 +526,8 @@ Notes générales pour ta Nutrition :
         // Initialisation de l'état global de l'application au démarrage
         function initializeGlobalState() {
             console.log("[INITIALISATION] Chargement de l'état global depuis le localStorage...");
-            userProfile = loadFromLocalStorage('userProfile', { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [], isDarkMode: false });
+            userProfile = loadFromLocalStorage('userProfile', { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [] });
             if (!Array.isArray(userProfile.likedMeals)) userProfile.likedMeals = [];
-            if (userProfile.isDarkMode) {
-                document.documentElement.classList.add('dark-mode');
-            } else {
-                document.documentElement.classList.remove('dark-mode');
-            }
 
             weeklyMealPlan = loadFromLocalStorage('weeklyMealPlan', { semaine: [] });
             workoutLogs = loadFromLocalStorage('workoutLogs', []);
@@ -852,7 +557,7 @@ Notes générales pour ta Nutrition :
             const container = document.getElementById('notification-container-bottom-right');
             const notification = document.createElement('div');
             notification.className = `notification general ${type}`;
-            const iconMap = { 'success': '🎉', 'error': '❌', 'warning': '⚠️', 'info': 'ℹ️', 'chrono': '⏱️', 'tip': '💡', 'ai-advice': '🧠' };
+            const iconMap = { 'success': '🎉', 'error': '❌', 'warning': '⚠️', 'info': 'ℹ️', 'chrono': '⏱️', 'tip': '💡' };
             notification.innerHTML = `<span class="text-2xl">${iconMap[type] || 'ℹ️'}</span><p class="font-bold text-sm sm:text-base">${String(msg).toUpperCase()}</p>`;
             container.appendChild(notification);
             void notification.offsetWidth; // Force reflow for animation
@@ -866,7 +571,7 @@ Notes générales pour ta Nutrition :
             const container = document.getElementById('notification-container-bottom-right');
             const notification = document.createElement('div');
             notification.className = 'notification general success';
-            notification.innerHTML = `<span class="text-4xl">🏆</span><div><p class="font-bold text-lg sm:text-xl">TROPHÉE DÉBLOQUÉ !</p><p class="text-accent-yellow text-sm sm:text-base">${String(trophyName).toUpperCase()}</p><p class="text-secondary text-xs sm:text-sm">${String(description).toUpperCase()}</p></div>`;
+            notification.innerHTML = `<span class="text-4xl">🏆</span><div><p class="font-bold text-lg sm:text-xl">TROPHÉE DÉBLOQUÉ !</p><p class="text-yellow-300 text-sm sm:text-base">${String(trophyName).toUpperCase()}</p><p class="text-gray-200 text-xs sm:text-sm">${String(description).toUpperCase()}</p></div>`;
             container.appendChild(notification);
             playTrophySound();
             void notification.offsetWidth; // Force reflow for animation
@@ -1063,10 +768,15 @@ Notes générales pour ta Nutrition :
 
             document.querySelectorAll('.nav-item').forEach(button => {
                 const isActive = button.dataset.page === pageName;
-                button.classList.toggle('active', isActive); /* Use 'active' class for styling */
-                button.classList.toggle('text-secondary', !isActive);
-                button.classList.toggle('hover:bg-gray-700', !isActive); /* This will be handled by CSS variables now */
-                button.classList.toggle('hover:text-accent-yellow', !isActive);
+                button.classList.toggle('bg-blue-600', isActive);
+                button.classList.toggle('text-white', isActive);
+                button.classList.toggle('font-semibold', isActive);
+                button.classList.toggle('border-blue-800', isActive);
+                button.classList.toggle('shadow-inner', isActive);
+                button.classList.toggle('text-gray-200', !isActive);
+                button.classList.toggle('hover:bg-gray-700', !isActive);
+                button.classList.toggle('hover:text-yellow-300', !isActive);
+                button.classList.toggle('border-gray-700', !isActive);
             });
 
             currentPage = pageName;
@@ -1236,7 +946,7 @@ Notes générales pour ta Nutrition :
 
         // Rend la vue du planning quotidien
         function renderDailyPlanView(container) {
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-accent-yellow mb-4 text-center">MON PLANNING</h2><div class="mb-6 space-y-4 p-4 rounded-lg border-2 border-primary card-bg-blue-border"><h3 class="text-xl sm:text-2xl text-accent-yellow mb-3">AJOUTER UN POSTE :</h3><div class="relative"><label for="shiftDate" class="block text-secondary text-sm font-bold mb-2">DATE DU POSTE :</label><input type="date" id="shiftDate" class="input-retro pr-10" style="color: var(--color-text-primary);" value="" /><i data-lucide="calendar" class="absolute right-11 top-12 -translate-y-1/2 text-primary pointer-events-none" style="width:15px; height:18px;"></i></div><div><label for="shiftType" class="block text-secondary text-sm font-bold mb-2">TYPE DE POSTE :</label><select id="shiftType" class="select-retro"><option value="6h-18h">POSTE JOUR (6H-18H)</option><option value="7h-18h">POSTE JOUR (7H-18H)</option><option value="18h-6h">POSTE NUIT (18H-6H)</option><option value="repos">JOUR DE REPOS</option><option value="repos_sport">JOUR DE REPOS (SPORT)</option></select></div><div><label for="workoutType" class="block text-secondary text-sm font-bold mb-2">SÉANCE SPORT PRÉVUE :</label><select id="workoutType" class="select-retro"><option value="aucun">AUCUNE</option><option value="renforcement">RENFORCEMENT MUSCULAIRE</option><option value="cardio">CARDIO</option><option value="hiit">HIIT</option><option value="repos_actif">RÉCUPÉRATION ACTIVE / FLEXIBILITÉ</option></select></div><button id="add-shift-btn" class="btn-retro w-full">AJOUTER POSTE</button></div><h3 class="text-xl sm:text-2xl text-accent-yellow mb-3">TON PLAN POUR LES JOURS PLANIFIÉS :</h3><div id="shifts-list" class="space-y-6"></div></div>`;
+            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">MON PLANNING</h2><div class="mb-6 space-y-4 p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">AJOUTER UN POSTE :</h3><div class="relative"><label for="shiftDate" class="block text-white-200 text-sm font-bold mb-2">DATE DU POSTE :</label><input type="date" id="shiftDate" class="input-retro pr-10" style="color: #ffffff;" value="" /><i data-lucide="calendar" class="absolute right-11 top-12 -translate-y-1/2 text-white pointer-events-none" style="width:15px; height:18px;"></i></div><div><label for="shiftType" class="block text-gray-200 text-sm font-bold mb-2">TYPE DE POSTE :</label><select id="shiftType" class="select-retro"><option value="6h-18h">POSTE JOUR (6H-18H)</option><option value="7h-18h">POSTE JOUR (7H-18H)</option><option value="18h-6h">POSTE NUIT (18H-6H)</option><option value="repos">JOUR DE REPOS</option><option value="repos_sport">JOUR DE REPOS (SPORT)</option></select></div><div><label for="workoutType" class="block text-gray-200 text-sm font-bold mb-2">SÉANCE SPORT PRÉVUE :</label><select id="workoutType" class="select-retro"><option value="aucun">AUCUNE</option><option value="renforcement">RENFORCEMENT MUSCULAIRE</option><option value="cardio">CARDIO</option><option value="hiit">HIIT</option><option value="repos_actif">RÉCUPÉRATION ACTIVE / FLEXIBILITÉ</option></select></div><button id="add-shift-btn" class="btn-retro w-full">AJOUTER POSTE</button></div><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">TON PLAN POUR LES JOURS PLANIFIÉS :</h3><div id="shifts-list" class="space-y-6"></div></div>`;
             container.innerHTML = html;
 
             const shiftDateInput = document.getElementById('shiftDate');
@@ -1272,7 +982,7 @@ Notes générales pour ta Nutrition :
         // Rend la liste des postes planifiés
         function renderShiftsList(container, shiftsData) {
             container.innerHTML = '';
-            if (shiftsData.length === 0) { container.innerHTML = '<p class="text-tertiary">AUCUN POSTE ENREGISTRÉ. AJOUTE TON PREMIER POSTE CI-DESSOUS !</p>'; return; }
+            if (shiftsData.length === 0) { container.innerHTML = '<p class="text-gray-400">AUCUN POSTE ENREGISTRÉ. AJOUTE TON PREMIER POSTE CI-DESSOUS !</p>'; return; }
 
             const sortedShifts = [...shiftsData].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -1283,23 +993,23 @@ Notes générales pour ta Nutrition :
                 const mealForThisDay = weeklyMealPlan?.semaine?.find(d => d.date === formatDateToYYYYMMDD(dateObj));
 
                 const shiftDiv = document.createElement('div');
-                shiftDiv.className = "card-bg-purple-border p-4 rounded-lg shadow-lg";
+                shiftDiv.className = "bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg";
                 shiftDiv.innerHTML = `
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
-                        <h4 class="text-lg sm:text-xl font-bold text-accent-yellow">${dateString} - POSTE: ${String(shift.type).toUpperCase()}</h4>
+                        <h4 class="text-lg sm:text-xl font-bold text-yellow-300">${dateString} - POSTE: ${String(shift.type).toUpperCase()}</h4>
                         <button class="btn-retro-red text-sm px-3 py-1 mt-2 sm:mt-0 delete-shift-btn" data-id="${shift.id}" data-date="${formatDateToYYYYMMDD(dateObj)}">SUPPRIMER</button>
                     </div>
-                    ${String(shift.workoutType) !== 'aucun' ? `<div class="mb-3 p-2 bg-blue-active rounded-md border border-accent-purple-light"><p class="text-sm sm:text-base font-medium text-primary">SÉANCE SPORT : ${String(shift.workoutType).toUpperCase().replace('_', ' ')} PRÉVUE</p></div>` : ''}
+                    ${String(shift.workoutType) !== 'aucun' ? `<div class="mb-3 p-2 bg-blue-800 rounded-md border border-purple-400"><p class="text-sm sm:text-base font-medium text-white">SÉANCE SPORT : ${String(shift.workoutType).toUpperCase().replace('_', ' ')} PRÉVUE</p></div>` : ''}
                     <div class="mb-4">
-                        <h5 class="font-semibold text-base sm:text-lg text-accent-yellow mb-2">💤 ROUTINE SOMMEIL : ${String(routine.name).toUpperCase()}</h5>
-                        <ul class="list-disc list-inside text-secondary text-sm space-y-1">
+                        <h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">💤 ROUTINE SOMMEIL : ${String(routine.name).toUpperCase()}</h5>
+                        <ul class="list-disc list-inside text-gray-300 text-sm space-y-1">
                             ${routine.details.map(detail => `<li>${String(detail).toUpperCase()}</li>`).join('')}
                         </ul>
                     </div>
                     <div class="mb-4">
-                        <h5 class="font-semibold text-base sm:text-lg text-accent-yellow mb-2">🍽️ PLAN REPAS SUGGÉRÉ :</h5>
+                        <h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">🍽️ PLAN REPAS SUGGÉRÉ :</h5>
                         ${mealForThisDay ? `
-                            <ul class="list-disc list-inside text-secondary text-sm space-y-1">
+                            <ul class="list-disc list-inside text-gray-300 text-sm space-y-1">
                                 ${mealForThisDay.petit_dejeuner ? `<li>**PETIT-DÉJEUNER :** ${String(mealForThisDay.petit_dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
                                 ${mealForThisDay.dejeuner ? `<li>**DÉJEUNER :** ${String(mealForThisDay.dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
                                 ${mealForThisDay.diner ? `<li>**DÎNER :** ${String(mealForThisDay.diner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
@@ -1307,7 +1017,7 @@ Notes générales pour ta Nutrition :
                                 ${mealForThisDay.collation_apresmidi ? `<li>**COLLAT. APRÈS-MIDI :** ${String(mealForThisDay.collation_apresmidi.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
                                 ${mealForThisDay.collation_unique ? `<li>**COLLAT. UNIQUE :** ${String(mealForThisDay.collation_unique.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
                             </ul>
-                        ` : `<p class="text-tertiary">PLAN DE REPAS NON DISPONIBLE POUR CE JOUR. GÉNÉREZ UN PLAN HEBDOMADAIRE DANS L'ONGLET "RECETTES".</p>`}
+                        ` : `<p class="text-gray-400">PLAN DE REPAS NON DISPONIBLE POUR CE JOUR. GÉNÉREZ UN PLAN HEBDOMADAIRE DANS L'ONGLET "RECETTES".</p>`}
                     </div>
                 `;
                 container.appendChild(shiftDiv);
@@ -1334,7 +1044,7 @@ Notes générales pour ta Nutrition :
 
         // Rend la vue du programme sportif
         function renderWorkoutView(container) {
-            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-accent-yellow mb-4 text-center">PROGRAMME SPORTIF</h2><div class="p-4 rounded-lg border-2 border-secondary card-bg-purple-border"><h3 class="font-semibold text-xl sm:text-2xl mb-3 text-accent-yellow">LIGNES DIRECTRICES SPORTIVES :</h3><ul class="list-disc list-inside text-secondary text-sm sm:text-base space-y-1"><li>ÉCOUTE TON CORPS : AVEC LA SCLÉROSE EN PLAQUES ET TES HORAIRES DE TRAVAIL, LA FATIGUE PEUT VARIER. SI TU TE SENS MOINS EN FORME, RÉDUIS L'INTENSITÉ, LE NOMBRE DE SÉRIES, OU OPTE POUR UNE SÉANCE PLUS LÉGÈRE OU DU REPOS ACTIF. NE FORCE JAMAIS LA DOULEUR.</li><li>LA FORME AVANT LA CHARGE : CONCENTRE-TOI SUR L'EXÉCUTION CORRECTE DE CHAQUE MOUVEMENT POUR MAXIMISER L'EFFICACITÉ ET PRÉVENIR LES BLESSURES. UNE BONNE TECHNIQUE EST PLUS IMPORTANTE QUE DE SOULEVER LOURD.</li><li>PROGRESSION PROGRESSIVE : L'OBJECTIF EST D'AMÉLIORER TES PERFORMANCES AU FIL DES SEMAINES. LORSQUE TU PEUX RÉALISER FACILEMENT LE MAXIMUM DE RÉPÉTITIONS/SÉRIES AVEC UNE BONNE FORME, AUGMENTE LÉGÈREMENT LA CHARGE (PAR PALIERS DE 2KG POUR LES HALTÈRES, OU 2.5KG/5KG POUR LES MACHINES) OU LE NOMBRE DE RÉPÉTITIONS.</li><li>HYDRATATION : BOIS DE L'EAU RÉGULIÈREMENT AVANT, PENDANT ET APRÈS CHAQUE SÉANCE.</li></ul></div><div class="mb-6 mt-6"><label for="phaseSelect" class="block text-secondary text-sm font-bold mb-2">CHOISIR UNE PHASE :</label><select id="phaseSelect" class="select-retro"><option value="phase1">${String(workoutProgram.phase1?.name || 'PHASE 1').toUpperCase()}</option><option value="phase2">${String(workoutProgram.phase2?.name || 'PHASE 2').toUpperCase()}</option></select></div><div id="workout-phase-content" class="space-y-6"></div></div>`;
+            let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">PROGRAMME SPORTIF</h2><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700"><h3 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">LIGNES DIRECTRICES SPORTIVES :</h3><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>ÉCOUTE TON CORPS : AVEC LA SCLÉROSE EN PLAQUES ET TES HORAIRES DE TRAVAIL, LA FATIGUE PEUT VARIER. SI TU TE SENS MOINS EN FORME, RÉDUIS L'INTENSITÉ, LE NOMBRE DE SÉRIES, OU OPTE POUR UNE SÉANCE PLUS LÉGÈRE OU DU REPOS ACTIF. NE FORCE JAMAIS LA DOULEUR.</li><li>LA FORME AVANT LA CHARGE : CONCENTRE-TOI SUR L'EXÉCUTION CORRECTE DE CHAQUE MOUVEMENT POUR MAXIMISER L'EFFICACITÉ ET PRÉVENIR LES BLESSURES. UNE BONNE TECHNIQUE EST PLUS IMPORTANTE QUE DE SOULEVER LOURD.</li><li>PROGRESSION PROGRESSIVE : L'OBJECTIF EST D'AMÉLIORER TES PERFORMANCES AU FIL DES SEMAINES. LORSQUE TU PEUX RÉALISER FACILEMENT LE MAXIMUM DE RÉPÉTITIONS/SÉRIES AVEC UNE BONNE FORME, AUGMENTE LÉGÈREMENT LA CHARGE (PAR PALIERS DE 2KG POUR LES HALTÈRES, OU 2.5KG/5KG POUR LES MACHINES) OU LE NOMBRE DE RÉPÉTITIONS.</li><li>HYDRATATION : BOIS DE L'EAU RÉGULIÈREMENT AVANT, PENDANT ET APRÈS CHAQUE SÉANCE.</li></ul></div><div class="mb-6 mt-6"><label for="phaseSelect" class="block text-gray-200 text-sm font-bold mb-2">CHOISIR UNE PHASE :</label><select id="phaseSelect" class="select-retro"><option value="phase1">${String(workoutProgram.phase1?.name || 'PHASE 1').toUpperCase()}</option><option value="phase2">${String(workoutProgram.phase2?.name || 'PHASE 2').toUpperCase()}</option></select></div><div id="workout-phase-content" class="space-y-6"></div></div>`;
             container.innerHTML = html;
 
             const phaseSelect = document.getElementById('phaseSelect');
@@ -1349,64 +1059,64 @@ Notes générales pour ta Nutrition :
             function renderPhaseContent(phase) {
                 const currentPhaseData = workoutProgram[phase];
                 if (!currentPhaseData || !currentPhaseData.sessions || !currentPhaseData.sessions.main || !currentPhaseData.sessions.cardio || !currentPhaseData.sessions.hiit) {
-                    workoutPhaseContent.innerHTML = '<p class="text-tertiary text-center">CONTENU DE LA PHASE INDISPONIBLE. VEUILLEZ IMPORTER UN PROGRAMME VALIDE ET COMPLET.</p>';
+                    workoutPhaseContent.innerHTML = '<p class="text-gray-400 text-center">CONTENU DE LA PHASE INDISPONIBLE. VEUILLEZ IMPORTER UN PROGRAMME VALIDE ET COMPLET.</p>';
                     return;
                 }
 
                 const generateExerciseHtml = (ex, index) => `
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-md border-2 border-primary card-bg-blue-border">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-md border-2 border-blue-700 bg-gray-800 shadow-md">
                         <div class="flex-1">
-                            <p class="font-medium text-primary text-base sm:text-lg">${index + 1}. ${String(ex.name).toUpperCase()}</p>
-                            <p class="text-sm text-tertiary italic">${String(ex.desc).toUpperCase()}</p>
-                            ${ex.sets ? `<p class="text-xs text-accent-blue-light">SÉRIES/ROUNDS : ${String(ex.sets).toUpperCase()}</p>` : ''}
-                            ${ex.reps ? `<p class="text-xs text-accent-blue-light">RÉPÉTITIONS/DURÉE : ${String(ex.reps).toUpperCase()}</p>` : ''}
-                            ${ex.weight && ex.weight !== 'N/A' ? `<p class="text-xs text-accent-blue-light">POIDS SUGGÉRÉ : ${String(ex.weight).toUpperCase()}</p>` : ''}
-                            ${ex.rest && ex.rest !== 'N/A' ? `<p class="text-xs text-accent-yellow">TEMPS DE REPOS : ${String(ex.rest).toUpperCase()}</p>` : ''}
+                            <p class="font-medium text-gray-100 text-base sm:text-lg">${index + 1}. ${String(ex.name).toUpperCase()}</p>
+                            <p class="text-sm text-gray-400 italic">${String(ex.desc).toUpperCase()}</p>
+                            ${ex.sets ? `<p class="text-xs text-blue-300">SÉRIES/ROUNDS : ${String(ex.sets).toUpperCase()}</p>` : ''}
+                            ${ex.reps ? `<p class="text-xs text-blue-300">RÉPÉTITIONS/DURÉE : ${String(ex.reps).toUpperCase()}</p>` : ''}
+                            ${ex.weight && ex.weight !== 'N/A' ? `<p class="text-xs text-blue-300">POIDS SUGGÉRÉ : ${String(ex.weight).toUpperCase()}</p>` : ''}
+                            ${ex.rest && ex.rest !== 'N/A' ? `<p class="text-xs text-yellow-300">TEMPS DE REPOS : ${String(ex.rest).toUpperCase()}</p>` : ''}
                         </div>
                         <button class="btn-retro-green text-sm px-4 py-2 mt-2 sm:mt-0 log-workout-btn" data-exercise-name="${ex.name}" data-exercise-type="${ex.type}">ENREGISTRER</button>
                     </div>
                 `;
 
                 let phaseHtml = `
-                    <h3 class="text-xl sm:text-2xl font-bold text-accent-blue-light">${String(currentPhaseData.name).toUpperCase()}</h3>
-                    <div class="p-4 rounded-lg border-2 border-secondary card-bg-purple-border mt-4">
-                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-accent-yellow">ÉCHAUFFEMENT (10-15 MIN) :</h4>
-                        <ul class="list-disc list-inside text-secondary text-sm sm:text-base mb-4 space-y-1">
+                    <h3 class="text-xl sm:text-2xl font-bold text-blue-400">${String(currentPhaseData.name).toUpperCase()}</h3>
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">ÉCHAUFFEMENT (10-15 MIN) :</h4>
+                        <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1">
                             <li>**CARDIO LÉGER (5-7 MIN):** TAPIS (MARCHE RAPIDE 5.0 KM/H, PENTE 1.0) OU VÉLO/ELLIPTIQUE (NIVEAU 3-5).</li>
                             <li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-8 MIN):** CERCLES DE BRAS, ROTATIONS DU TRONC, FENTES (SANS CHARGE), ROTATIONS DE HANCHES, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 RÉPÉTITIONS DE CHAQUE).</li>
                         </ul>
                     </div>
-                    <div class="p-4 rounded-lg border-2 border-secondary card-bg-purple-border mt-4">
-                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-accent-yellow">${String(currentPhaseData.sessions.main.name).toUpperCase()}</h4>
-                        <h5 class="font-medium text-lg sm:text-xl mb-2 text-accent-blue-light">CORPS DE SÉANCE (40-50 MINUTES) :</h5>
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.main.name).toUpperCase()}</h4>
+                        <h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (40-50 MINUTES) :</h5>
                         <div class="space-y-3">
                             ${currentPhaseData.sessions.main.exercises.map(generateExerciseHtml).join('')}
                         </div>
-                        <h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-accent-blue-light">RÉCUPÉRATION (5-10 MIN) :</h5>
-                        <ul class="list-disc list-inside text-secondary text-sm sm:text-base space-y-1">
+                        <h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5>
+                        <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1">
                             <li>**ÉTIREMENTS DOUX :** MAINTIENS CHAQUE ÉTIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTRE-TOI SUR LES ISCHIO-JAMBIERS, QUADRICÈPES, PECTORAUX, DOS, ÉPAULES ET BRAS.</li>
                         </ul>
                     </div>
-                    <div class="p-4 rounded-lg border-2 border-secondary card-bg-purple-border mt-4">
-                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-accent-yellow">${String(currentPhaseData.sessions.cardio.name).toUpperCase()}</h4>
-                        <h5 class="font-medium text-lg sm:text-xl mb-2 text-accent-blue-light">CORPS DE SÉANCE (35-45 MINUTES) :</h5>
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.cardio.name).toUpperCase()}</h4>
+                        <h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (35-45 MINUTES) :</h5>
                         <div class="space-y-3">
                             ${currentPhaseData.sessions.cardio.options.map(generateExerciseHtml).join('')}
                         </div>
-                        <h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-accent-blue-light">RÉCUPÉRATION (5-10 MIN) :</h5>
-                        <ul class="list-disc list-inside text-secondary text-sm sm:text-base space-y-1">
+                        <h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5>
+                        <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1">
                             <li>**ÉTIREMENTS DOUX :** MAINTIENS CHAQUE ÉTIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTRE-TOI SUR LES ISCHIO-JAMBIERS, QUADRICÈPES, PECTORAUX, DOS, ÉPAULES ET BRAS.</li>
                         </ul>
                     </div>
-                    <div class="p-4 rounded-lg border-2 border-secondary card-bg-purple-border mt-4">
-                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-accent-yellow">${String(currentPhaseData.sessions.hiit.name).toUpperCase()}</h4>
-                        <p class="text-sm sm:text-base text-secondary mb-4">${String(currentPhaseData.sessions.hiit.desc).toUpperCase()}</p>
-                        <h5 class="font-medium text-lg sm:text-xl mb-2 text-accent-blue-light">CORPS DE SÉANCE (20-25 MINUTES) :</h5>
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.hiit.name).toUpperCase()}</h4>
+                        <p class="text-sm sm:text-base text-gray-300 mb-4">${String(currentPhaseData.sessions.hiit.desc).toUpperCase()}</p>
+                        <h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (20-25 MINUTES) :</h5>
                         <div class="space-y-3">
                             ${currentPhaseData.sessions.hiit.exercises.map(generateExerciseHtml).join('')}
                         </div>
-                        <h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-accent-blue-light">RÉCUPÉRATION (5-10 MIN) :</h5>
-                        <ul class="list-disc list-inside text-secondary text-sm space-y-1">
+                        <h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5>
+                        <ul class="list-disc list-inside text-gray-300 text-sm space-y-1">
                             <li>**RETOUR AU CALME :** MARCHE LÉGÈRE ET RESPIRATION PROFONDE.</li>
                             <li>**ÉTIREMENTS DOUX :** AXÉS SUR LES MUSCLES PRINCIPAUX SOLLICITÉS.</li>
                         </ul>
@@ -1415,10 +1125,10 @@ Notes générales pour ta Nutrition :
 
                 if (workoutProgram.recovery) {
                     phaseHtml += `
-                        <div class="p-4 rounded-lg border-2 border-secondary card-bg-purple-border mt-4">
-                            <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-accent-yellow">${String(workoutProgram.recovery.name).toUpperCase()}</h4>
-                            <p class="text-sm sm:text-base text-secondary mb-4">${String(workoutProgram.recovery.desc).toUpperCase()}</p>
-                            <ul class="list-disc list-inside text-secondary text-sm sm:text-base space-y-1">
+                        <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                            <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(workoutProgram.recovery.name).toUpperCase()}</h4>
+                            <p class="text-sm sm:text-base text-gray-300 mb-4">${String(workoutProgram.recovery.desc).toUpperCase()}</p>
+                            <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1">
                                 ${workoutProgram.recovery.activities.map(act => `<li>**${String(act.name).toUpperCase()} :** ${String(act.desc).toUpperCase()}</li>`).join('')}
                             </ul>
                         </div>
@@ -1449,24 +1159,24 @@ Notes générales pour ta Nutrition :
         function showLogWorkoutModal(currentExercise) {
             let modalHtml = `
                 <div id="log-workout-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 font-vt323">
-                    <div class="card-retro p-6 rounded-lg border-4 border-secondary shadow-xl w-full max-w-md text-primary">
-                        <h3 class="text-2xl sm:text-3xl font-bold text-accent-yellow mb-4 text-center">ENREGISTRER L'ENTRAÎNEMENT</h3>
+                    <div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-md text-white">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-yellow-300 mb-4 text-center">ENREGISTRER L'ENTRAÎNEMENT</h3>
                         <p class="text-lg sm:text-xl mb-4 text-center">${String(currentExercise?.name).toUpperCase()}</p>
                         <div class="space-y-4">
                             <div>
-                                <label for="logSets" class="block text-secondary text-sm font-bold mb-2">SÉRIES / ROUNDS :</label>
+                                <label for="logSets" class="block text-gray-200 text-sm font-bold mb-2">SÉRIES / ROUNDS :</label>
                                 <input type="text" id="logSets" class="input-retro" placeholder="EX: 3 ou 5 ROUNDS" />
                             </div>
                             <div>
-                                <label for="logReps" class="block text-secondary text-sm font-bold mb-2">RÉPÉTITIONS / DURÉE :</label>
+                                <label for="logReps" class="block text-gray-200 text-sm font-bold mb-2">RÉPÉTITIONS / DURÉE :</label>
                                 <input type="text" id="logReps" class="input-retro" placeholder="EX: 12 ou 30 MIN" />
                             </div>
                             <div>
-                                <label for="logWeight" class="block text-secondary text-sm font-bold mb-2">POIDS (KG, LAISSER VIDE SI NON APPLICABLE) :</label>
+                                <label for="logWeight" class="block text-gray-200 text-sm font-bold mb-2">POIDS (KG, LAISSER VIDE SI NON APPLICABLE) :</label>
                                 <input type="number" id="logWeight" class="input-retro" placeholder="EX: 50" />
                             </div>
                             <div>
-                                <label for="logFeeling" class="block text-secondary text-sm font-bold mb-2">RESSENTI :</label>
+                                <label for="logFeeling" class="block text-gray-200 text-sm font-bold mb-2">RESSENTI :</label>
                                 <select id="logFeeling" class="select-retro">
                                     <option value="facile">FACILE</option>
                                     <option value="moyen">MOYEN</option>
@@ -1474,7 +1184,7 @@ Notes générales pour ta Nutrition :
                                 </select>
                             </div>
                             <div>
-                                <label for="logNotes" class="block text-secondary text-sm font-bold mb-2">NOTES (OPTIONNEL) :</label>
+                                <label for="logNotes" class="block text-gray-200 text-sm font-bold mb-2">NOTES (OPTIONNEL) :</label>
                                 <textarea id="logNotes" class="input-retro h-24" placeholder="Ajoutez des notes sur votre séance..."></textarea>
                             </div>
                         </div>
@@ -1612,8 +1322,8 @@ Notes générales pour ta Nutrition :
                 modalDiv.id = 'confirm-modal';
                 modalDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 font-vt323';
                 modalDiv.innerHTML = `
-                    <div class="card-retro p-6 rounded-lg border-4 border-yellow-border shadow-xl w-full max-w-sm text-primary text-center">
-                        <h3 class="text-xl sm:text-2xl font-bold mb-4 text-accent-yellow">CONFIRMATION</h3>
+                    <div class="bg-gray-800 p-6 rounded-lg border-4 border-yellow-500 shadow-xl w-full max-w-sm text-white text-center">
+                        <h3 class="text-xl sm:text-2xl font-bold mb-4 text-yellow-300">CONFIRMATION</h3>
                         <p class="text-base sm:text-lg mb-6">${String(message).toUpperCase()}</p>
                         <div class="flex justify-center space-x-4">
                             <button id="confirm-no" class="btn-retro-red">ANNULER</button>
@@ -1855,22 +1565,22 @@ Notes générales pour ta Nutrition :
 
             let html = `
                 <div class="card-retro mb-6">
-                    <h2 class="text-3xl sm:text-4xl font-bold text-accent-yellow mb-4 text-center">PLAN DE REPAS</h2>
-                    <div class="p-4 rounded-lg border-2 border-primary card-bg-blue-border mb-6">
-                        <h3 class="text-xl sm:text-2xl text-accent-yellow mb-3">GÉNÉRER MON PLAN DE REPAS :</h3>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">PLAN DE REPAS</h2>
+                    <div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6">
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GÉNÉRER MON PLAN DE REPAS :</h3>
                         <div class="mb-4">
-                            <label for="numPeople" class="block text-secondary text-sm font-bold mb-2">POUR COMBIEN DE PERSONNES ?</label>
+                            <label for="numPeople" class="block text-gray-200 text-sm font-bold mb-2">POUR COMBIEN DE PERSONNES ?</label>
                             <input type="number" id="numPeople" value="${numPeople}" min="1" class="input-retro" />
                         </div>
                         <div class="mb-4 flex items-center">
-                            <input type="checkbox" id="allowMeatFish" ${allowMeatFish ? 'checked' : ''} class="mr-2 h-4 w-4 text-accent-purple rounded border-secondary focus:ring-accent-purple" />
-                            <label for="allowMeatFish" class="text-secondary text-sm font-bold">AUTORISER VIANDE ET POISSON (PLUS ÉCONOMIQUE SANS)</label>
+                            <input type="checkbox" id="allowMeatFish" ${allowMeatFish ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" />
+                            <label for="allowMeatFish" class="text-gray-200 text-sm font-bold">AUTORISER VIANDE ET POISSON (PLUS ÉCONOMIQUE SANS)</label>
                         </div>
                         <button id="generate-plan-btn" class="btn-retro-purple w-full flex items-center justify-center" ${regeneratingMeal ? 'disabled' : ''}>
                             <span id="generate-plan-spinner" class="spinner mr-2 ${regeneratingMeal ? '' : 'hidden'}"></span>
                             <span id="generate-plan-text">${regeneratingMeal ? 'GÉNÉRATION...' : 'GÉNÉRER PLAN DE REPAS'}</span>
                         </button>
-                        <p class="text-xs text-tertiary mt-2 text-center">LE PLAN SERA GÉNÉRÉ UNIQUEMENT POUR LES JOURS AVEC DES POSTES ENREGISTRÉS DANS L'ONGLET "PLANNING".</p>
+                        <p class="text-xs text-gray-400 mt-2 text-center">LE PLAN SERA GÉNÉRÉ UNIQUEMENT POUR LES JOURS AVEC DES POSTES ENREGISTRÉS DANS L'ONGLET "PLANNING".</p>
                     </div>
                     <div id="weekly-meal-plan-content"></div>
                 </div>
@@ -1991,11 +1701,11 @@ Notes générales pour ta Nutrition :
 
             function renderWeeklyMealPlan() {
                 if (!weeklyMealPlan || !weeklyMealPlan.semaine || weeklyMealPlan.semaine.length === 0) {
-                    weeklyMealPlanContentDiv.innerHTML = `<p class="text-tertiary text-center">AUCUN PLAN DE REPAS GÉNÉRÉ. CLIQUEZ SUR "GÉNÉRER PLAN DE REPAS" CI-DESSUS.</p>`;
+                    weeklyMealPlanContentDiv.innerHTML = `<p class="text-gray-400 text-center">AUCUN PLAN DE REPAS GÉNÉRÉ. CLIQUEZ SUR "GÉNÉRER PLAN DE REPAS" CI-DESSUS.</p>`;
                     return;
                 }
 
-                let mealsHtml = `<div class="space-y-6"> <h3 class="text-xl sm:text-2xl text-accent-yellow mb-3 text-center">TON PLAN DE REPAS :</h3> `;
+                let mealsHtml = `<div class="space-y-6"> <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3 text-center">TON PLAN DE REPAS :</h3> `;
 
                 weeklyMealPlan.semaine.forEach((dayData, dayIndex) => {
                     const dateString = new Date(dayData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
@@ -2008,14 +1718,14 @@ Notes générales pour ta Nutrition :
                     const requiredDailyCalories = getDailyCalorieNeeds(dayData.dayContext.poste, dayData.dayContext.sport);
 
                     mealsHtml += `
-                        <div class="card-bg-purple-border p-4 rounded-lg shadow-lg">
+                        <div class="bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg">
                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center cursor-pointer py-2" data-toggle="day-content-${dayData.date}">
-                                <h4 class="text-lg sm:text-xl font-bold text-accent-yellow mb-2 sm:mb-0">${dateString} - ${dayContextString}</h4>
-                                <i data-lucide="chevron-down" class="text-accent-yellow transition-transform duration-300"></i>
+                                <h4 class="text-lg sm:text-xl font-bold text-yellow-300 mb-2 sm:mb-0">${dateString} - ${dayContextString}</h4>
+                                <i data-lucide="chevron-down" class="text-yellow-300 transition-transform duration-300"></i>
                             </div>
-                            <div class="text-sm text-secondary mt-2 p-2 bg-accent-light rounded-md">
-                                <p>CALORIES JOURNÉE : <span class="font-bold text-accent-blue-light">${totalDailyCalories} KCAL</span></p>
-                                <p>BESOIN ESTIMÉ : <span class="font-bold text-accent-blue-light">${requiredDailyCalories} KCAL</span></p>
+                            <div class="text-sm text-gray-200 mt-2 p-2 bg-gray-600 rounded-md">
+                                <p>CALORIES JOURNÉE : <span class="font-bold text-blue-300">${totalDailyCalories} KCAL</span></p>
+                                <p>BESOIN ESTIMÉ : <span class="font-bold text-blue-300">${requiredDailyCalories} KCAL</span></p>
                             </div>
                             <div id="day-content-${dayData.date}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0">
                                 <div class="space-y-4 pt-2">
@@ -2032,30 +1742,30 @@ Notes générales pour ta Nutrition :
                             const isLiked = userProfile.likedMeals.some(lm => lm.id === meal.id); // Check if this specific meal instance is liked
 
                             mealsHtml += `
-                                <div class="bg-list-item p-3 rounded-md border border-primary shadow-sm">
+                                <div class="bg-gray-800 p-3 rounded-md border border-blue-700 shadow-sm">
                                     <div class="flex justify-between items-center cursor-pointer py-2" data-toggle="meal-content-${meal.id}">
-                                        <h5 class="text-lg font-bold text-primary">${momentContext} : ${String(meal.title || 'Titre Indisponible').toUpperCase()} <span class="text-accent-yellow text-sm">(${meal.calories_kcal} KCAL)</span></h5>
+                                        <h5 class="text-lg font-bold text-gray-100">${momentContext} : ${String(meal.title || 'Titre Indisponible').toUpperCase()} <span class="text-yellow-400 text-sm">(${meal.calories_kcal} KCAL)</span></h5>
                                         <div class="flex items-center">
                                             <button class="btn-retro-purple text-xs px-2 py-1 flex items-center justify-center regenerate-meal-btn" data-date="${dayData.date}" data-meal-type="${mealType}" ${isRegeneratingCurrentMeal ? 'disabled' : ''}>
                                                 ${isRegeneratingCurrentMeal ? `<span class="spinner w-4 h-4"></span>` : `<i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>`}
                                                 <span class="ml-1 hidden sm:inline">RÉGÉNÉRER</span>
                                             </button>
-                                            <button class="text-primary ml-2 like-meal-btn" data-meal-id="${meal.id}" data-date="${dayData.date}" data-meal-type="${mealType}" style="color:${isLiked ? 'var(--color-accent-yellow)' : 'var(--color-text-primary)'};">
-                                                <i data-lucide="${isLiked ? 'heart' : 'heart'}" class="${isLiked ? 'fill-current text-accent-yellow' : ''}" style="width:20px; height:20px;"></i>
+                                            <button class="text-white ml-2 like-meal-btn" data-meal-id="${meal.id}" data-date="${dayData.date}" data-meal-type="${mealType}" style="color:${isLiked ? '#FCD34D' : 'white'};">
+                                                <i data-lucide="${isLiked ? 'heart' : 'heart'}" class="${isLiked ? 'fill-current text-yellow-400' : ''}" style="width:20px; height:20px;"></i>
                                             </button>
                                         </div>
                                     </div>
                                     <div id="meal-content-${meal.id}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0">
-                                        <p class="text-secondary text-sm italic mb-2">${String(meal.description_du_plat || 'DESCRIPTION INDISPONIBLE').toUpperCase()}</p>
-                                        <p class="text-sm font-medium text-accent-yellow">${String(meal.ingredients_label || 'INGRÉDIENTS').toUpperCase()} :</p>
-                                        <ul class="list-disc list-inside text-secondary text-xs pl-2 space-y-1">${(meal.ingredients_list || []).map(ingredient => `<li>${String(ingredient).toUpperCase()}</li>`).join('')}</ul>
-                                        <p class="text-sm font-medium text-accent-yellow mt-2">PRÉPARATION :</p>
-                                        <ol class="list-decimal list-inside text-secondary text-xs pl-2 space-y-1">${(meal.preparation_steps || []).map(step => `<li>${String(step).toUpperCase()}</li>`).join('')}</ol>
-                                        <p class="text-sm font-medium text-accent-yellow mt-2">PORTION WAEKY :</p>
-                                        <p class="text-secondary text-xs">${String(meal.ma_portion_waeky || 'PORTION INDISPONIBLE').toUpperCase()}</p>
-                                        <p class="text-sm font-medium text-accent-yellow mt-2">CONSEILS ÉCONOMIE :</p>
-                                        <p class="text-secondary text-xs">${String(meal.conseils_reutilisation_economie || 'CONSEILS INDISPONIBLES').toUpperCase()}</p>
-                                        <p class="text-accent-blue-light text-xs mt-3">${advice}</p>
+                                        <p class="text-gray-300 text-sm italic mb-2">${String(meal.description_du_plat || 'DESCRIPTION INDISPONIBLE').toUpperCase()}</p>
+                                        <p class="text-sm font-medium text-yellow-300">${String(meal.ingredients_label || 'INGRÉDIENTS').toUpperCase()} :</p>
+                                        <ul class="list-disc list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.ingredients_list || []).map(ingredient => `<li>${String(ingredient).toUpperCase()}</li>`).join('')}</ul>
+                                        <p class="text-sm font-medium text-yellow-300 mt-2">PRÉPARATION :</p>
+                                        <ol class="list-decimal list-inside text-gray-300 text-xs pl-2 space-y-1">${(meal.preparation_steps || []).map(step => `<li>${String(step).toUpperCase()}</li>`).join('')}</ol>
+                                        <p class="text-sm font-medium text-yellow-300 mt-2">PORTION WAEKY :</p>
+                                        <p class="text-gray-300 text-xs">${String(meal.ma_portion_waeky || 'PORTION INDISPONIBLE').toUpperCase()}</p>
+                                        <p class="text-sm font-medium text-yellow-300 mt-2">CONSEILS ÉCONOMIE :</p>
+                                        <p class="text-gray-300 text-xs">${String(meal.conseils_reutilisation_economie || 'CONSEILS INDISPONIBLES').toUpperCase()}</p>
+                                        <p class="text-blue-200 text-xs mt-3">${advice}</p>
                                     </div>
                                 </div>
                             `;
@@ -2203,12 +1913,12 @@ Notes générales pour ta Nutrition :
         function renderChronoIntervalleView(container) {
             let html = `
                 <div class="card-retro mb-6">
-                    <h2 class="text-3xl sm:text-4xl font-bold text-accent-yellow mb-4 text-center">CHRONOMÈTRE D'INTERVALLES</h2>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">CHRONOMÈTRE D'INTERVALLES</h2>
 
                     <!-- Affichage du Chrono -->
-                    <div class="card-bg-blue-border p-6 rounded-lg shadow-xl mb-6 text-center">
-                        <p class="text-5xl sm:text-7xl font-bold text-accent-green-light mb-2" id="chrono-display">PRÊT: 00</p>
-                        <p class="text-xl sm:text-2xl text-accent-purple-light" id="chrono-instruction">AJOUTEZ DES INTERVALLES</p>
+                    <div class="bg-gray-800 p-6 rounded-lg border-4 border-blue-700 shadow-xl mb-6 text-center">
+                        <p class="text-5xl sm:text-7xl font-bold text-green-400 mb-2" id="chrono-display">PRÊT: 00</p>
+                        <p class="text-xl sm:text-2xl text-purple-300" id="chrono-instruction">AJOUTEZ DES INTERVALLES</p>
                     </div>
 
                     <!-- Contrôles du Chrono -->
@@ -2220,27 +1930,27 @@ Notes générales pour ta Nutrition :
                     </div>
 
                     <!-- Paramètres du Chrono -->
-                    <div class="card-bg-yellow-border p-4 rounded-lg mb-6">
-                        <h3 class="text-xl sm:text-2xl font-bold text-accent-yellow mb-3">PARAMÈTRES :</h3>
+                    <div class="bg-gray-700 p-4 rounded-lg border-2 border-yellow-500 mb-6">
+                        <h3 class="text-xl sm:text-2xl font-bold text-yellow-300 mb-3">PARAMÈTRES :</h3>
                         <div class="mb-4 flex items-center">
-                            <input type="checkbox" id="enable-pre-countdown" ${enableChronoPreCountdown ? 'checked' : ''} class="mr-2 h-4 w-4 text-accent-purple rounded border-secondary focus:ring-accent-purple" />
-                            <label for="enable-pre-countdown" class="text-secondary text-sm font-bold">COMPTE À REBOURS PRÉ-CHRONO</label>
+                            <input type="checkbox" id="enable-pre-countdown" ${enableChronoPreCountdown ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" />
+                            <label for="enable-pre-countdown" class="text-gray-200 text-sm font-bold">COMPTE À REBOURS PRÉ-CHRONO</label>
                         </div>
                         <div id="pre-countdown-duration-setting" class="${enableChronoPreCountdown ? '' : 'hidden'} mb-4">
-                            <label for="chrono-pre-countdown-duration" class="block text-secondary text-sm font-bold mb-2">DURÉE PRÉ-COMPTE (SECONDES) :</label>
+                            <label for="chrono-pre-countdown-duration" class="block text-gray-200 text-sm font-bold mb-2">DURÉE PRÉ-COMPTE (SECONDES) :</label>
                             <input type="number" id="chrono-pre-countdown-duration" value="${chronoPreCountdownDuration}" min="1" class="input-retro" />
                         </div>
                     </div>
 
                     <!-- Ajout/Modification d'Intervalle -->
-                    <div class="card-bg-blue-border p-4 rounded-lg mb-6">
-                        <h3 class="text-xl sm:text-2xl text-accent-yellow mb-3">AJOUTER / MODIFIER INTERVALLE :</h3>
+                    <div class="bg-gray-700 p-4 rounded-lg border-2 border-blue-700 mb-6">
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">AJOUTER / MODIFIER INTERVALLE :</h3>
                         <div class="mb-4">
-                            <label for="new-duration-minutes" class="block text-secondary text-sm font-bold mb-2">DURÉE (MINUTES) :</label>
+                            <label for="new-duration-minutes" class="block text-gray-200 text-sm font-bold mb-2">DURÉE (MINUTES) :</label>
                             <input type="number" id="new-duration-minutes" class="input-retro" placeholder="EX: 1" min="1" />
                         </div>
                         <div class="mb-4">
-                            <label for="new-instruction" class="block text-secondary text-sm font-bold mb-2">INSTRUCTION :</label>
+                            <label for="new-instruction" class="block text-gray-200 text-sm font-bold mb-2">INSTRUCTION :</label>
                             <input type="text" id="new-instruction" class="input-retro" placeholder="EX: COURSE RAPIDE" />
                         </div>
                         <button id="add-update-interval-btn" class="btn-retro w-full">AJOUTER</button>
@@ -2248,8 +1958,8 @@ Notes générales pour ta Nutrition :
                     </div>
 
                     <!-- Liste des Intervalles -->
-                    <div class="card-bg-purple-border p-4 rounded-lg mb-6">
-                        <h3 class="text-xl sm:text-2xl text-accent-yellow mb-3">SÉQUENCE D'INTERVALLES :</h3>
+                    <div class="bg-gray-700 p-4 rounded-lg border-2 border-purple-500 mb-6">
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">SÉQUENCE D'INTERVALLES :</h3>
                         <div id="intervals-list" class="space-y-2 mb-4">
                             <!-- Les intervalles seront listés ici -->
                         </div>
@@ -2293,27 +2003,27 @@ Notes générales pour ta Nutrition :
                     resetChronoBtn.disabled = false;
                     skipIntervalBtn.disabled = false;
                     startChronoBtn.classList.remove('btn-retro-green');
-                    startChronoBtn.classList.add('bg-gray-500'); /* Tailwind class, might need variable */
-                    pauseChronoBtn.classList.remove('bg-gray-500'); /* Tailwind class, might need variable */
+                    startChronoBtn.classList.add('bg-gray-500');
+                    pauseChronoBtn.classList.remove('bg-gray-500');
                     pauseChronoBtn.classList.add('btn-retro-purple');
                 } else if (isChronoPaused) {
                     startChronoBtn.disabled = false;
                     pauseChronoBtn.disabled = true;
                     resetChronoBtn.disabled = false;
                     skipIntervalBtn.disabled = false;
-                    startChronoBtn.classList.remove('bg-gray-500'); /* Tailwind class, might need variable */
+                    startChronoBtn.classList.remove('bg-gray-500');
                     startChronoBtn.classList.add('btn-retro-green');
                     pauseChronoBtn.classList.remove('btn-retro-purple');
-                    pauseChronoBtn.classList.add('bg-gray-500'); /* Tailwind class, might need variable */
+                    pauseChronoBtn.classList.add('bg-gray-500');
                 } else {
                     startChronoBtn.disabled = false;
                     pauseChronoBtn.disabled = true;
                     resetChronoBtn.disabled = true;
                     skipIntervalBtn.disabled = true;
-                    startChronoBtn.classList.remove('bg-gray-500'); /* Tailwind class, might need variable */
+                    startChronoBtn.classList.remove('bg-gray-500');
                     startChronoBtn.classList.add('btn-retro-green');
                     pauseChronoBtn.classList.remove('btn-retro-purple');
-                    pauseChronoBtn.classList.add('bg-gray-500'); /* Tailwind class, might need variable */
+                    pauseChronoBtn.classList.add('bg-gray-500');
                 }
             }
 
@@ -2361,13 +2071,13 @@ Notes générales pour ta Nutrition :
             // Rend la liste des intervalles
             function renderIntervalsList() {
                 let listHtml = '';
-                if (chronoIntervals.length === 0) listHtml = '<p class="text-tertiary">AUCUN INTERVALLE AJOUTÉ.</p>';
+                if (chronoIntervals.length === 0) listHtml = '<p class="text-gray-400">AUCUN INTERVALLE AJOUTÉ.</p>';
                 else {
                     listHtml = `<ul class="space-y-2">`;
                     chronoIntervals.forEach((interval, index) => {
                         listHtml += `
-                            <li class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-list-item p-2 rounded-md border border-tertiary">
-                                <span class="text-primary text-base sm:text-lg">${Math.floor(interval.duration / 60)}MIN${interval.duration % 60 > 0 ? ` ${interval.duration % 60}S` : ''} - ${String(interval.instruction).toUpperCase()}</span>
+                            <li class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-[#131313] p-2 rounded-md border border-gray-700">
+                                <span class="text-gray-100 text-base sm:text-lg">${Math.floor(interval.duration / 60)}MIN${interval.duration % 60 > 0 ? ` ${interval.duration % 60}S` : ''} - ${String(interval.instruction).toUpperCase()}</span>
                                 <div class="flex gap-2 mt-2 sm:mt-0">
                                     <button class="btn-retro-green text-xs px-2 py-1 duplicate-interval-btn" data-index="${index}">DUPLIQUER</button>
                                     <button class="btn-retro-purple text-xs px-2 py-1 edit-interval-btn" data-index="${index}">MODIFIER</button>
@@ -2441,4 +2151,746 @@ Notes générales pour ta Nutrition :
 
                 if (editingIntervalIndex !== -1) {
                     chronoIntervals[editingIntervalIndex] = { duration: durationSeconds, instruction: instruction.trim() };
-                    showMessage("INTER
+                    showMessage("INTERVALLE MISE À JOUR !", 'success');
+                } else {
+                    chronoIntervals.push({ duration: durationSeconds, instruction: instruction.trim() });
+                    showMessage("INTERVALLE AJOUTÉE !", 'success');
+                }
+                updateLocalStorageChronoState();
+                renderIntervalsList();
+                resetIntervalForm();
+            };
+
+            resetIntervalFormBtn.onclick = resetIntervalForm;
+
+            enablePreCountdownCheckbox.onchange = (e) => { enableChronoPreCountdown = e.target.checked; preCountdownDurationSetting.classList.toggle('hidden', !enableChronoPreCountdown); updateLocalStorageChronoState(); };
+            chronoPreCountdownDurationInput.onchange = (e) => { chronoPreCountdownDuration = Math.max(1, parseInt(e.target.value) || 1); updateLocalStorageChronoState(); };
+
+            startChronoBtn.onclick = () => {
+                if (chronoIntervals.length === 0) { showMessage("ERREUR: AJOUTEZ DES INTERVALLES AVANT DE COMMENCER.", 'error'); return; }
+                if (isChronoRunning && !isChronoPaused) return; // Already running
+
+                isChronoRunning = true;
+                isChronoPaused = false;
+                chronoCurrentIntervalIndex = -1; // Reset to pre-countdown state
+                if (enableChronoPreCountdown) {
+                    chronoCurrentTime = chronoPreCountdownDuration;
+                } else {
+                    chronoCurrentIntervalIndex = 0; // Skip pre-countdown
+                    chronoCurrentTime = chronoIntervals[0].duration;
+                    speak(String(chronoIntervals[0].instruction).toUpperCase());
+                    showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono');
+                }
+                updateLocalStorageChronoState();
+                updateChronoDisplay();
+                showMessage("CHRONO DÉMARRÉ !", 'info');
+                if (!chronoIntervalTimerRef) {
+                    chronoIntervalTimerRef = setInterval(chronoLoop, 1000);
+                }
+            };
+            pauseChronoBtn.onclick = () => {
+                isChronoPaused = true;
+                updateLocalStorageChronoState();
+                updateChronoDisplay();
+                showMessage("CHRONO EN PAUSE.", 'info');
+                clearInterval(chronoIntervalTimerRef);
+                chronoIntervalTimerRef = null;
+            };
+            resetChronoBtn.onclick = () => {
+                isChronoRunning = false;
+                isChronoPaused = false;
+                chronoCurrentIntervalIndex = -1;
+                chronoCurrentTime = 0;
+                updateLocalStorageChronoState();
+                updateChronoDisplay();
+                showMessage("CHRONO RÉINITIALISÉ.", 'success');
+                clearInterval(chronoIntervalTimerRef);
+                chronoIntervalTimerRef = null;
+            };
+            skipIntervalBtn.onclick = () => {
+                if (!isChronoRunning || chronoCurrentIntervalIndex === -1) { showMessage("LE CHRONO N'EST PAS EN COURS OU EN PHASE DE PRÉ-COMPTE.", 'warning'); return; }
+
+                chronoCurrentIntervalIndex++;
+                if (chronoCurrentIntervalIndex < chronoIntervals.length) {
+                    chronoCurrentTime = chronoIntervals[chronoCurrentIntervalIndex].duration;
+                    speak(String(chronoIntervals[chronoCurrentIntervalIndex].instruction).toUpperCase());
+                    showMessage(String(chronoIntervals[chronoCurrentIntervalIndex].instruction).toUpperCase(), 'chrono');
+                } else {
+                    // End of sequence
+                    isChronoRunning = false;
+                    isChronoPaused = false;
+                    chronoCurrentIntervalIndex = -1;
+                    chronoCurrentTime = 0;
+                    speak("Programme terminé !");
+                    showMessage("PROGRAMME TERMINÉ !", 'success');
+                    clearInterval(chronoIntervalTimerRef);
+                    chronoIntervalTimerRef = null;
+                }
+                updateLocalStorageChronoState();
+                updateChronoDisplay();
+            };
+
+            saveSequenceBtn.onclick = () => {
+                const modalDiv = document.createElement('div');
+                modalDiv.id = 'save-sequence-modal';
+                modalDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50';
+                modalDiv.innerHTML = `
+                    <div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-md text-white">
+                        <h3 class="text-xl sm:text-2xl font-bold mb-4 text-yellow-300">SAUVEGARDER LA SÉQUENCE</h3>
+                        <label for="saveSequenceName" class="block text-gray-200 text-sm font-bold mb-2">NOM :</label>
+                        <input type="text" id="saveSequenceName" class="input-retro" placeholder="DONNEZ UN NOM À VOTRE SÉQUENCE" value="${document.getElementById('sequenceName').value}" />
+                        <div class="flex justify-end space-x-4 mt-6">
+                            <button id="cancel-save-sequence-btn" class="btn-retro-red">ANNULER</button>
+                            <button id="confirm-save-sequence-btn" class="btn-retro-green">SAUVEGARDER</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('global-modals-container').appendChild(modalDiv);
+                document.getElementById('cancel-save-sequence-btn').onclick = () => modalDiv.remove();
+                document.getElementById('confirm-save-sequence-btn').onclick = () => {
+                    const name = document.getElementById('saveSequenceName').value;
+                    if (!name.trim()) { showMessage("ERREUR: NOM DE LA SÉQUENCE REQUIS.", 'error'); return; }
+                    if (chronoIntervals.length === 0) { showMessage("ERREUR: AJOUTEZ DES INTERVALLES AVANT DE SAUVEGARDER.", 'error'); return; }
+                    const newSequence = { id: generateUniqueId(), name: name.trim(), intervals: JSON.stringify(chronoIntervals) };
+                    intervalSequences.push(newSequence);
+                    saveToLocalStorage('intervalSequences', intervalSequences);
+                    showMessage("SUCCÈS: SÉQUENCE ENREGISTRÉE !", 'success');
+                    modalDiv.remove();
+                    document.getElementById('sequenceName').value = ''; // Clear sequence name input
+                };
+            };
+
+            loadSequenceBtn.onclick = () => {
+                const modalDiv = document.createElement('div');
+                modalDiv.id = 'load-sequence-modal';
+                modalDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50';
+                let sequencesListHtml = '';
+                if (intervalSequences.length === 0) sequencesListHtml = '<p class="text-gray-400">AUCUNE SÉQUENCE ENREGISTRÉE.</p>';
+                else {
+                    sequencesListHtml = `
+                        <ul class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                            ${intervalSequences.map(seq => `
+                                <li class="flex justify-between items-center bg-gray-700 p-2 rounded-md border border-gray-600">
+                                    <span class="text-gray-100 text-base sm:text-lg">${String(seq.name).toUpperCase()}</span>
+                                    <div>
+                                        <button class="btn-retro-green text-xs px-2 py-1 mr-2 load-sequence-item-btn" data-id="${seq.id}">CHARGER</button>
+                                        <button class="btn-retro-red text-xs px-2 py-1 delete-sequence-item-btn" data-id="${seq.id}">SUPPRIMER</button>
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    `;
+                }
+                modalDiv.innerHTML = `
+                    <div class="bg-gray-800 p-6 rounded-lg border-4 border-purple-500 shadow-xl w-full max-w-sm text-white">
+                        <h3 class="text-xl sm:text-2xl font-bold mb-4 text-yellow-300">CHARGER LA SÉQUENCE</h3>
+                        ${sequencesListHtml}
+                        <div class="flex justify-end space-x-4 mt-6">
+                            <button id="cancel-load-sequence-btn" class="btn-retro-red">ANNULER</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('global-modals-container').appendChild(modalDiv);
+                document.getElementById('cancel-load-sequence-btn').onclick = () => modalDiv.remove();
+
+                modalDiv.querySelectorAll('.load-sequence-item-btn').forEach(button => {
+                    button.onclick = async (event) => {
+                        const idToLoad = event.target.dataset.id;
+                        const sequenceToLoad = intervalSequences.find(seq => seq.id === idToLoad);
+                        if (sequenceToLoad) {
+                            if (await showConfirmModal("CONFIRMER LE CHARGEMENT DE CETTE SÉQUENCE ? CELA REMPLACERA LA SÉQUENCE ACTUELLE.")) {
+                                chronoIntervals = JSON.parse(sequenceToLoad.intervals);
+                                updateLocalStorageChronoState();
+                                showMessage(`SUCCÈS: SÉQUENCE "${String(sequenceToLoad.name).toUpperCase()}" CHARGÉE !`, 'success');
+                                renderIntervalsList();
+                                resetIntervalForm();
+                                document.getElementById('sequenceName').value = sequenceToLoad.name; // Set loaded sequence name
+                                modalDiv.remove();
+                            }
+                        }
+                    };
+                });
+
+                modalDiv.querySelectorAll('.delete-sequence-item-btn').forEach(button => {
+                    button.onclick = async (event) => {
+                        const idToDelete = event.target.dataset.id;
+                        if (await showConfirmModal("CONFIRMER LA SUPPRESSION DE CETTE SÉQUENCE ?")) {
+                            intervalSequences = intervalSequences.filter(seq => seq.id !== idToDelete);
+                            saveToLocalStorage('intervalSequences', intervalSequences);
+                            showMessage("SUCCÈS: SÉQUENCE SUPPRIMÉE !", 'success');
+                            modalDiv.remove();
+                            loadSequenceBtn.click(); // Re-open load modal to show updated list
+                        }
+                    };
+                });
+            };
+
+            renderIntervalsList();
+            updateChronoDisplay();
+            // Restart chrono if it was running before page re-render
+            if (isChronoRunning && !isChronoPaused && !chronoIntervalTimerRef) {
+                chronoIntervalTimerRef = setInterval(chronoLoop, 1000);
+            }
+        }
+
+        // Rend la vue de l'évolution (graphiques)
+        function renderProgressView(container) {
+            let html = `
+                <div class="card-retro mb-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">MON ÉVOLUTION</h2>
+                    <div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6">
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">HISTORIQUE DU POIDS ET IMC :</h3>
+                        <div class="relative h-64">
+                            <canvas id="weightChart"></canvas>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 text-center">GRAPHIQUE DU POIDS (KG) ET DE L'IMC AU FIL DU TEMPS.</p>
+                        <div class="mt-4">
+                            <h4 class="font-semibold text-lg text-yellow-300 mb-2">DÉTAILS :</h4>
+                            <div id="weight-history-list" class="space-y-2 max-h-48 overflow-y-auto pr-2"></div>
+                        </div>
+                    </div>
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl sm:text-2xl text-yellow-300">HISTORIQUE DES ENTRAÎNEMENTS :</h3>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="hideExerciseHistory" ${userProfile.hideExerciseHistory ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" />
+                                <label for="hideExerciseHistory" class="text-gray-200 text-sm font-bold">CACHER</label>
+                            </div>
+                        </div>
+                        <div id="exercise-history-content" class="${userProfile.hideExerciseHistory ? 'hidden' : ''}">
+                            <div class="mb-4">
+                                <label for="exerciseSelect" class="block text-gray-200 text-sm font-bold mb-2">SÉLECTIONNER UN EXERCICE :</label>
+                                <select id="exerciseSelect" class="select-retro mb-4"></select>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="font-semibold text-lg text-yellow-300 mb-2">MÉTRIQUES À AFFICHER :</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="metric-checkbox" value="reps" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
+                                        <span class="ml-2 text-gray-200 text-sm">Répétitions / Durée</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="metric-checkbox" value="sets" class="form-checkbox h-4 w-4 text-green-600 rounded">
+                                        <span class="ml-2 text-gray-200 text-sm">Séries / Rounds</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="metric-checkbox" value="weight" class="form-checkbox h-4 w-4 text-purple-600 rounded">
+                                        <span class="ml-2 text-gray-200 text-sm">Poids</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="metric-checkbox" value="volume" class="form-checkbox h-4 w-4 text-red-600 rounded">
+                                        <span class="ml-2 text-gray-200 text-sm">Volume</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="relative h-64 mb-4">
+                                <canvas id="exerciseChart"></canvas>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2 text-center">GRAPHIQUE DE LA PROGRESSION DE L'EXERCICE SELON LES MÉTRIQUES SÉLECTIONNÉES.</p>
+                            <div class="mt-4">
+                                <h4 class="font-semibold text-lg text-yellow-300 mb-2">DÉTAILS :</h4>
+                                <div id="exercise-history-list" class="space-y-2 max-h-48 overflow-y-auto pr-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+
+            // Weight Chart
+            const weightCtx = document.getElementById('weightChart').getContext('2d');
+            const sortedWeightHistory = [...weightHistory].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            const weightLabels = sortedWeightHistory.map(entry => new Date(entry.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }));
+            const weights = sortedWeightHistory.map(entry => entry.weight);
+            const imcs = sortedWeightHistory.map(entry => entry.imc);
+
+            weightChartInstance = new Chart(weightCtx, {
+                type: 'line',
+                data: {
+                    labels: weightLabels,
+                    datasets: [{
+                        label: 'POIDS (KG)',
+                        data: weights,
+                        borderColor: '#fcd34d',
+                        backgroundColor: 'rgba(252, 211, 77, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'IMC',
+                        data: imcs,
+                        borderColor: '#a78bfa',
+                        backgroundColor: 'rgba(167, 139, 250, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: 'white', font: { family: 'VT323' } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) label += context.parsed.y;
+                                    if (context.dataset.label === 'POIDS (KG)') label += ' KG';
+                                    return label;
+                                }
+                            },
+                            titleFont: { family: 'VT323' },
+                            bodyFont: { family: 'VT323' }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: 'white', font: { family: 'VT323' } }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: 'white', font: { family: 'VT323' } }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+
+            // Weight History List
+            const weightHistoryListDiv = document.getElementById('weight-history-list');
+            if (sortedWeightHistory.length === 0) { weightHistoryListDiv.innerHTML = '<p class="text-gray-400">AUCUN HISTORIQUE DE POIDS ENREGISTRÉ.</p>'; }
+            else {
+                let weightListHtml = `<ul class="space-y-1">`;
+                // Display in reverse chronological order (most recent first)
+                [...sortedWeightHistory].reverse().forEach(entry => {
+                    const date = new Date(entry.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+                    weightListHtml += `<li class="text-sm text-gray-300">**${date.toUpperCase()} :** POIDS: ${entry.weight} KG, IMC: ${entry.imc} (${String(entry.imcCategory).toUpperCase()})</li>`;
+                });
+                weightListHtml += `</ul>`;
+                weightHistoryListDiv.innerHTML = weightListHtml;
+            }
+
+            // Exercise History
+            const hideExerciseHistoryCheckbox = document.getElementById('hideExerciseHistory');
+            const exerciseHistoryContent = document.getElementById('exercise-history-content');
+            const exerciseSelect = document.getElementById('exerciseSelect');
+            const metricCheckboxes = document.querySelectorAll('input[name="metric-checkbox"]');
+            const exerciseHistoryListDiv = document.getElementById('exercise-history-list');
+
+            hideExerciseHistoryCheckbox.onchange = (e) => {
+                userProfile.hideExerciseHistory = e.target.checked;
+                saveToLocalStorage('userProfile', userProfile);
+                exerciseHistoryContent.classList.toggle('hidden', userProfile.hideExerciseHistory);
+                if (!userProfile.hideExerciseHistory) renderExerciseChart(); // Re-render chart if shown
+            };
+
+            // Populate exercise select dropdown
+            const uniqueExerciseNames = [...new Set(workoutLogs.map(log => log.exerciseName))];
+            exerciseSelect.innerHTML = `<option value="">SÉLECTIONNER UN EXERCICE</option>` +
+                                       uniqueExerciseNames.map(name => `<option value="${name}">${String(name).toUpperCase()}</option>`).join('');
+
+            exerciseSelect.onchange = renderExerciseChart;
+            metricCheckboxes.forEach(checkbox => {
+                checkbox.onchange = renderExerciseChart;
+            });
+
+            function parseRepsAndSets(log) {
+                let parsedReps = parseFloat(log.reps) || 0;
+                let parsedSets = parseFloat(log.sets) || 0;
+                let durationInSeconds = 0;
+
+                // Handle duration in reps
+                if (typeof log.reps === 'string' && log.reps.toUpperCase().includes('MIN')) {
+                    const match = log.reps.match(/(\d+)\s*MIN/i);
+                    if (match) {
+                        durationInSeconds = parseInt(match[1]) * 60;
+                        parsedReps = durationInSeconds; // Store duration in seconds for volume calculation
+                    }
+                } else if (typeof log.reps === 'string' && log.reps.toUpperCase().includes('SECONDES')) {
+                     const match = log.reps.match(/(\d+)\s*SECONDES/i);
+                    if (match) {
+                        durationInSeconds = parseInt(match[1]);
+                        parsedReps = durationInSeconds;
+                    }
+                }
+
+                // Handle sets that might be like "3 ROUNDS"
+                if (typeof log.sets === 'string' && log.sets.toUpperCase().includes('ROUND')) {
+                    const match = log.sets.match(/(\d+)\s*ROUND/i);
+                    if (match) {
+                        parsedSets = parseInt(match[1]);
+                    }
+                }
+
+                return { parsedReps, parsedSets, durationInSeconds };
+            }
+
+            function getExerciseChartData() {
+                const selectedExercise = exerciseSelect.value;
+                if (!selectedExercise) return { labels: [], datasets: [] };
+
+                const filteredLogs = workoutLogs
+                    .filter(log => log.exerciseName === selectedExercise)
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+                const chartLabels = filteredLogs.map(log => new Date(log.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }));
+                const datasets = [];
+
+                const selectedMetrics = Array.from(metricCheckboxes)
+                                            .filter(checkbox => checkbox.checked)
+                                            .map(checkbox => checkbox.value);
+
+                const colors = {
+                    'reps': { borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)' }, // blue
+                    'sets': { borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.2)' }, // green
+                    'weight': { borderColor: '#9333ea', backgroundColor: 'rgba(147, 51, 234, 0.2)' }, // purple
+                    'volume': { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.2)' } // red
+                };
+
+                selectedMetrics.forEach(metric => {
+                    let data = [];
+                    let label = '';
+                    let unit = '';
+
+                    switch (metric) {
+                        case 'reps':
+                            data = filteredLogs.map(log => {
+                                const { parsedReps } = parseRepsAndSets(log);
+                                return parsedReps;
+                            });
+                            label = 'RÉPÉTITIONS / DURÉE';
+                            unit = ''; // Unit varies, handled in tooltip
+                            break;
+                        case 'sets':
+                            data = filteredLogs.map(log => {
+                                const { parsedSets } = parseRepsAndSets(log);
+                                return parsedSets;
+                            });
+                            label = 'SÉRIES / ROUNDS';
+                            unit = ''; // Unit varies, handled in tooltip
+                            break;
+                        case 'weight':
+                            data = filteredLogs.map(log => parseFloat(log.weight) || 0);
+                            label = 'POIDS';
+                            unit = ' KG';
+                            break;
+                        case 'volume':
+                            data = filteredLogs.map(log => {
+                                const { parsedReps, parsedSets } = parseRepsAndSets(log);
+                                const weightVal = parseFloat(log.weight) || 1; // Assume 1 if no weight (bodyweight)
+                                return parsedSets * parsedReps * weightVal;
+                            });
+                            label = 'VOLUME';
+                            unit = ''; // Unit varies, handled in tooltip
+                            break;
+                    }
+
+                    datasets.push({
+                        label: label,
+                        data: data,
+                        borderColor: colors[metric].borderColor,
+                        backgroundColor: colors[metric].backgroundColor,
+                        tension: 0.4,
+                        fill: false, // Set to false for multiple lines
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: colors[metric].borderColor,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        metricType: metric // Custom property to help tooltip
+                    });
+                });
+
+                return { labels: chartLabels, datasets: datasets, filteredLogs: filteredLogs };
+            }
+
+            function renderExerciseChart() {
+                if (exerciseChartInstance) { exerciseChartInstance.destroy(); exerciseChartInstance = null; }
+
+                const { labels, datasets, filteredLogs } = getExerciseChartData();
+                const exerciseCtx = document.getElementById('exerciseChart').getContext('2d');
+
+                if (datasets.length === 0 || labels.length === 0) {
+                    exerciseCtx.clearRect(0, 0, exerciseCtx.canvas.width, exerciseCtx.canvas.height);
+                    showMessage("PAS ASSEZ DE DONNÉES POUR L'EXERCICE SÉLECTIONNÉ OU AUCUNE MÉTRIQUE CHOISIE.", 'info');
+                    return;
+                }
+
+                exerciseChartInstance = new Chart(exerciseCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: 'white', font: { family: 'VT323' } } },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        return new Date(filteredLogs[context[0].dataIndex].date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
+                                    },
+                                    label: function(context) {
+                                        const log = filteredLogs[context.dataIndex];
+                                        const metricType = context.dataset.metricType;
+                                        let value = context.parsed.y;
+                                        let label = context.dataset.label || '';
+
+                                        if (label) label += ': ';
+
+                                        switch (metricType) {
+                                            case 'reps':
+                                                return `${label}${log.reps}`;
+                                            case 'sets':
+                                                return `${label}${log.sets}`;
+                                            case 'weight':
+                                                return `${label}${value} KG`;
+                                            case 'volume':
+                                                return `${label}${value} (UNITÉS)`;
+                                            default:
+                                                return `${label}${value}`;
+                                        }
+                                    },
+                                    afterBody: function(context) {
+                                        const log = filteredLogs[context[0].dataIndex];
+                                        let details = [];
+                                        details.push(`RESSENTI: ${String(log.feeling).toUpperCase()}`);
+                                        if (log.notes) details.push(`NOTES: ${String(log.notes).toUpperCase()}`);
+                                        return details;
+                                    }
+                                },
+                                titleFont: { family: 'VT323' },
+                                bodyFont: { family: 'VT323' }
+                            }
+                        },
+                        scales: {
+                            x: { ticks: { color: 'white', font: { family: 'VT323' } }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            y: { beginAtZero: true, ticks: { color: 'white', font: { family: 'VT323' } }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                        }
+                    }
+                });
+            }
+
+            // Exercise History List (detailed log below chart)
+            function renderDetailedExerciseHistoryList() {
+                exerciseHistoryListDiv.innerHTML = '';
+                if (workoutLogs.length === 0) {
+                    exerciseHistoryListDiv.innerHTML = '<p class="text-gray-400">AUCUN ENTRAÎNEMENT ENREGISTRÉ.</p>';
+                    return;
+                }
+
+                let exerciseListHtml = `<ul class="space-y-1">`;
+                // Display in reverse chronological order (most recent first)
+                [...workoutLogs].reverse().forEach(log => {
+                    const date = new Date(log.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    exerciseListHtml += `<li class="text-sm text-gray-300">**${date.toUpperCase()} :** ${String(log.exerciseName).toUpperCase()} (${String(log.sets).toUpperCase()} SÉRIES, ${String(log.reps).toUpperCase()}${log.weight ? `, ${log.weight} KG` : ''}) - RESSENTI: ${String(log.feeling).toUpperCase()}${log.notes ? ` - NOTES: ${String(log.notes).toUpperCase()}` : ''}</li>`;
+                });
+                exerciseListHtml += `</ul>`;
+                exerciseHistoryListDiv.innerHTML = exerciseListHtml;
+            }
+
+
+            renderDetailedExerciseHistoryList(); // Render the list initially
+            // Render chart initially if not hidden and an exercise is selected
+            if (!userProfile.hideExerciseHistory && uniqueExerciseNames.length > 0) {
+                exerciseSelect.value = uniqueExerciseNames[0]; // Select the first exercise by default
+                renderExerciseChart();
+            } else if (!userProfile.hideExerciseHistory && uniqueExerciseNames.length === 0) {
+                showMessage("PAS ASSEZ DE DONNÉES D'EXERCICES POUR LE GRAPHIQUE. ENREGISTREZ DES SÉANCES.", 'info');
+            }
+        }
+
+        // Rend la vue de la salle des trophées
+        function renderTrophyRoomView(container) {
+            let html = `
+                <div class="card-retro mb-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">SALLE DES TROPHÉES</h2>
+                    <div id="trophies-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
+            `;
+            container.innerHTML = html;
+
+            const trophiesGrid = document.getElementById('trophies-grid');
+            // Filter to only show earned trophies
+            const earnedTrophiesData = userProfile.earnedTrophies.map(earned => {
+                return allTrophies.find(t => t.id === earned.id);
+            }).filter(Boolean); // Filter out any undefined if an ID doesn't match
+
+            const sortedEarnedTrophies = [...earnedTrophiesData].sort((a, b) => a.levelRequired - b.levelRequired);
+
+            if (sortedEarnedTrophies.length === 0) {
+                trophiesGrid.innerHTML = '<p class="text-gray-400 text-center col-span-full">AUCUN TROPHÉE DÉBLOQUÉ POUR LE MOMENT. CONTINUEZ À VOUS ENTRAÎNER POUR EN GAGNER !</p>';
+            } else {
+                sortedEarnedTrophies.forEach(trophy => {
+                    const earnedInfo = userProfile.earnedTrophies.find(t => t.id === trophy.id); // Get the timestamp from earnedTrophies
+                    const trophyDiv = document.createElement('div');
+                    trophyDiv.className = `p-4 rounded-lg border-4 border-yellow-500 bg-yellow-900 shadow-lg text-center`;
+                    trophyDiv.innerHTML = `
+                        <i data-lucide="trophy" class="text-6xl text-yellow-300 mb-2"></i>
+                        <h3 class="text-xl font-bold text-yellow-200">${String(trophy.name).toUpperCase()}</h3>
+                        <p class="text-sm text-gray-100">${String(trophy.description).toUpperCase()}</p>
+                        <p class="text-xs mt-2 text-green-300">NIVEAU REQUIS : ${trophy.levelRequired}</p>
+                        ${earnedInfo ? `<p class="text-xs text-green-400 mt-1">DÉBLOQUÉ LE : ${new Date(earnedInfo.timestamp).toLocaleDateString('fr-FR')}</p>` : ''}
+                    `;
+                    trophiesGrid.appendChild(trophyDiv);
+                });
+            }
+            renderLucideIcons(); // Ensure Lucide icons are rendered
+        }
+
+        // Rend la vue des options
+        function renderOptionsView(container) {
+            let html = `
+                <div class="card-retro mb-6">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">OPTIONS</h2>
+
+                    <div class="p-4 rounded-lg border-2 border-blue-700 bg-gray-700 mb-6">
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">PARAMÈTRES AUDIO :</h3>
+                        <div class="flex items-center mb-4">
+                            <input type="checkbox" id="toggle-audio" ${isAudioActive ? 'checked' : ''} class="mr-2 h-4 w-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" />
+                            <label for="toggle-audio" class="text-gray-200 text-sm font-bold">ACTIVER LE SON ET LA SYNTHÈSE VOCALE</label>
+                        </div>
+                        <div class="mb-4">
+                            <label for="master-volume" class="block text-gray-200 text-sm font-bold mb-2">VOLUME PRINCIPAL :</label>
+                            <input type="range" id="master-volume" min="0" max="1" step="0.01" value="${masterVolume}" class="w-full" />
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mb-6">
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">GESTION DES DONNÉES :</h3>
+                        <div class="mb-4">
+                            <label for="api-key-input" class="block text-gray-200 text-sm font-bold mb-2">CLÉ API (POUR GÉNÉRATION DE RECETTES) :</label>
+                            <input type="password" id="api-key-input" class="input-retro" placeholder="ENTREZ VOTRE CLÉ API ICI" value="${userProfile.apiKey || ''}" />
+                            <p class="text-xs text-gray-400 mt-1">NÉCESSAIRE POUR LA GÉNÉRATION DE RECETTES PAR L'IA. VOTRE CLÉ EST STOCKÉE LOCALEMENT.</p>
+                        </div>
+                        <button id="save-api-key-btn" class="btn-retro-green w-full mb-4">SAUVEGARDER CLÉ API</button>
+                        <button id="export-data-btn" class="btn-retro w-full mb-4">EXPORTER MES DONNÉES</button>
+                        <button id="import-data-btn" class="btn-retro w-full mb-4">IMPORTER MES DONNÉES</button>
+                        <input type="file" id="import-file-input" accept=".json" class="hidden" />
+                        <button id="reset-all-data-btn" class="btn-retro-red w-full">RÉINITIALISER TOUTES LES DONNÉES</button>
+                    </div>
+
+                    <div class="p-4 rounded-lg border-2 border-yellow-500 bg-gray-700">
+                        <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">À PROPOS :</h3>
+                        <p class="text-gray-300 text-sm mb-2">FITQUEST V1.0</p>
+                        <p class="text-gray-300 text-sm">DÉVELOPPÉ PAR WAEKY</p>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+
+            const toggleAudioCheckbox = document.getElementById('toggle-audio');
+            const masterVolumeSlider = document.getElementById('master-volume');
+            const apiKeyInput = document.getElementById('api-key-input');
+            const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+            const exportDataBtn = document.getElementById('export-data-btn');
+            const importDataBtn = document.getElementById('import-data-btn');
+            const importFileInput = document.getElementById('import-file-input');
+            const resetAllDataBtn = document.getElementById('reset-all-data-btn');
+
+            toggleAudioCheckbox.checked = isAudioActive;
+            masterVolumeSlider.value = masterVolume;
+            apiKeyInput.value = userProfile.apiKey || '';
+
+            toggleAudioCheckbox.onchange = toggleAudioActive;
+            masterVolumeSlider.oninput = (e) => {
+                masterVolume = parseFloat(e.target.value);
+                Tone.Master.volume.value = masterVolume === 0 ? -Infinity : 20 * Math.log10(masterVolume);
+                saveToLocalStorage('masterVolume', masterVolume);
+            };
+
+            saveApiKeyBtn.onclick = () => {
+                userProfile.apiKey = apiKeyInput.value.trim();
+                saveToLocalStorage('userProfile', userProfile);
+                showMessage("CLÉ API SAUVEGARDÉE !", 'success');
+            };
+
+            exportDataBtn.onclick = () => {
+                const dataToExport = {
+                    userProfile: userProfile,
+                    weeklyMealPlan: weeklyMealPlan,
+                    workoutLogs: workoutLogs,
+                    weightHistory: weightHistory,
+                    intervalSequences: intervalSequences,
+                    shifts: shifts,
+                    savedWorkoutProgram: workoutProgram,
+                    masterVolume: masterVolume
+                };
+                const dataStr = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'fitquest_data.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showMessage("DONNÉES EXPORTÉES !", 'success');
+            };
+
+            importDataBtn.onclick = () => { importFileInput.click(); };
+            importFileInput.onchange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const importedData = JSON.parse(e.target.result);
+                            if (await showConfirmModal("CONFIRMER L'IMPORTATION ? CELA REMPLACERA TOUTES VOS DONNÉES ACTUELLES.")) {
+                                // Update global state variables directly
+                                userProfile = importedData.userProfile || userProfile;
+                                weeklyMealPlan = importedData.weeklyMealPlan || weeklyMealPlan;
+                                workoutLogs = importedData.workoutLogs || workoutLogs;
+                                weightHistory = importedData.weightHistory || weightHistory;
+                                intervalSequences = importedData.intervalSequences || intervalSequences;
+                                shifts = importedData.shifts || shifts;
+                                workoutProgram = importedData.savedWorkoutProgram || workoutProgram;
+                                masterVolume = importedData.masterVolume !== undefined ? importedData.masterVolume : masterVolume;
+
+                                // Save updated state to localStorage
+                                saveToLocalStorage('userProfile', userProfile);
+                                saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
+                                saveToLocalStorage('workoutLogs', workoutLogs);
+                                saveToLocalStorage('weightHistory', weightHistory);
+                                saveToLocalStorage('intervalSequences', intervalSequences);
+                                saveToLocalStorage('shifts', shifts);
+                                saveToLocalStorage('savedWorkoutProgram', workoutProgram);
+                                saveToLocalStorage('masterVolume', masterVolume);
+
+                                showMessage("DONNÉES IMPORTÉES AVEC SUCCÈS ! RECHARGEMENT DE L'APPLICATION.", 'success');
+                                setTimeout(() => { location.reload(); }, 2000);
+                            }
+                        } catch (error) {
+                            console.error("Erreur lors de l'importation des données:", error);
+                            showMessage("ERREUR: FICHIER D'IMPORTATION INVALIDE OU CORROMPU.", 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+
+            resetAllDataBtn.onclick = async () => {
+                if (await showConfirmModal("ATTENTION: CELA SUPPRIMERA TOUTES VOS DONNÉES ! ÊTES-VOUS SÛR ?")) {
+                    if (await showConfirmModal("CONFIRMATION FINALE: TOUTES LES DONNÉES SERONT EFFACÉES DÉFINITIVEMENT. CELA EST IRRÉVERSIBLE. CONTINUER ?")) {
+                        localStorage.clear();
+                        showMessage("TOUTES LES DONNÉES ONT ÉTÉ EFFACÉES. RECHARGEMENT DE L'APPLICATION.", 'success');
+                        setTimeout(() => { location.reload(); }, 2000);
+                    }
+                }
+            };
+        }
+
+        // Écouteurs d'événements pour la navigation
+        function attachEventListeners() {
+            document.getElementById('home-button').onclick = () => renderPage('daily_plan');
+            document.querySelectorAll('.nav-item').forEach(button => {
+                button.onclick = (event) => {
+                    const page = event.currentTarget.dataset.page;
+                    renderPage(page);
+                };
+            });
+            document.getElementById('save-profile-btn').onclick = handleSaveProfile;
+        }
+
+        // Chargement initial de l'application
+        window.onload = initializeApp;
+  </script>
+ </body>
+</html>
