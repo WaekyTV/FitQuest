@@ -60,43 +60,35 @@
             .nav-item { flex-shrink: 0; min-width: 80px; padding: 0.5rem 0.75rem; margin: 0 0.25rem; }
             .main-content-area { padding-bottom: 6rem; }
         }
-
-        /* Styles for the range input (volume slider) */
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
-            height: 8px; /* Explicit height */
-            background: #4a5568; /* Dark grey track */
+            height: 8px;
+            background: #4a5568;
             border-radius: 5px;
             outline: none;
             cursor: pointer;
             transition: background 0.2s ease-in-out;
         }
-
-        /* Webkit (Chrome, Safari, Edge) track styling */
         input[type="range"]::-webkit-slider-runnable-track {
             width: 100%;
             height: 8px;
-            background: #4a5568; /* Dark grey track */
+            background: #4a5568;
             border-radius: 5px;
-            border: none; /* Ensure no default border */
+            border: none;
         }
-
-        /* Style for the slider thumb (the draggable part) for Webkit browsers */
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
             height: 20px;
-            background: #fcd34d; /* Yellow thumb */
+            background: #fcd34d;
             border-radius: 50%;
             cursor: pointer;
-            margin-top: -6px; /* Adjust vertical position to center on the track */
+            margin-top: -6px;
             box-shadow: 0 0 2px rgba(0,0,0,.6);
         }
-
-        /* Style for the slider thumb for Firefox */
         input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
@@ -105,22 +97,17 @@
             cursor: pointer;
             box-shadow: 0 0 2px rgba(0,0,0,.6);
         }
-
-        /* Style for the slider track for Firefox */
         input[type="range"]::-moz-range-track {
             background: #4a5568;
             border-radius: 5px;
             height: 8px;
         }
-
-        /* Style for the slider track for Internet Explorer */
         input[type="range"]::-ms-track {
             background: #4a5568;
             border-radius: 5px;
             height: 8px;
             color: transparent;
         }
-
         input[type="range"]::-ms-thumb {
             width: 20px;
             height: 20px;
@@ -132,16 +119,7 @@
     </style>
 </head>
 <body class="font-vt323 text-white bg-gray-900 min-h-screen flex flex-col">
-    <div id="loading-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-gray-900 font-vt323 text-white z-[999]">
-        <div class="text-4xl sm:text-5xl text-yellow-300 mb-8 animate-bounce">FitQuest</div>
-        <div class="w-64 sm:w-80 h-8 bg-gray-700 border-4 border-yellow-500 rounded-lg overflow-hidden relative">
-            <div id="loading-progress-bar" class="h-full bg-green-500 transition-all duration-500 ease-linear" style="width: 0%;"></div>
-            <div id="loading-progress-text" class="absolute inset-0 flex items-center justify-center text-lg font-bold text-gray-900">0% CHARGEMENT...</div>
-        </div>
-        <div id="loading-message" class="mt-8 p-3 rounded-md hidden"></div>
-        <p id="audio-inactive-message" class="text-gray-400 text-sm sm:text-base mt-4 text-center hidden"></p>
-    </div>
-    <div id="app-container" class="min-h-screen flex flex-col hidden">
+    <div id="app-container" class="min-h-screen flex flex-col">
         <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-yellow-300 p-5 shadow-md border-b-4 border-purple-500 rounded-b-lg">
             <div class="flex items-center justify-center relative">
                 <button id="home-button" class="absolute left-0 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-blue-600 transition-colors duration-200" title="Retour à l'accueil">
@@ -181,7 +159,7 @@
                         <p>**IMC 16.5 À 18.4 :** INSUFFISANCE PONDÉRALE</p>
                         <p>**IMC 18.5 À 24.9 :** POIDS NORMAL</p>
                         <p>**IMC 25 À 26.9 :** SURPOIDS (PRÉ-OBÉSITÉ)</p>
-                        <p>**IMC 27 À 29.9 :** SURPOIDS (OBÉSITÉ MODÉRÉE)</p>
+                        <p>**IMC 27 À 29.9 :** OBÉSITÉ MODÉRÉE</p>
                         <p>**IMC 30 À 34.9 :** OBÉSITÉ CLASSE I</p>
                         <p>**IMC 35 À 39.9 :** OBÉSITÉ CLASSE II (SÉVÈRE)</p>
                         <p>**IMC SUP. OU ÉGAL À 40 :** OBÉSITÉ CLASSE III (MORBIDE OU MASSIVE)</p>
@@ -214,7 +192,7 @@
         function renderLucideIcons() { lucide.createIcons(); }
 
         // Variables d'état globales de l'application
-        let currentPage = 'daily_plan', isLoadingApp = true, loadingProgress = 0;
+        let currentPage = 'daily_plan';
         let weeklyMealPlan = null, userProfile = { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [] };
         let workoutLogs = [], weightHistory = [], intervalSequences = [], shifts = [];
         let workoutProgram = {}, previousLevel = 0, isAudioActive = true, masterVolume = 1;
@@ -222,7 +200,7 @@
         let chronoIntervals = [], chronoCurrentTime = 0, chronoCurrentIntervalIndex = -1, isChronoRunning = false, isChronoPaused = false, enableChronoPreCountdown = true, chronoPreCountdownDuration = 10, chronoIntervalTimerRef = null;
         let weightChartInstance = null, exerciseChartInstance = null, userId = 'local_user';
         let editingIntervalIndex = -1;
-        let regeneratingMeal = null; // State for meal generation, can be true (for full plan) or {dateKey, mealType} (for single meal)
+        let regeneratingMeal = null;
 
         // Nutritional program text to be passed to the AI
         const nutritionalProgramText = `
@@ -247,7 +225,7 @@ Ton Plan Nutritionnel Détaillé par Type de Jour :
     - Collation début de nuit (vers 22h-23h - facultatif) : Fruit (banane/pomme) + 10-15g oléagineux OU 2 tartines pain complet + purée d'amande.
     - Repas PENDANT poste ("Mini-repas", vers 2h-3h) : Légumes. Protéines (80-100g cuits: poisson blanc, thon naturel, œuf dur, fromage blanc/yaourt grec. Alternative: petit shaker whey). Féculents (80-100g cuits, petite portion: riz, pommes de terre, patate douce, pain complet). Matière grasse (filet d'huile).
     - Collation fin de nuit (vers 4h-5h - facultatif) : Fruit OU yaourt nature OU petite poignée de noix.
-    - Repas APRÈS POSTE (vers 6h30-7h, avant de dormir) : Boisson (thé/tisane avec lait, sucres, miel). Glucides complexes et protéines: Galette/Pancake protéiné (50g flocons d'avoine, 20-30g whey, 1 banane écrasée/fruits rouges, eau/lait). Option simple: 50g flocons d'avoine en porridge OU 2 tranches pain complet avec purée d'oléagineux/miel. Fruit entier.
+    - Repas APRÈS POSTE (vers 6h30-7h, avant de dormir) : Boisson (thé/tisane avec lait, sucres, miel). Glucides complexes et protéines: Galette/Pancake protéiné (50g flocons d'avoine, 20-30g whey protéine, 1 banane écrasée/fruits rouges, eau/lait). Option simple: 50g flocons d'avoine en porridge OU 2 tranches pain complet avec purée d'oléagineux/miel. Fruit entier.
 
 3. Jours de Repos / Créatifs / Chill
     - Petit-déjeuner ou Brunch (selon réveil, 8h-10h) : Boisson (thé/tisane avec lait, sucres, miel). Option 1: galette/pancake protéiné. Option 2 (variété !) : 50g flocons d'avoine en porridge (avec fruits rouges + yaourt nature + miel) OU 2-3 tranches pain complet toastées avec purée d'oléagineux/miel + 1 banane. OU Bowl protéiné (quinoa + fromage blanc + fruits secs).
@@ -269,113 +247,113 @@ Notes générales pour ta Nutrition :
             { id: 't001', name: 'PREMIER PAS', description: 'Atteindre le Niveau 1. Le voyage commence !', levelRequired: 1 },
             { id: 't002', name: 'NOVICE EN FORME', description: 'Atteindre le Niveau 2. Vous prenez le rythme.', levelRequired: 2 },
             { id: 't003', name: 'INITIÉ DU FIT', description: 'Atteindre le Niveau 3. Les efforts paient.', levelRequired: 3 },
-            { id: 't004', name: 'FORME CROISSANTE', description: 'Atteindre le Niveau 4. De mieux en mieux !', levelRequired: 4 },
-            { id: 't005', name: 'DÉBUTANT AVANCÉ', description: 'Atteindre le Niveau 5. Vous n\'êtes plus un débutant.', levelRequired: 5 },
-            { id: 't006', name: 'CONSTANCE MÉRITÉE', description: 'Atteindre le Niveau 6. La régularité, c\'est la clé.', levelRequired: 6 },
-            { id: 't007', name: 'ÉLAN DU PROGRÈS', description: 'Atteindre le Niveau 7. Vous sentez la progression.', levelRequired: 7 },
-            { id: 't008', name: 'GAINS ASSURÉS', description: 'Atteindre le Niveau 8. Les muscles se dessinent.', levelRequired: 8 },
-            { id: 't009', name: 'AVANCÉE RAPIDE', description: 'Atteindre le Niveau 9. Vous brûlez les étapes.', levelRequired: 9 },
-            { id: 't010', name: 'DIXIÈME ÉTAPE', description: 'Atteindre le Niveau 10. Un jalon important !', levelRequired: 10 },
-            { id: 't011', name: 'MAÎTRE INTERMÉDIAIRE', description: 'Atteindre le Niveau 11. Le fitness devient une habitude.', levelRequired: 11 },
-            { id: 't012', name: 'FORCE ÉMERGENTE', description: 'Atteindre le Niveau 12. Vos limites sont repoussées.', levelRequired: 12 },
-            { id: 't013', name: 'ENDURANCE ACCRUE', description: 'Atteindre le Niveau 13. Le cardio n\'a plus de secret.', levelRequired: 13 },
-            { id: 't014', name: 'EXCELLENCE EN VUE', description: 'Atteindre le Niveau 14. La performance est à portée.', levelRequired: 14 },
-            { id: 't015', name: 'DEMI-MAÎTRE', description: 'Atteindre le Niveau 15. Vous êtes sur la bonne voie.', levelRequired: 15 },
-            { id: 't016', name: 'DISCIPLINE DE FER', description: 'Atteindre le Niveau 16. Votre engagement est fort.', levelRequired: 16 },
-            { id: 't017', name: 'ÉNERGIE DÉCUPLÉE', description: 'Atteindre le Niveau 17. Sentez cette vitalité !', levelRequired: 17 },
-            { id: 't018', name: 'HARMONIE CORPS/ESPRIT', description: 'Atteindre le Niveau 18. L\'équilibre est parfait.', levelRequired: 18 },
-            { id: 't019', name: 'FORME OPTIMALE', description: 'Atteindre le Niveau 19. Vous rayonnez de santé.', levelRequired: 19 },
-            { id: 't020', name: 'DEUXIÈME DIZAINE', description: 'Atteindre le Niveau 20. Double décennie de fitness !', levelRequired: 20 },
-            { id: 't021', name: 'EXPERT EN DEVENIR', description: 'Atteindre le Niveau 21. La maîtrise approche.', levelRequired: 21 },
-            { id: 't022', name: 'PUISSANCE RÉVÉLÉE', description: 'Atteindre le Niveau 22. Une force insoupçonnée.', levelRequired: 22 },
-            { id: 't023', name: 'AGILITÉ MAXIMALE', description: 'Atteindre le Niveau 23. Votre corps est un temple agile.', levelRequired: 23 },
-            { id: 't024', name: 'RÉSISTANCE INÉGALÉE', description: 'Atteindre le Niveau 24. Rien ne vous arrête.', levelRequired: 24 },
-            { id: 't025', name: 'QUART DE SIÈCLE', description: 'Atteindre le Niveau 25. Vous êtes une machine !', levelRequired: 25 },
-            { id: 't026', name: 'PERFECTION EN MARCHE', description: 'Atteindre le Niveau 26. Chaque pas est un succès.', levelRequired: 26 },
-            { id: 't027', name: 'FORME INCROYABLE', description: 'Atteindre le Niveau 27. Admirez votre progression !', levelRequired: 27 },
-            { id: 't028', name: 'DÉTERMINATION ACÉRÉE', description: 'Atteindre le Niveau 28. Votre volonté est sans faille.', levelRequired: 28 },
-            { id: 't029', name: 'INÉPUISABLE', description: 'Atteindre le Niveau 29. L\'énergie vous habite.', levelRequired: 29 },
-            { id: 't030', name: 'LE TREINTIÈME', description: 'Atteindre le Niveau 30. Un cap monumental !', levelRequired: 30 },
-            { id: 't031', name: 'MAÎTRE ABSOLU', description: 'Atteindre le Niveau 31. Vous êtes une référence.', levelRequired: 31 },
-            { id: 't032', name: 'EXPERT LÉGENDAIRE', description: 'Atteindre le Niveau 32. Votre réputation vous précède.', levelRequired: 32 },
-            { id: 't033', name: 'OLYMPIEN EN HERBE', description: 'Atteindre le Niveau 33. Digne des plus grands athlètes.', levelRequired: 33 },
-            { id: 't034', name: 'CHAMPION INCROYABLE', description: 'Atteindre le Niveau 34. Votre esprit est indomptable.', levelRequired: 34 },
-            { id: 't035', name: 'LE PRODIGE', description: 'Atteindre le Niveau 35. Vos prouesses sont inégalées.', levelRequired: 35 },
-            { id: 't036', name: 'FORCE DE LA NATURE', description: 'Atteindre le Niveau 36. Vous êtes imparable.', levelRequired: 36 },
-            { id: 't037', name: 'FORME DIVINE', description: 'Atteindre le Niveau 37. Votre corps est une œuvre d\'art.', levelRequired: 37 },
-            { id: 't038', name: 'CONNAISSANCE SUPRÊME', description: 'Atteindre le Niveau 38. Votre savoir est immense.', levelRequired: 38 },
-            { id: 't039', name: 'RÉALISATION PARFAITE', description: 'Atteindre le Niveau 39. Tout est sous contrôle.', levelRequired: 39 },
-            { id: 't040', name: 'QUARANTIÈME HORIZON', description: 'Atteindre le Niveau 40. Le ciel est votre limite !', levelRequired: 40 },
-            { id: 't041', name: 'LÉGENDE VIVANTE', description: 'Atteindre le Niveau 41. On parlera de vous.', levelRequired: 41 },
-            { id: 't042', name: 'INSPIRATION ULTIME', description: 'Atteindre le Niveau 42. Vous inspirez les foules.', levelRequired: 42 },
-            { id: 't043', name: 'DÉFI RELEVÉ', description: 'Atteindre le Niveau 43. Chaque obstacle est un tremplin.', levelRequired: 43 },
-            { id: 't044', name: 'SUMMUM DE LA FORME', description: 'Atteindre le Niveau 44. Vous êtes au sommet.', levelRequired: 44 },
-            { id: 't045', name: 'LE MAÎTRE CULMINANT', description: 'Atteindre le Niveau 45. La perfection incarnée.', levelRequired: 45 },
-            { id: 't046', name: 'IMPARABLE', description: 'Atteindre le Niveau 46. Vous êtes invincible !', levelRequired: 46 },
-            { id: 't047', name: 'VOLONTÉ DE DIAMANT', description: 'Atteindre le Niveau 47. Votre détermination est inébranlable.', levelRequired: 47 },
-            { id: 't048', name: 'ÉCLAT ÉTERNEL', description: 'Atteindre le Niveau 48. Votre aura brille.', levelRequired: 48 },
-            { id: 't049', name: 'CONNAISSANCE ABSOLUE', description: 'Atteindre le Niveau 49. Le savoir vous guide.', levelRequired: 49 },
-            { id: 't050', name: 'LE CINQUANTIÈME', description: 'Atteindre le Niveau 50. Une performance extraordinaire !', levelRequired: 50 },
-            { id: 't051', name: 'GRAND MAÎTRE', description: 'Atteindre le Niveau 51. Vous êtes au-delà de l\'excellence.', levelRequired: 51 },
-            { id: 't052', name: 'ARCHITECTE DU CORPS', description: 'Atteindre le Niveau 52. Vous sculptez votre destin.', levelRequired: 52 },
-            { id: 't053', name: 'ARTISAN DE LA SANTÉ', description: 'Atteindre le Niveau 53. Votre bien-être est une œuvre.', levelRequired: 53 },
-            { id: 't054', name: 'GUERRIER DE LA FORME', description: 'Atteindre le Niveau 54. Combattez pour votre meilleure version.', levelRequired: 54 },
-            { id: 't055', name: 'CONQUÉRANT DU PHYSIQUE', description: 'Atteindre le Niveau 55. Chaque jour est une victoire.', levelRequired: 55 },
-            { id: 't056', name: 'PIONNIER DU BIEN-ÊTRE', description: 'Atteindre le Niveau 56. Vous ouvrez la voie.', levelRequired: 56 },
-            { id: 't057', name: 'PILIER DE LA VITALITÉ', description: 'Atteindre le Niveau 57. Votre énergie est inépuisable.', levelRequired: 57 },
-            { id: 't058', name: 'SYNTHÈSE PARFAITE', description: 'Atteindre le Niveau 58. L\'équilibre est atteint.', levelRequired: 58 },
-            { id: 't059', name: 'PERFORMANCE ULTIME', description: 'Atteindre le Niveau 59. Vous défiez les limites.', levelRequired: 59 },
-            { id: 't060', name: 'LE SOIXANTIÈME', description: 'Atteindre le Niveau 60. Incroyable persévérance !', levelRequired: 60 },
-            { id: 't061', name: 'LÉGENDAIRE INDOMPTABLE', description: 'Atteindre le Niveau 61. Votre nom résonne.', levelRequired: 61 },
-            { id: 't062', name: 'MYTHIQUE', description: 'Atteindre le Niveau 62. Votre parcours est une épopée.', levelRequired: 62 },
-            { id: 't063', name: 'CHRONIQUE VIVANTE', description: 'Atteindre le Niveau 63. Chaque jour écrit l\'histoire.', levelRequired: 63 },
-            { id: 't064', name: 'PATRON DES RECORDS', description: 'Atteindre le Niveau 64. Les records s\'inclinent.', levelRequired: 64 },
-            { id: 't065', name: 'LE NÉMÉSIS DE LA FAIBLESSE', description: 'Atteindre le Niveau 65. Plus rien ne vous arrête.', levelRequired: 65 },
-            { id: 't066', name: 'VOLONTÉ D\'ACIER', description: 'Atteindre le Niveau 66. Votre détermination est inébranlable.', levelRequired: 66 },
-            { id: 't067', name: 'MÉTÉORE DE LA FORME', description: 'Atteindre le Niveau 67. Votre progression est fulgurante.', levelRequired: 67 },
-            { id: 't068', name: 'AU-DELÀ DES LIMITES', description: 'Atteindre le Niveau 68. Vous transcendez tout.', levelRequired: 68 },
-            { id: 't069', name: 'VISIONNAIRE DU FITNESS', description: 'Atteindre le Niveau 69. Votre vision est claire.', levelRequired: 69 },
-            { id: 't070', name: 'LE SOIXANTE-DIXIÈME', description: 'Atteindre le Niveau 70. Une ascension sans fin !', levelRequired: 70 },
-            { id: 't071', name: 'IMMORTEL DE LA FORME', description: 'Atteindre le Niveau 71. Votre dévouement est éternel.', levelRequired: 71 },
-            { id: 't072', name: 'INVICTUS', description: 'Atteindre le Niveau 72. Vous êtes invaincu.', levelRequired: 72 },
-            { id: 't073', name: 'MAJESTÉ DU PHYSIQUE', description: 'Atteindre le Niveau 73. Votre présence est imposante.', levelRequired: 73 },
-            { id: 't074', name: 'SOUVERAIN DE LA SANTÉ', description: 'Atteindre le Niveau 74. Vous régnez sur votre bien-être.', levelRequired: 74 },
-            { id: 't075', name: 'FORCE COLISEUM', description: 'Atteindre le Niveau 75. Digne d\'une arène antique.', levelRequired: 75 },
-            { id: 't076', name: 'MYSTÈRE DE LA RÉUSSITE', description: 'Atteindre le Niveau 76. Votre succès est fascinant.', levelRequired: 76 },
-            { id: 't077', name: 'PERFECTION DE L\'ÊTRE', description: 'Atteindre le Niveau 77. Corps et âme alignés.', levelRequired: 77 },
-            { id: 't078', name: 'AURORE DE LA GRANDEUR', description: 'Atteindre le Niveau 78. Chaque jour est un nouveau chef-d\'œuvre.', levelRequired: 78 },
-            { id: 't079', name: 'COURONNE ÉTERNELLE', description: 'Atteindre le Niveau 79. Votre legs perdurera.', levelRequired: 79 },
-            { id: 't080', name: 'LE QUATRE-VINGTIÈME', description: 'Atteindre le Niveau 80. Une légende se construit !', levelRequired: 80 },
-            { id: 't081', name: 'DIEU DU FITNESS', description: 'Atteindre le Niveau 81. Votre puissance est divine.', levelRequired: 81 },
-            { id: 't082', name: 'TITAN DE LA FORME', description: 'Atteindre le Niveau 82. Une force colossale.', levelRequired: 82 },
-            { id: 't083', name: 'HÉROS ABSOLU', description: 'Atteindre le Niveau 83. Vous êtes l\'incarnation du triomphe.', levelRequired: 83 },
-            { id: 't084', name: 'DÉFIANT LES MORTELS', description: 'Atteindre le Niveau 84. Plus rien ne vous est impossible.', levelRequired: 84 },
-            { id: 't085', name: 'LE PHÉNIX DE LA SANTÉ', description: 'Atteindre le Niveau 85. Vous renaissez de vos efforts.', levelRequired: 85 },
-            { id: 't086', name: 'CONSTELLATION DE MUSCLES', description: 'Atteindre le Niveau 86. Chaque muscle brille.', levelRequired: 86 },
-            { id: 't087', name: 'L\'AURORE BORÉALE', description: 'Atteindre le Niveau 87. Votre beauté est naturelle.', levelRequired: 87 },
-            { id: 't088', name: 'LA FULGURANCE', description: 'Atteindre le Niveau 88. Votre vitesse est inégalée.', levelRequired: 88 },
-            { id: 't089', name: 'L\'INCONNU', description: 'Atteindre le Niveau 89. Le monde vous attend.', levelRequired: 89 },
-            { id: 't090', name: 'LE NONANTIÈME', description: 'Atteindre le Niveau 90. À l\'aube de l\'immortalité !', levelRequired: 90 },
-            { id: 't091', name: 'L\'ASCENSION', description: 'Atteindre le Niveau 91. Vous touchez les étoiles.', levelRequired: 91 },
-            { id: 't092', name: 'LA CONQUÊTE FINALE', description: 'Atteindre le Niveau 92. La victoire est proche.', levelRequired: 92 },
-            { id: 't093', name: 'LA PERFECTION ATTEINTE', description: 'Atteindre le Niveau 93. Chaque aspect est maîtrisé.', levelRequired: 93 },
-            { id: 't094', name: 'LE ZÉNITH', description: 'Atteindre le Niveau 94. Vous êtes au sommet du monde.', levelRequired: 94 },
-            { id: 't095', name: 'LE MYSTÈRE ÉCLAIRCI', description: 'Atteindre le Niveau 95. Les secrets sont révélés.', levelRequired: 95 },
-            { id: 't096', name: 'LE DESTIN ACCOMPLI', description: 'Atteindre le Niveau 96. Votre destinée est scellée.', levelRequired: 96 },
-            { id: 't097', name: 'L\'APOTHÉOSE', description: 'Atteindre le Niveau 97. Vous êtes glorifié.', levelRequired: 97 },
-            { id: 't098', name: 'L\'HÉRITAGE', description: 'Atteindre le Niveau 98. Votre histoire sera contée.', levelRequired: 98 },
-            { id: 't099', name: 'L\'INFINI', description: 'Atteindre le Niveau 99. Les possibilités sont sans fin.', levelRequired: 99 },
-            { id: 't100', name: 'MAÎTRE ULTIME DE POXEL', description: 'Atteindre le Niveau 100. Félicitations, Poxel vous couronne !', levelRequired: 100 },
-            { id: 't101', name: 'AU-DELÀ DE LA CENTAINE I', description: 'Atteindre le Niveau 101. Une force continue.', levelRequired: 101 },
-            { id: 't102', name: 'AU-DELÀ DE LA CENTAINE II', description: 'Atteindre le Niveau 102. La puissance croît.', levelRequired: 102 },
-            { id: 't103', name: 'AU-DELÀ DE LA CENTAINE III', description: 'Atteindre le Niveau 103. L\'énergie pure.', levelRequired: 103 },
-            { id: 't104', name: 'AU-DELÀ DE LA CENTAINE IV', description: 'Atteindre le Niveau 104. La maîtrise s\'étend.', levelRequired: 104 },
-            { id: 't105', name: 'AU-DELÀ DE LA CENTAINE V', description: 'Atteindre le Niveau 105. Les profondeurs de la forme.', levelRequired: 105 },
-            { id: 't106', name: 'AU-DELÀ DE LA CENTAINE VI', description: 'Atteindre le Niveau 106. La discipline absolue.', levelRequired: 106 },
-            { id: 't107', name: 'AU-DELÀ DE LA CENTAINE VII', description: 'Atteindre le Niveau 107. Le corps résiste à tout.', levelRequired: 107 },
-            { id: 't108', name: 'AU-DELÀ DE LA CENTAINE VIII', description: 'Atteindre le Niveau 108. L\'esprit ne faiblit pas.', levelRequired: 108 },
-            { id: 't109', name: 'AU-DELÀ DE LA CENTAINE IX', description: 'Atteindre le Niveau 109. La sagesse du guerrier.', levelRequired: 109 },
-            { id: 't110', name: 'AU-DELÀ DE LA CENTAINE X', description: 'Atteindre le Niveau 110. Une décennie de plus de puissance !', levelRequired: 110 },
+            { id: 't004', name: 'FORME CROISSANTE', description: 'De mieux en mieux !', levelRequired: 4 },
+            { id: 't005', name: 'DÉBUTANT AVANCÉ', description: 'Vous n\'êtes plus un débutant.', levelRequired: 5 },
+            { id: 't006', name: 'CONSTANCE MÉRITÉE', description: 'La régularité, c\'est la clé.', levelRequired: 6 },
+            { id: 't007', name: 'ÉLAN DU PROGRÈS', description: 'Vous sentez la progression.', levelRequired: 7 },
+            { id: 't008', name: 'GAINS ASSURÉS', description: 'Les efforts paient.', levelRequired: 8 },
+            { id: 't009', name: 'AVANCÉE RAPIDE', description: 'Vous brûlez les étapes.', levelRequired: 9 },
+            { id: 't010', name: 'DIXIÈME ÉTAPE', description: 'Un jalon important !', levelRequired: 10 },
+            { id: 't011', name: 'MAÎTRE INTERMÉDIAIRE', description: 'Le fitness devient une habitude.', levelRequired: 11 },
+            { id: 't012', name: 'FORCE ÉMERGENTE', description: 'Vos limites sont repoussées.', levelRequired: 12 },
+            { id: 't013', name: 'ENDURANCE ACCRUE', description: 'Le cardio n\'a plus de secret.', levelRequired: 13 },
+            { id: 't014', name: 'EXCELLENCE EN VUE', description: 'La performance est à portée.', levelRequired: 14 },
+            { id: 't015', name: 'DEMI-MAÎTRE', description: 'Vous êtes sur la bonne voie.', levelRequired: 15 },
+            { id: 't016', name: 'DISCIPLINE DE FER', description: 'Votre engagement est fort.', levelRequired: 16 },
+            { id: 't017', name: 'ÉNERGIE DÉCUPLÉE', description: 'Sentez cette vitalité !', levelRequired: 17 },
+            { id: 't018', name: 'HARMONIE CORPS/ESPRIT', description: 'L\'équilibre est parfait.', levelRequired: 18 },
+            { id: 't019', name: 'FORME OPTIMALE', description: 'Vous rayonnez de santé.', levelRequired: 19 },
+            { id: 't020', name: 'DEUXIÈME DIZAINE', description: 'Double décennie de fitness !', levelRequired: 20 },
+            { id: 't021', name: 'EXPERT EN DEVENIR', description: 'La maîtrise approche.', levelRequired: 21 },
+            { id: 't022', name: 'PUISSANCE RÉVÉLÉE', description: 'Une force insoupçonnée.', levelRequired: 22 },
+            { id: 't023', name: 'AGILITÉ MAXIMALE', description: 'Votre corps est un temple agile.', levelRequired: 23 },
+            { id: 't024', name: 'RÉSISTANCE INÉGALÉE', description: 'Rien ne vous arrête.', levelRequired: 24 },
+            { id: 't025', name: 'QUART DE SIÈCLE', description: 'Vous êtes une machine !', levelRequired: 25 },
+            { id: 't026', name: 'PERFECTION EN MARCHE', description: 'Chaque pas est un succès.', levelRequired: 26 },
+            { id: 't027', name: 'FORME INCROYABLE', description: 'Admirez votre progression !', levelRequired: 27 },
+            { id: 't028', name: 'DÉTERMINATION ACÉRÉE', description: 'Votre volonté est sans faille.', levelRequired: 28 },
+            { id: 't029', name: 'INÉPUISABLE', description: 'L\'énergie vous habite.', levelRequired: 29 },
+            { id: 't030', name: 'LE TREINTIÈME', description: 'Un cap monumental !', levelRequired: 30 },
+            { id: 't031', name: 'MAÎTRE ABSOLU', description: 'Vous êtes une référence.', levelRequired: 31 },
+            { id: 't032', name: 'EXPERT LÉGENDAIRE', description: 'Votre réputation vous précède.', levelRequired: 32 },
+            { id: 't033', name: 'OLYMPIEN EN HERBE', description: 'Digne des plus grands athlètes.', levelRequired: 33 },
+            { id: 't034', name: 'CHAMPION INCROYABLE', description: 'Votre esprit est indomptable.', levelRequired: 34 },
+            { id: 't035', name: 'LE PRODIGE', description: 'Vos prouesses sont inégalées.', levelRequired: 35 },
+            { id: 't036', name: 'FORCE DE LA NATURE', description: 'Vous êtes imparable.', levelRequired: 36 },
+            { id: 't037', name: 'FORME DIVINE', description: 'Votre corps est une œuvre d\'art.', levelRequired: 37 },
+            { id: 't038', name: 'CONNAISSANCE SUPRÊME', description: 'Votre savoir est immense.', levelRequired: 38 },
+            { id: 't039', name: 'RÉALISATION PARFAITE', description: 'Tout est sous contrôle.', levelRequired: 39 },
+            { id: 't040', name: 'QUARANTIÈME HORIZON', description: 'Le ciel est votre limite !', levelRequired: 40 },
+            { id: 't041', name: 'LÉGENDE VIVANTE', description: 'On parlera de vous.', levelRequired: 41 },
+            { id: 't042', name: 'INSPIRATION ULTIME', description: 'Vous inspirez les foules.', levelRequired: 42 },
+            { id: 't043', name: 'DÉFI RELEVÉ', description: 'Chaque obstacle est un tremplin.', levelRequired: 43 },
+            { id: 't044', name: 'SUMMUM DE LA FORME', description: 'Vous êtes au sommet.', levelRequired: 44 },
+            { id: 't045', name: 'LE MAÎTRE CULMINANT', description: 'La perfection incarnée.', levelRequired: 45 },
+            { id: 't046', name: 'IMPARABLE', description: 'Vous êtes invaincu !', levelRequired: 46 },
+            { id: 't047', name: 'VOLONTÉ DE DIAMANT', description: 'Votre détermination est inébranlable.', levelRequired: 47 },
+            { id: 't048', name: 'ÉCLAT ÉTERNEL', description: 'Votre aura brille.', levelRequired: 48 },
+            { id: 't049', name: 'CONNAISSANCE ABSOLUE', description: 'Le savoir vous guide.', levelRequired: 49 },
+            { id: 't050', name: 'LE CINQUANTIÈME', description: 'Une performance extraordinaire !', levelRequired: 50 },
+            { id: 't051', name: 'GRAND MAÎTRE', description: 'Vous êtes au-delà de l\'excellence.', levelRequired: 51 },
+            { id: 't052', name: 'ARCHITECTE DU CORPS', description: 'Vous sculptez votre destin.', levelRequired: 52 },
+            { id: 't053', name: 'ARTISAN DE LA SANTÉ', description: 'Votre bien-être est une œuvre.', levelRequired: 53 },
+            { id: 't054', name: 'GUERRIER DE LA FORME', description: 'Combattez pour votre meilleure version.', levelRequired: 54 },
+            { id: 't055', name: 'CONQUÉRANT DU PHYSIQUE', description: 'Chaque jour est une victoire.', levelRequired: 55 },
+            { id: 't056', name: 'PIONNIER DU BIEN-ÊTRE', description: 'Vous ouvrez la voie.', levelRequired: 56 },
+            { id: 't057', name: 'PILIER DE LA VITALITÉ', description: 'Votre énergie est inépuisable.', levelRequired: 57 },
+            { id: 't058', name: 'SYNTHÈSE PARFAITE', description: 'L\'équilibre est atteint.', levelRequired: 58 },
+            { id: 't059', name: 'PERFORMANCE ULTIME', description: 'Vous défiez les limites.', levelRequired: 59 },
+            { id: 't060', name: 'LE SOIXANTIÈME', description: 'Incroyable persévérance !', levelRequired: 60 },
+            { id: 't061', name: 'LÉGENDAIRE INDOMPTABLE', description: 'Votre nom résonne.', levelRequired: 61 },
+            { id: 't062', name: 'MYTHIQUE', description: 'Votre parcours est une épopée.', levelRequired: 62 },
+            { id: 't063', name: 'CHRONIQUE VIVANTE', description: 'Chaque jour écrit l\'histoire.', levelRequired: 63 },
+            { id: 't064', name: 'PATRON DES RECORDS', description: 'Les records s\'inclinent.', levelRequired: 64 },
+            { id: 't065', name: 'LE NÉMÉSIS DE LA FAIBLESSE', description: 'Plus rien ne vous arrête.', levelRequired: 65 },
+            { id: 't066', name: 'VOLONTÉ D\'ACIER', description: 'Votre détermination est inébranlable.', levelRequired: 66 },
+            { id: 't067', name: 'MÉTÉORE DE LA FORME', description: 'Votre progression est fulgurante.', levelRequired: 67 },
+            { id: 't068', name: 'AU-DELÀ DES LIMITES', description: 'Vous transcendez tout.', levelRequired: 68 },
+            { id: 't069', name: 'VISIONNAIRE DU FITNESS', description: 'Votre vision est claire.', levelRequired: 69 },
+            { id: 't070', name: 'LE SOIXANTE-DIXIÈME', description: 'Une ascension sans fin !', levelRequired: 70 },
+            { id: 't071', name: 'IMMORTEL DE LA FORME', description: 'Votre dévouement est éternel.', levelRequired: 71 },
+            { id: 't072', name: 'INVICTUS', description: 'Vous êtes invaincu.', levelRequired: 72 },
+            { id: 't073', name: 'MAJESTÉ DU PHYSIQUE', description: 'Votre présence est imposante.', levelRequired: 73 },
+            { id: 't074', name: 'SOUVERAIN DE LA SANTÉ', description: 'Vous régnez sur votre bien-être.', levelRequired: 74 },
+            { id: 't075', name: 'FORCE COLISEUM', description: 'Digne d\'une arène antique.', levelRequired: 75 },
+            { id: 't076', name: 'MYSTÈRE DE LA RÉUSSITE', description: 'Votre succès est fascinant.', levelRequired: 76 },
+            { id: 't077', name: 'PERFECTION DE L\'ÊTRE', description: 'Corps et âme alignés.', levelRequired: 77 },
+            { id: 't078', name: 'AURORE DE LA GRANDEUR', description: 'Chaque jour est un nouveau chef-d\'œuvre.', levelRequired: 78 },
+            { id: 't079', name: 'COURONNE ÉTERNELLE', description: 'Votre legs perdurera.', levelRequired: 79 },
+            { id: 't080', name: 'LE QUATRE-VINGTIÈME', description: 'Une légende se construit !', levelRequired: 80 },
+            { id: 't081', name: 'DIEU DU FITNESS', description: 'Votre puissance est divine.', levelRequired: 81 },
+            { id: 't082', name: 'TITAN DE LA FORME', description: 'Une force colossale.', levelRequired: 82 },
+            { id: 't083', name: 'HÉROS ABSOLU', description: 'Vous êtes l\'incarnation du triomphe.', levelRequired: 83 },
+            { id: 't084', name: 'DÉFIANT LES MORTELS', description: 'Plus rien ne vous est impossible.', levelRequired: 84 },
+            { id: 't085', name: 'LE PHÉNIX DE LA SANTÉ', description: 'Vous renaissez de vos efforts.', levelRequired: 85 },
+            { id: 't086', name: 'CONSTELLATION DE MUSCLES', description: 'Chaque muscle brille.', levelRequired: 86 },
+            { id: 't087', name: 'L\'AURORE BORÉALE', description: 'Votre beauté est naturelle.', levelRequired: 87 },
+            { id: 't088', name: 'LA FULGURANCE', description: 'Votre vitesse est inégalée.', levelRequired: 88 },
+            { id: 't089', name: 'L\'INCONNU', description: 'Le monde vous attend.', levelRequired: 89 },
+            { id: 't090', name: 'LE NONANTIÈME', description: 'À l\'aube de l\'immortalité !', levelRequired: 90 },
+            { id: 't091', name: 'L\'ASCENSION', description: 'Vous touchez les étoiles.', levelRequired: 91 },
+            { id: 't092', name: 'LA CONQUÊTE FINALE', description: 'La victoire est proche.', levelRequired: 92 },
+            { id: 't093', name: 'LA PERFECTION ATTEINTE', description: 'Chaque aspect est maîtrisé.', levelRequired: 93 },
+            { id: 't094', name: 'LE ZÉNITH', description: 'Vous êtes au sommet du monde.', levelRequired: 94 },
+            { id: 't095', name: 'LE MYSTÈRE ÉCLAIRCI', description: 'Les secrets sont révélés.', levelRequired: 95 },
+            { id: 't096', name: 'LE DESTIN ACCOMPLI', description: 'Votre destinée est scellée.', levelRequired: 96 },
+            { id: 't097', name: 'L\'APOTHÉOSE', description: 'Vous êtes glorifié.', levelRequired: 97 },
+            { id: 't098', name: 'L\'HÉRITAGE', description: 'Votre histoire sera contée.', levelRequired: 98 },
+            { id: 't099', name: 'L\'INFINI', description: 'Les possibilités sont sans fin.', levelRequired: 99 },
+            { id: 't100', name: 'MAÎTRE ULTIME DE POXEL', description: 'Félicitations, Poxel vous couronne !', levelRequired: 100 },
+            { id: 't101', name: 'AU-DELÀ DE LA CENTAINE I', description: 'Une force continue.', levelRequired: 101 },
+            { id: 't102', name: 'AU-DELÀ DE LA CENTAINE II', description: 'La puissance croît.', levelRequired: 102 },
+            { id: 't103', name: 'AU-DELÀ DE LA CENTAINE III', description: 'L\'énergie pure.', levelRequired: 103 },
+            { id: 't104', name: 'AU-DELÀ DE LA CENTAINE IV', description: 'La maîtrise s\'étend.', levelRequired: 104 },
+            { id: 't105', name: 'AU-DELÀ DE LA CENTAINE V', description: 'Les profondeurs de la forme.', levelRequired: 105 },
+            { id: 't106', name: 'AU-DELÀ DE LA CENTAINE VI', description: 'La discipline absolue.', levelRequired: 106 },
+            { id: 't107', name: 'AU-DELÀ DE LA CENTAINE VII', description: 'Le corps résiste à tout.', levelRequired: 107 },
+            { id: 't108', name: 'AU-DELÀ DE LA CENTAINE VIII', description: 'L\'esprit ne faiblit pas.', levelRequired: 108 },
+            { id: 't109', name: 'AU-DELÀ DE LA CENTAINE IX', description: 'La sagesse du guerrier.', levelRequired: 109 },
+            { id: 't110', name: 'AU-DELÀ DE LA CENTAINE X', description: 'Une décennie de plus de puissance !', levelRequired: 110 },
         ];
 
         // Routines de sommeil adaptées aux types de poste
@@ -419,7 +397,7 @@ Notes générales pour ta Nutrition :
                             },
                             {
                                 name: "CARDIO & FONCTIONNEL MIXTE (MOINS INTENSE QU'UN HIIT)",
-                                desc: "PARTIE 1 (20 MINUTES) : 10 MINUTES : TAPIS DE COURSE (MARCHE RAPIDE À 6.0 KM/H, PENTE 2.0) OU VÉLO/ELLIPTIQUE (NIVEAU 6). 10 MINUTES : ALTERNER 2 MINUTES DE MOUNTAIN CLIMBERS (RYTHME MODÉRÉ) ET 2 MINUTES DE JUMPING JACKS (RYTHME MODÉRÉ), RÉPÈTE 2 FOIS. RÉCUPÉRATION ACTIVE (5 MINUTES) : MARCHE LENTE À 4.0 KM/H, PENTE 0.0. BOIS UN PEU D'EAU. PARTIE 2 (15 MINUTES) : 10 MINUTES : TAPIS DE COURSE (MARCHE RAPIDE À 6.5 KM/H, PENTE 2.0) OU VÉLO/ELLIPTIQUE (NIVEAU 7). 5 MINUTES : MONTÉES DE GENOUX RAPIDES (RYTHME MODÉRÉ) OU KETTLEBELL SWING (4-6KG, 15 RÉPÉTITIONS).",
+                                desc: "PARTIE 1 (20 MINUTES) : 10 MINUTES : TAPIS DE COURSE (MARCHE RAPIDE À 6.0 KM/H, PENTE 2.0) OU VÉLO/ELLIPTIQUE (NIVEAU 6). 10 MINUTES : ALTERNER 2 MINUTES DE MOUNTAIN CLIMBERS (RYTHME MODÉRÉ) ET 2 MINUTES DE JUMPING JACKS (RYTHME MODÉRÉ), RÉPÈTE 2 FOIS. RÉCUPÉRATION ACTIVE (5 MINUTES) : MARCHE LENTE À 4.0 KM/H, PENTE 0.0. BOIS UN PEU D'EAU. PARTIE 2 (15 MINUTES) : 10 MINUTES : TAPIS DE COURSE (MARCHE RAPIDE À 6.5 KM/H, PENTE 2.0) OU VÉLO (NIVEAU 7). 5 MINUTES : MONTÉES DE GENOUX RAPIDES (RYTHME MODÉRÉ) OU KETTLEBELL SWING (4-6KG, 15 RÉPÉTITIONS).",
                                 type: "cardio"
                             }
                         ]
@@ -458,12 +436,12 @@ Notes générales pour ta Nutrition :
                         options: [
                             {
                                 name: "TAPIS DE COURSE (ENDURANCE À PENTE VARIABLE)",
-                                desc: "5 MINUTES : MARCHE RAPIDE À 5.5 KM/H, PENTE 2.0. 3 MINUTES : MARCHE RAPIDE À 6.0 KM/H, PENTE 3.0. 2 MINUTES : COURSE LÉGÈRE À 7.5 KM/H, PENTE 1.0. RÉPÈTE CE CYCLE 4-5 FOIS POUR UN TOTAL DE 40-50 MINUTES. VARIANTE : POUR AUGMENTER L'INTENSITÉ, AUGMENTE LÉGÈREMENT LA VITESSE OU LA PENTE À CHAQUE CYCLE SI TU TE SENS BIEN.",
+                                desc: "5 MINUTES : ÉCHAUFFEMENT LÉGER (RYTHME LENT, RÉSISTANCE FAIBLE). RONDE 1 (15 MINUTES) : RÉPÈTE 5 FOIS : 2 MINUTES : MARCHE RAPIDE À 5.5 KM/H, PENTE 2.0. 3 MINUTES : MARCHE RAPIDE À 6.0 KM/H, PENTE 3.0. 2 MINUTES : COURSE LÉGÈRE À 7.5 KM/H, PENTE 1.0. RÉPÈTE CE CYCLE 4-5 FOIS POUR UN TOTAL DE 40-50 MINUTES. VARIANTE : POUR AUGMENTER L'INTENSITÉ, AUGMENTE LÉGÈREMENT LA VITESSE OU LA PENTE À CHAQUE CYCLE SI TU TE SENS BIEN.",
                                 type: "cardio"
                             },
                             {
                                 name: "RAMEUR (ROWING MACHINE) - INTERVAL TRAINING",
-                                desc: "5 MINUTES : ÉCHAUFFEMENT LÉGER (RYTHME LENT, RÉSISTANCE FAIBLE). RONDE 1 (15 MINUTES) : RÉPÈTE 5 FOIS : 2 MINUTES : RYTHME MODÉRÉ, RÉSISTANCE 3-5 (EFFORT SOUTENU MAIS CONFORTABLE). 1 MINUTE : RYTHME INTENSE, RÉSISTANCE 6-7 (TU ES ESSOUFFLÉ, TU NE PEUX PAS PARLER FACILEMENT). RÉCUPÉRATION ACTIVE (5 MINUTES) : RYTHME TRÈS FACILE, RÉSISTANCE 2. BOIS UN PEU D'EAU. RONDE 2 (15 MINUTES) : RÉPÈTE 5 FOIS : 2 MINUTES : RYTHME MODÉRÉ, RÉSISTANCE 4-6. 1 MINUTE : RYTHME PLUS INTENSE, RÉSISTANCE 7-8 (OU LE MAXIMUM QUE TU PEUX SOUTENIR). CONSIGNE : UTILISE 60% DE LA FORCE DES JAMBES, 20% DU TRONC, 20% DES BRAS. POUSSE AVEC LES JAMBES EN PREMIER !",
+                                desc: "5 MINUTES : ÉCHAUFFEMENT LÉGER (RYTHME LENT, RÉSISTANCE FAIBLE). RONDE 1 (15 MINUTES) : RÉPÈTE 5 FOIS : 2 MINUTES : RYTHME MODÉRÉ, RÉSISTANCE 3-5 (EFFORT SOUTENU MAIS CONFORTABLE). 1 MINUTE : RYTHME INTENSE, RÉSISTANCE 6-7 (TU ES ESSOUFFLÉ, TU NE PEUX PAS PARLER FACILEMENT). RÉCUPÉRATION ACTIVE (5 MINUTES) : RYTHME TRÈS FACILE, RÉSISTANCE 2. BOIS UN PEU D'EAU. RONDE 2 (15 MINUTES) : RÉPÈTE 5 FOIS : 3 MINUTES : RYTHME MODÉRÉ, RÉSISTANCE 4-6. 1 MINUTE : RYTHME PLUS INTENSE, RÉSISTANCE 7-8 (OU LE MAXIMUM QUE TU PEUX SOUTENIR). CONSIGNE : UTILISE 60% DE LA FORCE DES JAMBES, 20% DU TRONC, 20% DES BRAS. POUSSE AVEC LES JAMBES EN PREMIER !",
                                 type: "cardio"
                             },
                             {
@@ -543,7 +521,7 @@ Notes générales pour ta Nutrition :
             container.appendChild(notification);
             void notification.offsetWidth;
             notification.classList.add('show');
-            const duration = type === 'trophy' ? 12000 : (type === 'tip' ? 20000 : 5000);
+            const duration = type === 'trophy' ? 12000 : (type === 'tip' ? 20000 : (type === 'ai-advice' ? 15000 : 5000)); // AI advice for 15 seconds
             setTimeout(() => { notification.classList.remove('show'); notification.addEventListener('transitionend', () => notification.remove(), { once: true }); }, duration);
         }
 
@@ -570,12 +548,9 @@ Notes générales pour ta Nutrition :
                 isAudioActive = true;
                 Tone.Master.mute = false;
                 Tone.Master.volume.value = masterVolume === 0 ? -Infinity : 20 * Math.log10(masterVolume);
-                document.getElementById('audio-inactive-message').classList.add('hidden');
             } catch (e) {
                 isAudioActive = false;
                 Tone.Master.mute = true;
-                document.getElementById('audio-inactive-message').classList.remove('hidden');
-                document.getElementById('audio-inactive-message').textContent = "AUDIO DÉSACTIVÉ. CLIQUEZ OU APPUYEZ SUR UNE TOUCHE POUR ACTIVER LE SON ET LA SYNTHÈSE VOCALE.";
             }
         }
 
@@ -634,10 +609,19 @@ Notes générales pour ta Nutrition :
         // Fait parler l'IA avec la synthèse vocale
         function speak(text) { if (isAudioActive) { if (synth) { synth.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'fr-FR'; synth.speak(utterance); } } }
 
+        // Fonction pour parler avec Kodular (intégration)
+        function parlerAvecKodular(texte) {
+            if (window.AppInventor && window.AppInventor.setWebViewString) {
+                window.AppInventor.setWebViewString(texte);
+            } else {
+                // showMessage("KODULAR NON DÉTECTÉ, TEXTE : " + texte, 'warning'); // Commented as per user request
+            }
+        }
+
         // Génère un identifiant unique
         function generateUniqueId() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8); return v.toString(16); }); }
 
-        // Formate une date au format YYYY-MM-DD
+        // Formate une date au formatYYYY-MM-DD
         function formatDateToYYYYMMDD(date) { if (!(date instanceof Date) || isNaN(date.getTime())) return ''; const year = date.getFullYear(); const month = String(date.getMonth() + 1).padStart(2, '0'); const day = String(date.getDate()).padStart(2, '0'); return `${year}-${month}-${day}`; }
 
         // Retourne une chaîne de caractères décrivant le contexte du jour (poste et sport)
@@ -662,18 +646,18 @@ Notes générales pour ta Nutrition :
             const sType = String(shiftType || ''), spType = String(sportType || '');
             if (mealType === 'petit_dejeuner') { moment = "PETIT-DÉJEUNER"; if (sType === '18h-6h') moment += " POST-NUIT"; else if (spType !== 'aucun') moment += " PRÉ-ENTRAÎNEMENT"; }
             else if (mealType === 'dejeuner') { moment = "DÉJEUNER"; if (sType === '18h-6h') moment += " PENDANT LE POSTE DE NUIT"; else if (spType !== 'aucun') moment += " POST-ENTRAÎNEMENT"; else if (sType.includes('jour')) moment += " JOURNÉE DE TRAVAIL"; }
-            else if (mealType === 'diner') { moment = "DÎNER"; if (sType === '18h-6h') moment += " PRÉ-POSTE DE NUIT"; else if (spType !== 'aucun') moment += " POST-ENTRAÎNEMENT"; else if (sType.includes('jour')) moment += " APRÈS JOURNÉE DE TRAVAIL"; }
+            else if (mealType === 'diner') { moment = "DÎNER"; if (sType === '18h-6h') moment = "PRÉ-POSTE DE NUIT"; else if (spType !== 'aucun') moment += " POST-ENTRAÎNEMENT"; else if (sType.includes('jour')) moment += " APRÈS JOURNÉE DE TRAVAIL"; }
             else if (mealType === 'collation_matin') { moment = "COLLAT. MATIN"; }
             else if (mealType === 'collation_apresmidi') { moment = "COLLAT. APRÈS-MIDI"; }
-            else if (mealType === 'collation_unique') { if (sType === '18h-6h') moment = "COLLAT. PENDANT POSTE DE NUIT"; else if (sType === '7h-18h') moment = "COLLAT. APRÈS-MIDI"; else if (spType !== 'aucun') moment = "COLLAT. POST-SPORT"; else if (sType.includes('repos')) moment = "COLLAT. LÉGÈRE"; }
+            else if (mealType === 'collation_unique') { if (sType === '18h-6h') moment = "COLLAT. PENDANT POSTE DE NUIT"; else { addMeal = false; } }
             return moment;
         }
 
         // Conseils spécifiques pour les repas en fonction du contexte
         const specificMealAdvice = {
             'petit_dejeuner': { '18h-6h': "CONSEIL : APRÈS UN POSTE DE NUIT, PRIVILÉGIE UN REPAS NUTRITIF POUR FAVORISER LA RÉCUPÉRATION ET UN SOMMEIL DE QUALITÉ. LES PROTÉINES ET GLUCIDES LENTS SONT CLÉS.", 'default': "CONSEIL : UN PETIT-DÉJEUNER ÉQUILIBRÉ EST ESSENTIEL POUR L'ÉNERGIE DU MATIN. VARIE LES SOURCES DE PROTÉINES ET FIBRES." },
-            'dejeuner': { '18h-6h': "CONSEIL : PENDANT UN POSTE DE NUIT, OPTE POUR DES PLATS FACILES À DIGÉRER, RICHES EN PROTÉINES ET LÉGUMES POUR MAINTENIR TON ÉNERGIE SANS ALOURDIR.", 'repos_sport': "CONSEIL : APRÈS LE SPORT, RECONSTITUE TES RÉSERVES. CE REPAS DEVRAIT ÊTRE RICHE EN GLUCIDES COMPLEXES POUR L'ÉNERGIE ET EN PROTÉINES POUR LA RÉPARATION MUSCULAIRE.", 'default': "CONSEIL : POUR UN DÉJEUNER OPTIMAL EN JOURNÉE DE TRAVAIL, PRIVILÉGIE UN PLAT ÉQUILIBRÉ QUI APPORTE UNE ÉNERGIE DURABLE SANS CAUSER DE COUP DE BARRE." },
-            'diner': { '18h-6h': "CONSEIL : AVANT UN POSTE DE NUIT, CHOISIS UN DÎNER CONSISTANT MAIS FACILE À DIGÉRER POUR TE DONNER L'ÉNERGIE NÉCESSAIRE SANS PERTURBER TON DÉBUT DE SOMMEIL PRÉ-POSTE.", 'repos_sport': "CONSEIL : LE DÎNER APRÈS UNE SÉANCE DE SPORT DOIT COMPLÉTER LA RÉCUPÉRATION. CONCENTRE-TOI SUR LES PROTÉINES POUR LA RÉPARATION ET LES GLUCIDES POUR REFAIRE LE PLEIN.", 'default': "CONSEIL : UN DÎNER LÉGER EST IDÉAL POUR FAVORISER UNE BONNE DIGESTION ET UN SOMMEIL RÉPARATEUR APRÈS UNE JOURNÉE DE TRAVAIL. PRIVILÉGIE LES LÉGUMES ET PROTÉINES MAIGRES." },
+            'dejeuner': { '18h-6h': "CONSEIL : PENDANT UN POSTE DE NUIT, OPTE POUR DES PLATS FACILES À DIGÉRER, RICHES EN PROTÉINES ET LÉGUMES POUR MAINTENIR TON ÉNERGIE SANS ALOURDIR.", 'repos_sport': "CONSEIL : APRÈS LE SPORT, RECONSTITUE TES RÉSERVES. CE REPAS DEVRAIT ÊTRE RICHE EN GLUCIDES COMPLEXES POUR L'ÉNERGIE ET LA RÉPARATION MUSCULAIRE.", 'default': "CONSEIL : POUR UN DÉJEUNER OPTIMAL EN JOURNÉE DE TRAVAIL, PRIVILÉGIE UN PLAT ÉQUILIBRÉ QUI APPORTE UNE ÉNERGIE DURABLE SANS CAUSER DE COUP DE BARRE." },
+            'diner': { '18h-6h': "CONSEIL : AVANT UN POSTE DE NUIT, CHOISIS UN DÎNER CONSISTANT MAIS FACILE À DIGÉRER POUR TE DONNER L'ENERGIE NÉCESSAIRE SANS PERTURBER TON DÉBUT DE SOMMEIL PRÉ-POSTE.", 'repos_sport': "CONSEIL : LE DÎNER APRÈS UNE SÉANCE DE SPORT DOIT COMPLÉTER LA RÉCUPÉRATION. CONCENTRE-TOI SUR LES PROTÉINES POUR LA RÉPARATION ET LES GLUCIDES POUR REFAIRE LE PLEIN.", 'default': "CONSEIL : UN DÎNER LÉGER EST IDÉAL POUR FAVORISER UNE BONNE DIGESTION ET UN SOMMEIL RÉPARATEUR APRÈS UNE JOURNÉE DE TRAVAIL. PRIVILÉGIE LES LÉGUMES ET PROTÉINES MAIGRES." },
             'collation': { '6h-18h_matin': "CONSEIL : CETTE COLLATON MATINALE EST CLÉ POUR MAINTENIR TON ÉNERGIE ET ÉVITER LES BAISSES DE GLYCÉMIE JUSQU'AU DÉJEUNER.", '6h-18h_apresmidi': "CONSEIL : LA COLLATON DE L'APRÈS-MIDI AIDE À GÉRER LA FAIM ET À SOUTENIR TON ÉNERGIE JUSQU'AU DÎNER, SANS ALOURDIR AVANT LA FIN DU POSTE.", '18h-6h_pendant': "CONSEIL : UNE COLLATON PENDANT LA NUIT EST LÉGÈRE ET ÉNERGISANTE POUR MAINTENIR TA VIGILANCE SANS PERTURBER TA DIGESTION.", '7h-18h_apresmidi': "CONSEIL : LA COLLATON DE L'APRÈS-MIDI EST PARFAITE POUR SOUTENIR SON ÉNERGIE LORS DES JOURS DE LONG POSTE OU DE REPOS ACTIF.", 'repos_sport_post': "CONSEIL : UNE COLLATON POST-SPORT EST CRUCIALE POUR UNE RÉCUPÉRATION RAPIDE. PRIVILÉGIE UN MIX DE PROTÉINES ET GLUCIDES.", 'repos_default': "CONSEIL : UNE COLLATON LÉGÈRE EN JOUR DE REPOS PEUT AIDER À GÉRER LA FAIM ET APPORTER DES NUTRIENTS SUPPLÉMENTAIRES." }
         };
 
@@ -707,58 +691,19 @@ Notes générales pour ta Nutrition :
 
         // Initialise l'application au démarrage
         async function initializeApp() {
-            isLoadingApp = true;
-            renderLoadingScreen();
-            let currentLoadProgress = 0;
-            const updateProgress = (target) => {
-                const diff = target - currentLoadProgress;
-                const step = diff / 10;
-                const interval = setInterval(() => {
-                    currentLoadProgress += step;
-                    if (currentLoadProgress >= target) clearInterval(interval);
-                    loadingProgress = Math.min(100, Math.floor(currentLoadProgress));
-                    document.getElementById('loading-progress-bar').style.width = `${loadingProgress}%`;
-                    document.getElementById('loading-progress-text').textContent = `${loadingProgress}% CHARGEMENT...`;
-                }, 50);
-            };
-
-            try {
-                updateProgress(20);
-                setupAudioPlayers();
-                updateProgress(40);
-                initializeGlobalState();
-                updateXPBar();
-                updateProfileDisplay();
-                updateProgress(60);
-                userId = 'local_user';
-                document.getElementById('user-id-value').textContent = userId;
-                document.getElementById('user-id-display').classList.remove('hidden');
-                renderPage(currentPage);
-                attachEventListeners();
-                renderLucideIcons();
-                updateProgress(80);
-                window.addEventListener('click', handleUserGestureToStartAudio, { once: true });
-                window.addEventListener('keydown', handleUserGestureToStartAudio, { once: true });
-                initializeAudioContextNonBlocking();
-                updateProgress(100);
-            } catch (error) { console.error("Échec de l'initialisation de l'application :", error); showMessage(`ERREUR D'INITIALISATION: ${error.message}`, 'error'); }
-            finally {
-                setTimeout(() => {
-                    isLoadingApp = false;
-                    document.getElementById('loading-screen').classList.add('hidden');
-                    document.getElementById('app-container').classList.remove('hidden');
-                    if (!isAudioActive && Tone.context.state !== 'running') { document.getElementById('audio-inactive-message').classList.remove('hidden'); document.getElementById('audio-inactive-message').textContent = "AUDIO DÉSACTIVÉ. CLIQUEZ OU APPUYEZ SUR UNE TOUCHE POUR ACTIVER LE SON ET LA SYNTHÈSE VOCALE."; }
-                    else if (isAudioActive && Tone.context.state === 'running') document.getElementById('audio-inactive-message').classList.add('hidden');
-                }, 1000);
-            }
-        }
-
-        // Affiche l'écran de chargement
-        function renderLoadingScreen() {
-            document.getElementById('loading-progress-bar').style.width = `${loadingProgress}%`;
-            document.getElementById('loading-progress-text').textContent = `${loadingProgress}% CHARGEMENT...`;
-            const audioInactiveMessage = document.getElementById('audio-inactive-message');
-            if (audioInactiveMessage) audioInactiveMessage.classList.toggle('hidden', isAudioActive || loadingProgress < 100);
+            setupAudioPlayers();
+            initializeGlobalState();
+            updateXPBar();
+            updateProfileDisplay();
+            userId = 'local_user';
+            document.getElementById('user-id-value').textContent = userId;
+            document.getElementById('user-id-display').classList.remove('hidden');
+            renderPage(currentPage);
+            attachEventListeners();
+            renderLucideIcons();
+            window.addEventListener('click', handleUserGestureToStartAudio, { once: true });
+            window.addEventListener('keydown', handleUserGestureToStartAudio, { once: true });
+            initializeAudioContextNonBlocking();
         }
 
         // Rend la page principale en fonction du nom de la page
@@ -866,9 +811,9 @@ Notes générales pour ta Nutrition :
                 { threshold: 18.5, category: 'INSUFFISANCE PONDÉRALE' },
                 { threshold: 25, category: 'POIDS NORMAL' },
                 { threshold: 27, category: 'SURPOIDS (PRÉ-OBÉSITÉ)' },
-                { threshold: 30, category: 'OBÉSITÉ CLASSE I' },
-                { threshold: 35, category: 'OBÉSITÉ CLASSE II (SÉVÈRE)' },
-                { threshold: 40, category: 'OBÉSITÉ CLASSE III (MORBIDE OU MASSIVE)' },
+                { threshold: 30, category: 'OBÉSITÉ MODÉRÉE' },
+                { threshold: 35, category: 'OBÉSITÉ CLASSE I' },
+                { threshold: 40, category: 'OBÉSITÉ CLASSE II (SÉVÈRE)' },
                 { threshold: Infinity, category: 'OBÉSITÉ CLASSE III (MORBIDE OU MASSIVE)' }
             ];
             for (const cat of imcCategories) { if (imcVal < cat.threshold) { currentImcCategory = cat.category; break; } }
@@ -935,7 +880,7 @@ Notes générales pour ta Nutrition :
                 const mealForThisDay = weeklyMealPlan?.semaine?.find(d => d.date === formatDateToYYYYMMDD(dateObj));
                 const shiftDiv = document.createElement('div');
                 shiftDiv.className = "bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg";
-                shiftDiv.innerHTML = `<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3"><h4 class="text-lg sm:text-xl font-bold text-yellow-300">${dateString} - POSTE: ${String(shift.type).toUpperCase()}</h4><button class="btn-retro-red text-sm px-3 py-1 mt-2 sm:mt-0 delete-shift-btn" data-id="${shift.id}" data-date="${formatDateToYYYYMMDD(dateObj)}">SUPPRIMER</button></div>${String(shift.workoutType) !== 'aucun' ? `<div class="mb-3 p-2 bg-blue-800 rounded-md border border-purple-400"><p class="text-sm sm:text-base font-medium text-white">SÉANCE SPORT : ${String(shift.workoutType).toUpperCase().replace('_', ' ')} PRÉVUE</p></div>` : ''}<div class="mb-4"><h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">¤ ROUTINE SOMMEIL : ${String(routine.name).toUpperCase()}</h5><ul class="list-disc list-inside text-gray-300 text-sm space-y-1">${routine.details.map(detail => `<li>${String(detail).toUpperCase()}</li>`).join('')}</ul></div><div class="mb-4"><h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">¤ PLAN REPAS SUGGÉRÉ :</h5>${mealForThisDay ? `<ul class="list-disc list-inside text-gray-300 text-sm space-y-1">${mealForThisDay.petit_dejeuner ? `<li>**PETIT-DÉJEUNER :** ${String(mealForThisDay.petit_dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.dejeuner ? `<li>**DÉJEUNER :** ${String(mealForThisDay.dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.diner ? `<li>**DÎNER :** ${String(mealForThisDay.diner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_matin ? `<li>**COLLAT. MATIN :** ${String(mealForThisDay.collation_matin.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_apresmidi ? `<li>**COLLAT. APRÈS-MIDI :** ${String(mealForThisDay.collation_apresmidi.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_unique ? `<li>**COLLAT. UNIQUE :** ${String(mealForThisDay.collation_unique.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}</ul>` : `<p class="text-gray-400">PLAN DE REPAS NON DISPONIBLE POUR CE JOUR. GÉNÉREZ UN PLAN HEBDOMADAIRE DANS L'ONGLET "RECETTES".</p>`}</div>`;
+                shiftDiv.innerHTML = `<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3"><h4 class="text-lg sm:text-xl font-bold text-yellow-300">${dateString} - POSTE: ${String(shift.type).toUpperCase()}</h4><button class="btn-retro-red text-sm px-3 py-1 mt-2 sm:mt-0 delete-shift-btn" data-id="${shift.id}" data-date="${formatDateToYYYYMMDD(dateObj)}">SUPPRIMER</button></div>${String(shift.workoutType) !== 'aucun' ? `<div class="mb-3 p-2 bg-blue-800 rounded-md border border-purple-400"><p class="text-sm sm:text-base font-medium text-white">SÉANCE SPORT : ${String(shift.workoutType).toUpperCase().replace('_', ' ')} PRÉVUE</p></div>` : ''}<div class="mb-4"><h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">💤 ROUTINE SOMMEIL : ${String(routine.name).toUpperCase()}</h5><ul class="list-disc list-inside text-gray-300 text-sm space-y-1">${routine.details.map(detail => `<li>${String(detail).toUpperCase()}</li>`).join('')}</ul></div><div class="mb-4"><h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">🍽️ PLAN REPAS SUGGÉRÉ :</h5>${mealForThisDay ? `<ul class="list-disc list-inside text-gray-300 text-sm space-y-1">${mealForThisDay.petit_dejeuner ? `<li>**PETIT-DÉJEUNER :** ${String(mealForThisDay.petit_dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.dejeuner ? `<li>**DÉJEUNER :** ${String(mealForThisDay.dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.diner ? `<li>**DÎNER :** ${String(mealForThisDay.diner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_matin ? `<li>**COLLAT. MATIN :** ${String(mealForThisDay.collation_matin.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_apresmidi ? `<li>**COLLAT. APRÈS-MIDI :** ${String(mealForThisDay.collation_apresmidi.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_unique ? `<li>**COLLAT. UNIQUE :** ${String(mealForThisDay.collation_unique.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}</ul>` : `<p class="text-gray-400">PLAN DE REPAS NON DISPONIBLE POUR CE JOUR. GÉNÉREZ UN PLAN HEBDOMADAIRE DANS L'ONGLET "RECETTES".</p>`}</div>`;
                 container.appendChild(shiftDiv);
             });
             container.querySelectorAll('.delete-shift-btn').forEach(button => {
@@ -969,7 +914,7 @@ Notes générales pour ta Nutrition :
                 const currentPhaseData = workoutProgram[phase];
                 if (!currentPhaseData || !currentPhaseData.sessions || !currentPhaseData.sessions.main || !currentPhaseData.sessions.cardio || !currentPhaseData.sessions.hiit) { workoutPhaseContent.innerHTML = '<p class="text-gray-400 text-center">CONTENU DE LA PHASE INDISPONIBLE. VEUILLEZ IMPORTER UN PROGRAMME VALIDE ET COMPLET.</p>'; return; }
                 const generateExerciseHtml = (ex, index) => `<div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-md border-2 border-blue-700 bg-gray-800 shadow-md"><div class="flex-1"><p class="font-medium text-gray-100 text-base sm:text-lg">${index + 1}. ${String(ex.name).toUpperCase()}</p><p class="text-sm text-gray-400 italic">${String(ex.desc).toUpperCase()}</p></div><button class="btn-retro-green text-sm px-4 py-2 mt-2 sm:mt-0 log-workout-btn" data-exercise-name="${ex.name}" data-exercise-type="${ex.type}">ENREGISTRER</button></div>`;
-                let phaseHtml = `<h3 class="text-xl sm:text-2xl font-bold text-blue-400">${String(currentPhaseData.name).toUpperCase()}</h3><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">ÉCHAUFFEMENT (10-15 MIN) :</h4><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1"><li>**CARDIO LÉGER (5-7 MIN):** TAPIS (MARCHE RAPIDE 5.0 KM/H, PENTE 1.0) OU VÉLO/ELLIPTIQUE (NIVEAU 3-5).</li><li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-8 MIN):** CERCLES DE BRAS, ROTATIONS DU TRONC, FENTES (SANS CHARGE), ROTATIONS DE HANCHES, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 RÉPÉTITIONS DE CHAQUE).</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.main.name).toUpperCase()}</h4><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (40-50 MINUTES) :</h5><div class="space-y-3">${currentPhaseData.sessions.main.exercises.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**ÉTIREMENTS DOUX :** MAINTIENS CHAQUE ÉTIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTRE-TOI SUR LES ISCHIO-JAMBIERS, QUADRICÈPES, PECTORAUX, DOS, ÉPAULES ET BRAS.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.cardio.name).toUpperCase()}</h4><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (35-45 MINUTES) :</h5><div class="space-y-3">${currentPhaseData.sessions.cardio.options.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**ÉTIREMENTS DOUX :** MAINTIENS CHAQUE ÉTIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTRE-TOI SUR LES ISCHIO-JAMBIERS, QUADRICÈPES, PECTORAUX, DOS, ÉPAULES ET BRAS.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.hiit.name).toUpperCase()}</h4><p class="text-sm sm:text-base text-gray-300 mb-4">${String(currentPhaseData.sessions.hiit.desc).toUpperCase()}</p><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (20-25 MINUTES) :</h5><div class="space-y-3">${currentPhaseData.sessions.hiit.exercises.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**RETOUR AU CALME :** MARCHE LÉGÈRE ET RESPIRATION PROFONDE.</li><li>**ÉTIREMENTS DOUX :** AXÉS SUR LES MUSCLES PRINCIPAUX SOLLICITÉS.</li></ul></div>`;
+                let phaseHtml = `<h3 class="text-xl sm:text-2xl font-bold text-blue-400">${String(currentPhaseData.name).toUpperCase()}</h3><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">ÉCHAUFFEMENT (10-15 MIN) :</h4><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1"><li>**CARDIO LÉGER (5-7 MIN):** TAPIS (MARCHE RAPIDE 5.0 KM/H, PENTE 1.0) OU VÉLO/ELLIPTIQUE (NIVEAU 3-5).</li><li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-8 MIN):** CERCLES DE BRAS, ROTATIONS DU TRONC, FENTES (SANS CHARGE), ROTATIONS DE HANCHES, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 RÉPÉTITIONS DE CHAQUE).</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.main.name).toUpperCase()}</h4><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (40-50 MINUTES) :</h5><div class="space-y-3">${currentPhaseData.sessions.main.exercises.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**ÉTIREMENTS DOUX :** MAINTIENS CHAQUE ÉTIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTRE-TOI SUR LES ISCHIO-JAMBIERS, QUADRICÈPES, PECTORAUX, DOS, ÉPAULES ET BRAS.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.cardio.name).toUpperCase()}</h4><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (35-45 MINUTES) :</h5><div class="space-y-3">${currentPhaseData.sessions.cardio.options.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**ÉTIREMENTS DOUX :** MAINTIENS CHAQUE ÉTIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTRE-TOI SUR LES ISCHIO-JAMBIERS, QUADRICÈPES, PECTORAUX, DOS, ÉPAULES ET BRAS.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.hiit.name).toUpperCase()}</h4><p class="text-sm sm:text-base text-gray-300 mb-4">${String(currentPhaseData.sessions.hiit.desc).toUpperCase()}</p><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (20-25 MINUTES) :</h5><div class="space-y-3">${currentPhaseData.sessions.hiit.exercises.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm space-y-1"><li>**RETOUR AU CALME :** MARCHE LÉGÈRE ET RESPIRATION PROFONDE.</li><li>**ÉTIREMENTS DOUX :** AXÉS SUR LES MUSCLES PRINCIPAUX SOLLICITÉS.</li></ul></div>`;
                 if (workoutProgram.recovery) {
                     phaseHtml += `<div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"> <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(workoutProgram.recovery.name).toUpperCase()}</h4> <p class="text-sm sm:text-base text-gray-300 mb-4">${String(workoutProgram.recovery.desc).toUpperCase()}</p><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1">${workoutProgram.recovery.activities.map(act => `<li>**${String(act.name).toUpperCase()} :** ${String(act.desc).toUpperCase()}</li>`).join('')}</ul></div>`;
                 }
@@ -1010,12 +955,14 @@ Notes générales pour ta Nutrition :
                             <div>
                                 <label for="logFeeling" class="block text-gray-200 text-sm font-bold mb-2">RESSENTI :</label>
                                 <select id="logFeeling" class="select-retro">
-                                    <option value="excellent">EXCELLENT</option>
-                                    <option value="bien">BIEN</option>
+                                    <option value="facile">FACILE</option>
                                     <option value="moyen">MOYEN</option>
                                     <option value="difficile">DIFFICILE</option>
-                                    <option value="epuise">ÉPUISÉ</option>
                                 </select>
+                            </div>
+                            <div>
+                                <label for="logNotes" class="block text-gray-200 text-sm font-bold mb-2">NOTES (OPTIONNEL) :</label>
+                                <textarea id="logNotes" class="input-retro h-24" placeholder="Ajoutez des notes sur votre séance..."></textarea>
                             </div>
                         </div>
                         <div class="flex justify-end space-x-4 mt-6">
@@ -1028,11 +975,12 @@ Notes générales pour ta Nutrition :
             document.getElementById('global-modals-container').innerHTML = modalHtml;
             const modal = document.getElementById('log-workout-modal');
             modal.querySelector('#cancel-log-btn').onclick = () => modal.remove();
-            modal.querySelector('#confirm-log-btn').onclick = () => {
+            modal.querySelector('#confirm-log-btn').onclick = async () => {
                 const sets = modal.querySelector('#logSets').value;
                 const reps = modal.querySelector('#logReps').value;
                 const weight = modal.querySelector('#logWeight').value;
                 const feeling = modal.querySelector('#logFeeling').value;
+                const notes = modal.querySelector('#logNotes').value;
 
                 if (!sets || !reps) {
                     showMessage("SÉRIES/ROUNDS ET RÉPÉTITIONS/DURÉE SONT REQUIS.", 'error');
@@ -1047,15 +995,16 @@ Notes générales pour ta Nutrition :
                     sets: sets,
                     reps: reps,
                     weight: weight ? parseFloat(weight) : null,
-                    feeling: feeling
+                    feeling: feeling,
+                    notes: notes
                 };
                 workoutLogs.push(newLog);
                 saveToLocalStorage('workoutLogs', workoutLogs);
 
                 // Gagner de l'XP pour l'entraînement
                 let xpGain = 20; // Base XP for logging a workout
-                if (feeling === 'excellent') xpGain += 10;
-                else if (feeling === 'bien') xpGain += 5;
+                if (feeling === 'facile') xpGain += 10;
+                else if (feeling === 'moyen') xpGain += 5;
                 userProfile.currentXP += xpGain;
                 saveToLocalStorage('userProfile', userProfile);
                 updateXPBar();
@@ -1063,7 +1012,78 @@ Notes générales pour ta Nutrition :
                 showMessage("ENTRAÎNEMENT ENREGISTRÉ ! XP GAGNÉE.", 'success');
                 modal.remove();
                 if (currentPage === 'progress') renderProgressView(document.getElementById('main-content'));
+
+                // Generate AI advice
+                await generateWorkoutAdvice(newLog);
             };
+        }
+
+        // Generate AI advice for workout
+        async function generateWorkoutAdvice(workoutLog) {
+            const apiKey = userProfile.apiKey || "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            if (!apiKey) {
+                showMessage("CLÉ API MANQUANTE POUR GÉNÉRER DES CONSEILS DE L'IA.", 'warning');
+                return;
+            }
+
+            const prompt = `
+            Génère un conseil personnalisé pour l'utilisateur suite à son entraînement.
+            L'utilisateur est Gérard Chanot, pseudo Waeky, agent de sécurité avec une sclérose en plaques rémittente progressive bien gérée.
+            Il a des postes de 11h-12h, répartis en 3 types (6h-18h, 18h-6h, 7h-18h), avec 12-15 postes par mois.
+            Son profil actuel: Taille: ${userProfile.height}cm, Poids: ${userProfile.weight}kg, IMC: ${userProfile.imc} (${userProfile.imcCategory}), Besoins en protéines: ${userProfile.proteinNeeds}g/jour.
+
+            Détails de l'entraînement enregistré:
+            - Exercice: ${workoutLog.exerciseName} (Type: ${workoutLog.exerciseType})
+            - Séries/Rounds: ${workoutLog.sets}
+            - Répétitions/Durée: ${workoutLog.reps}
+            - Poids utilisé: ${workoutLog.weight ? workoutLog.weight + ' KG' : 'N/A'}
+            - Ressenti: ${workoutLog.feeling}
+            - Notes de l'utilisateur: ${workoutLog.notes || 'Aucune'}
+
+            En te basant sur ces informations et son profil (en particulier la SEP et les horaires de travail), donne un conseil concis et motivant.
+            Le conseil doit être direct, sans fioritures ni introduction de conversation.
+            Adapte le conseil au ressenti :
+            - Si "facile": Suggère une légère augmentation de l'intensité ou du volume pour la prochaine fois, ou de varier l'exercice.
+            - Si "moyen": Encourage la constance et la bonne forme, et de maintenir l'intensité.
+            - Si "difficile": Rappelle l'importance de l'écoute du corps, du repos, de l'hydratation, et de ne pas hésiter à réduire l'intensité si la fatigue liée à la SEP est présente.
+            - Mentionne brièvement son rôle d'agent de sécurité et la SEP si pertinent pour le conseil.
+
+            Le conseil doit être court (max 2-3 phrases) et uniquement le texte du conseil, sans préambule ni salutations.
+            `;
+
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "text/plain"
+                }
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erreur HTTP: ${response.status} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                    const adviceText = result.candidates[0].content.parts[0].text;
+                    showMessage(`CONSEIL DE POXEL : ${adviceText}`, 'ai-advice');
+                    speak(`Conseil de Poxel : ${adviceText}`);
+                } else {
+                    showMessage("Poxel n'a pas pu générer de conseil pour le moment.", 'warning');
+                }
+            } catch (error) {
+                console.error("Erreur lors de la génération du conseil de l'IA:", error);
+                showMessage(`ERREUR DE L'IA: ${error.message}`, 'error');
+            }
         }
 
         // Modale de confirmation générique
@@ -1114,12 +1134,39 @@ Notes générales pour ta Nutrition :
             if (updatedCount > 0) showMessage(`SUCCÈS: ${updatedCount} REPAS SIMILAIRES MIS À JOUR !`, 'success');
         }
 
+        // Calorie needs estimates based on shift type and sport type
+        const dailyCalorieNeedsEstimates = {
+            '6h-18h': { base: 2500, sport_modifier: { 'renforcement': 300, 'cardio': 200, 'hiit': 400, 'repos_actif': 100, 'aucun': 0 } },
+            '7h-18h': { base: 2500, sport_modifier: { 'renforcement': 300, 'cardio': 200, 'hiit': 400, 'repos_actif': 100, 'aucun': 0 } },
+            '18h-6h': { base: 2200, sport_modifier: { 'renforcement': 300, 'cardio': 200, 'hiit': 400, 'repos_actif': 100, 'aucun': 0 } },
+            'repos': { base: 2000, sport_modifier: { 'renforcement': 300, 'cardio': 200, 'hiit': 400, 'repos_actif': 100, 'aucun': 0 } },
+            'repos_sport': { base: 2800, sport_modifier: { 'renforcement': 0, 'cardio': 0, 'hiit': 0, 'repos_actif': 0, 'aucun': 0 } } // repos_sport already implies sport, so no extra modifier
+        };
+
+        function getDailyCalorieNeeds(shiftType, sportType) {
+            const type = String(shiftType || 'repos');
+            const sport = String(sportType || 'aucun');
+            const estimate = dailyCalorieNeedsEstimates[type];
+            if (estimate) {
+                if (type === 'repos_sport') {
+                    return estimate.base;
+                } else {
+                    return estimate.base + (estimate.sport_modifier[sport] || 0);
+                }
+            }
+            return 2200; // Default fallback
+        }
+
         // Fonctions pour la génération de repas par l'IA
         function getMealContextKey(mealType, dayContext) { return `${mealType}_${dayContext.poste}_${dayContext.sport}`; }
 
         async function generateInternalMeal(mealType, dayContext, existingMealsToday = [], likedMeal = null, allowMeatFish = true, userProfileData, numPeople, nutritionalProgramText) {
             const apiKey = userProfileData.apiKey || "";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            // Debugging API key and URL
+            console.log(`[API KEY DEBUG] Using API Key: ${apiKey ? 'Provided (length: ' + apiKey.length + ')' : 'Empty (expecting Canvas injection)'}`);
+            console.log(`[API KEY DEBUG] API URL: ${apiUrl}`);
 
             const userHeight = userProfileData.height;
             const userWeight = userProfileData.weight;
@@ -1161,7 +1208,7 @@ Notes générales pour ta Nutrition :
             } else if (mealType === 'dejeuner' || mealType === 'diner') {
                 mealSpecificConstraints.push("DOIT ÊTRE UN REPAS COMPLET ET ÉQUILIBRÉ AVEC PROTÉINES, GLUCIDES ET LÉGUMES. DOIT ÊTRE COHÉRENT ET RÉALISTE, SANS COMBINAISONS ABSURDES.");
                 mealSpecificConstraints.push("PROPOSEZ UNE TRÈS GRANDE VARIÉTÉ DE RECETTES POUR ÉVITER LA MONOTONIE : SALADES (VERTE, ICEBERG, CRUDITÉS, POMMES DE TERRE, RIZ, PÂTES), GALETTES DE POMMES DE TERRE, RECETTES AVEC DU PAIN (EX: PAIN AVEC FROMAGE, TOASTS PROTÉINÉS, SANDWICHS ÉQUILIBRÉS), BURGERS ET WRAPS (ADAPTÉS AU PROGRAMME NUTRITIONNEL).");
-                mealSpecificConstraints.push("ALTERNEZ SYSTÉMATIQUEMENT LES TYPES DE PROTÉINES, GLUCIDES ET LÉGUMES. INCLUEZ FRÉQUEMMENT PÂTES COMPLÈTES, SPAGHETTIS, PÂTES FRAÎCHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLÈTE. LÉGUMES VARIÉS: CONCOMBRE, ARTICHAUT, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, ÉPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
+                mealSpecificConstraints.push("ALTERNEZ SYSTÉMATIQUEMENT LES TYPES DE PROTÉINES, GLUCIDES ET LÉGUMES. INCLUEZ FRÉQUEMMENT PÂTES COMPLÈTES, SPAGHETTIS, PÂTES FRAÎCHES, RIZ BASMATI, QUINOA, PATATE DOUCE, SEMOULE COMPLÈTE. LÉGUMES VARIÉS: CONCOMBRE, ARTICHAUD, BROCOLIS, POIVRONS, HARICOTS VERTS, COURGETTES, ÉPINARDS, CAROTTES, CHOU-FLEUR, TOMATES CERISES, LAITUE, RADIS, CHAMPIGNONS, AUBERGINE, OIGNON.");
                 mealSpecificConstraints.push("LES RECETTES PEUVENT ÊTRE ISSUES D'AUTRES CULTURES OU CUISINES DU MONDE, MAIS DOIVENT TOUJOURS RESPECTER LE PROGRAMME SPORTIF ET NUTRITIONNEL, ET ÊTRE RÉALISTES.");
             }
 
@@ -1200,7 +1247,8 @@ Notes générales pour ta Nutrition :
             "ingredients_label": "INGRÉDIENTS (POUR X PERS)",
             "ingredients_list": ["QUANTITÉ UNITÉ INGRÉDIENT 1", "QUANTITÉ UNITÉ INGRÉDIENT 2", ...],
             "preparation_steps": ["ÉTAPE 1.", "ÉTAPE 2.", ...],
-            "ma_portion_waeky": "VOTRE PORTION (POUR WAEKY) : DÉTAILLEZ LES QUANTITÉS SPÉCIFIQUES POUR L'UTILISATEUR (EX: 150G POULET, 200G RIZ, PORTION GÉNÉREUSE DE LÉGUMES).",
+            "ma_portion_waeky": "VOTRE PORTION (POUR WAEKY) : DÉTAILLEZ LES QUANTITÉS SPÉCIFIQUES POUR L'UTILISATEUR (EX: 150G POULET, 200G RIZ, PORTION GÉNÉREUSE DE LÉGUMES). INCLUEZ UNE ESTIMATION DES CALORIES POUR CETTE PORTION (EX: ~500 KCAL).",
+            "calories_kcal": "ESTIMATION DES CALORIES TOTALES POUR CE REPAS POUR ${numPeople} PERSONNE(S) (EX: 500)",
             "conseils_reutilisation_economie": "CONSEILS POUR RÉUTILISER LES RESTES OU ÉCONOMISER.",
             "notes": "NOTES SUPPLÉMENTAIRES OU INFORMATIONS NUTRITIONNELLES."
         }
@@ -1219,10 +1267,11 @@ Notes générales pour ta Nutrition :
                             "ingredients_list": { "type": "ARRAY", "items": { "type": "STRING" } },
                             "preparation_steps": { "type": "ARRAY", "items": { "type": "STRING" } },
                             "ma_portion_waeky": { "type": "STRING" },
+                            "calories_kcal": { "type": "NUMBER" },
                             "conseils_reutilisation_economie": { "type": "STRING" },
                             "notes": { "type": "STRING" }
                         },
-                        "required": ["title", "description_du_plat", "ingredients_label", "ingredients_list", "preparation_steps", "ma_portion_waeky", "conseils_reutilisation_economie", "notes"]
+                        "required": ["title", "description_du_plat", "ingredients_label", "ingredients_list", "preparation_steps", "ma_portion_waeky", "calories_kcal", "conseils_reutilisation_economie", "notes"]
                     }
                 }
             };
@@ -1254,8 +1303,8 @@ Notes générales pour ta Nutrition :
                 } catch (parseError) {
                     console.error("Erreur lors de l'analyse du JSON de la réponse LLM ou de la structure des candidats:", parseError);
                     console.error("JSON brut causant l'erreur:", rawResult);
-                    const fallbackTitle = `${mealContextDescription.toUpperCase()} SIMPLIFIÉ (ERREUR IA)`, fallbackDesc = `UNE ERREUR S'EST PRODUITE LORS DE LA GÉNÉRATION. VOICI UNE RECETTE DE BASE.`, fallbackIngredients = [`QUANTITÉS À DÉFINIR SELON VOTRE APPÉTIT`, `PROTÉINES VARIÉES`, `GLUCIDES COMPLEXES`, `LÉGUMES DE SAISON`], fallbackPreparation = ["1. PRÉPAREZ LES INGRÉDIENTS. 2. CUISEZ SELON VOS MÉTHODES HABITUELLES."], fallbackPortion = "VOTRE PORTION (POUR WAEKY) : PROTÉINES, GLUCIDES ET LÉGUMES/FRUITS VARIÉS ADAPTÉS. POUR 1 PERSONNE.", fallbackConseils = "AJUSTEZ LES QUANTITÉS SELON VOS BESOINS. ESSAYEZ DE RÉUTILISER LES RESTES.", fallbackNotes = "LA RECETTE A ÉTÉ SIMPLIFIÉE EN RAISON D'UN PROBLÈME DE COMMUNICATION AVEC L'IA. VÉRIFIEZ LE PROMPT OU L'API.";
-                    parsedContent = { title: fallbackTitle, description_du_plat: fallbackDesc, ingredients_label: `INGRÉDIENTS (POUR ${numPeople} PERS)`, ingredients_list: fallbackIngredients, preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion, conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes };
+                    const fallbackTitle = `${mealContextDescription.toUpperCase()} SIMPLIFIÉ (ERREUR IA)`, fallbackDesc = `UNE ERREUR S'EST PRODUIte LORS DE LA GÉNÉRATION. VOICI UNE RECETTE DE BASE.`, fallbackIngredients = [`QUANTITÉS À DÉFINIR SELON VOTRE APPÉTIT`, `PROTÉINES VARIÉES`, `GLUCIDES COMPLEXES`, `LÉGUMES DE SAISON`], fallbackPreparation = ["1. PRÉPAREZ LES INGRÉDIENTS. 2. CUISEZ SELON VOS MÉTHODES HABITUELLES."], fallbackPortion = "VOTRE PORTION (POUR WAEKY) : PROTÉINES, GLUCIDES ET LÉGUMES/FRUITS VARIÉS ADAPTÉS. POUR 1 PERSONNE.", fallbackCalories = 0, fallbackConseils = "AJUSTEZ LES QUANTITÉS SELON VOS BESOINS. ESSAYEZ DE RÉUTILISER LES RESTES.", fallbackNotes = "LA RECETTE A ÉTÉ SIMPLIFIÉE EN RAISON D'UN PROBLÈME DE COMMUNICATION AVEC L'IA. VÉRIFIEZ LE PROMPT OU L'API.";
+                    parsedContent = { title: fallbackTitle, description_du_plat: fallbackDesc, ingredients_label: `INGRÉDIENTS (POUR ${numPeople} PERS)`, ingredients_list: fallbackIngredients, preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion, calories_kcal: fallbackCalories, conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes };
                 }
 
                 return {
@@ -1266,6 +1315,7 @@ Notes générales pour ta Nutrition :
                     ingredients_list: (parsedContent.ingredients_list || []).map(item => String(item).toUpperCase()),
                     preparation_steps: (parsedContent.preparation_steps || []).map(step => String(step).toUpperCase()),
                     ma_portion_waeky: String(parsedContent.ma_portion_waeky || '').toUpperCase(),
+                    calories_kcal: parsedContent.calories_kcal !== undefined ? parseInt(parsedContent.calories_kcal) : 0,
                     conseils_reutilisation_economie: String(parsedContent.conseils_reutilisation_economie || '').toUpperCase(),
                     notes: String(parsedContent.notes || '').toUpperCase(),
                     mealType: mealType,
@@ -1273,8 +1323,8 @@ Notes générales pour ta Nutrition :
                 };
             } catch (error) {
                 console.error("Erreur fatale lors de l'appel LLM ou de l'analyse JSON générale:", error);
-                const fallbackTitle = `${mealContextDescription.toUpperCase()} (ERREUR SYSTÈME)`, fallbackDesc = `UNE ERREUR CRITIQUE S'EST PRODUIte. VEUILLEZ RÉESSAYER.`, fallbackIngredients = [`VÉRIFIEZ VOTRE CONNEXION INTERNET`, `CONTACTEZ LE SUPPORT SI LE PROBLÈME PERSISTE`], fallbackPreparation = ["1. ESSAYEZ DE RE-GÉNÉRER LE PLAN.", "2. ASSUREZ-VOUS QUE VOTRE PROFIL EST COMPLET."], fallbackPortion = "INDISPONIBLE EN RAISON D'UNE ERREUR.", fallbackConseils = "AUCUN CONSEIL DISPONIBLE.", fallbackNotes = "ERREUR DE COMMUNICATION MAJEURE AVEC L'IA. VEUILLEZ VÉRIFIER VOTRE CONNEXION.";
-                return { id: generateUniqueId(), title: fallbackTitle, description_du_plat: fallbackDesc, ingredients_label: `INGRÉDIENTS (POUR ${numPeople} PERS)`, ingredients_list: fallbackIngredients, preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion, conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes, mealType: mealType, dayContext: dayContext };
+                const fallbackTitle = `${mealContextDescription.toUpperCase()} (ERREUR SYSTÈME)`, fallbackDesc = `UNE ERREUR CRITIQUE S'EST PRODUIte. VEUILLEZ RÉESSAYER.`, fallbackIngredients = [`VÉRIFIEZ VOTRE CONNEXION INTERNET`, `CONTACTEZ LE SUPPORT SI LE PROBLÈME PERSISTE`], fallbackPreparation = ["1. ESSAYEZ DE RE-GÉNÉRER LE PLAN.", "2. ASSUREZ-VOUS QUE VOTRE PROFIL EST COMPLET."], fallbackPortion = "INDISPONIBLE EN RAISON D'UNE ERREUR.", fallbackCalories = 0, fallbackConseils = "AUCUN CONSEIL DISPONIBLE.", fallbackNotes = "ERREUR DE COMMUNICATION MAJEURE AVEC L'IA. VEUILLEZ VÉRIFIER VOTRE CONNEXION.";
+                return { id: generateUniqueId(), title: fallbackTitle, description_du_plat: fallbackDesc, ingredients_label: `INGRÉDIENTS (POUR ${numPeople} PERS)`, ingredients_list: fallbackIngredients, preparation_steps: fallbackPreparation, ma_portion_waeky: fallbackPortion, calories_kcal: fallbackCalories, conseils_reutilisation_economie: fallbackConseils, notes: fallbackNotes, mealType: mealType, dayContext: dayContext };
             }
         }
 
@@ -1312,13 +1362,20 @@ Notes générales pour ta Nutrition :
             numPeopleInput.onchange = (e) => { numPeople = Math.max(1, parseInt(e.target.value) || 1); saveToLocalStorage('recipeNumPeople', numPeople); };
             allowMeatFishCheckbox.onchange = (e) => { allowMeatFish = e.target.checked; saveToLocalStorage('recipeAllowMeatFish', allowMeatFish); };
 
-            generatePlanBtn.onclick = async () => {
-                regeneratingMeal = true;
-                renderRecipeView(container);
+            if (regeneratingMeal) { // Only disable if a regeneration is explicitly in progress
                 generatePlanBtn.disabled = true;
                 generatePlanSpinner.classList.remove('hidden');
                 generatePlanText.textContent = 'GÉNÉRATION...';
-                showMessage("GÉNÉRATION DU PLAN DE REPAS EN COURS... CELA PEUT PRENDRE QUELQUES INSTANTS.", 'info');
+            } else {
+                generatePlanBtn.disabled = false;
+                generatePlanSpinner.classList.add('hidden');
+                generatePlanText.textContent = 'GÉNÉRER PLAN DE REPAS';
+            }
+
+            generatePlanBtn.onclick = async () => {
+                regeneratingMeal = { dateKey: null, mealType: null }; // Set regeneratingMeal to indicate overall generation
+                renderRecipeView(container); // Re-render to show spinner and disabled button
+
                 try {
                     if (!userProfile.height || !userProfile.weight) { showMessage("ERREUR: VEUILLEZ REMPLIR VOTRE TAILLE ET VOTRE POIDS DANS LE PROFIL POUR GÉNÉRER DES RECETTES PRÉCISES.", 'error'); return; }
                     const today = new Date();
@@ -1328,37 +1385,40 @@ Notes générales pour ta Nutrition :
                     const newMealPlan = { semaine: [] };
                     const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds };
 
+                    const generatedSimilarMeals = {}; // Key: "shiftType_workoutType_mealType", Value: meal object
+
+                    // Sort shifts by date to ensure consistent generation order
+                    fetchedShifts.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
                     for (const shift of fetchedShifts) {
                         const day = new Date(shift.date);
                         const dateKey = formatDateToYYYYMMDD(day);
                         const dayContext = { poste: shift.type, sport: shift.workoutType };
-                        const mealsForDay = {};
+                        const mealsForDay = { date: dateKey, dayContext: dayContext };
                         const mealOrder = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation_apresmidi', 'diner', 'collation_unique'];
 
                         for (const mealType of mealOrder) {
-                            if (mealType.startsWith('collation') && dayContext.sport === 'aucun' && dayContext.poste === 'repos') continue;
-                            if (mealType === 'collation_matin' && (dayContext.poste === '18h-6h' || dayContext.poste === 'repos') && dayContext.sport === 'aucun') continue;
-                            if (mealType === 'collation_apresmidi' && dayContext.poste === '18h-6h') continue;
-                            if (mealType === 'collation_unique' && (dayContext.poste !== '18h-6h' && dayContext.sport === 'aucun' && dayContext.poste !== '7h-18h')) continue;
-                            if (mealType === 'collation_unique' && dayContext.poste === 'repos' && dayContext.sport === 'aucun') continue;
-
-                            let existingMealForType = null;
-                            if (mealType === 'petit_dejeuner' || mealType.startsWith('collation')) {
-                                const similarDayMeal = newMealPlan.semaine.find(d =>
-                                    d.dayContext.poste === dayContext.poste &&
-                                    d.dayContext.sport === dayContext.sport &&
-                                    d[mealType]
-                                );
-                                if (similarDayMeal) existingMealForType = similarDayMeal[mealType];
+                            let addMeal = true;
+                            if (mealType === 'collation_matin') {
+                                if (dayContext.poste === '18h-6h' || (dayContext.poste === 'repos' && dayContext.sport === 'aucun')) { addMeal = false; }
+                            } else if (mealType === 'collation_apresmidi') {
+                                if (dayContext.poste === '18h-6h' || (dayContext.poste === 'repos' && dayContext.sport === 'aucun')) { addMeal = false; }
+                            } else if (mealType === 'collation_unique') {
+                                if (dayContext.poste === '18h-6h') { addMeal = true; } else { addMeal = false; }
                             }
+                            if (!addMeal) continue;
 
                             let generatedMeal;
-                            if (existingMealForType) {
-                                generatedMeal = { ...existingMealForType, id: generateUniqueId() };
-                            } else {
-                                const relevantLikedMeals = userProfile.likedMeals.filter(lm => lm.mealType === mealType);
-                                const inspirationMeal = relevantLikedMeals.length > 0 ? relevantLikedMeals[Math.floor(Math.random() * relevantLikedMeals.length)] : null;
+                            const relevantLikedMeals = userProfile.likedMeals.filter(lm => lm.mealType === mealType);
+                            const inspirationMeal = relevantLikedMeals.length > 0 ? relevantLikedMeals[Math.floor(Math.random() * relevantLikedMeals.length)] : null;
 
+                            const isSynchronizableMeal = (mealType === 'petit_dejeuner' || mealType.startsWith('collation'));
+                            const dayContextKey = `${dayContext.poste}_${dayContext.sport}_${mealType}`;
+
+                            if (isSynchronizableMeal && generatedSimilarMeals[dayContextKey]) {
+                                generatedMeal = { ...generatedSimilarMeals[dayContextKey] };
+                                generatedMeal.id = generateUniqueId();
+                            } else {
                                 generatedMeal = await generateInternalMeal(
                                     mealType,
                                     dayContext,
@@ -1369,6 +1429,9 @@ Notes générales pour ta Nutrition :
                                     numPeople,
                                     nutritionalProgramText
                                 );
+                                if (isSynchronizableMeal) {
+                                    generatedSimilarMeals[dayContextKey] = { ...generatedMeal };
+                                }
                             }
                             mealsForDay[mealType] = generatedMeal;
                         }
@@ -1380,13 +1443,13 @@ Notes générales pour ta Nutrition :
                     saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
                     showMessage("SUCCÈS: PLAN DE REPAS GÉNÉRÉ ET ENREGISTRÉ !", 'success');
                     speak("Plan de repas généré !");
-                    regeneratingMeal = null;
-                    renderRecipeView(container);
+                    regeneratingMeal = null; // Clear regeneratingMeal flag
+                    renderRecipeView(container); // Re-render to update UI and re-enable button
                 } catch (error) {
                     console.error("Erreur lors de la génération du plan de repas:", error);
                     showMessage(`ERREUR: Échec de la génération du plan. ${error.message}`, 'error');
-                    regeneratingMeal = null;
-                    renderRecipeView(container);
+                    regeneratingMeal = null; // Clear regeneratingMeal flag on error
+                    renderRecipeView(container); // Re-render to update UI and re-enable button
                 }
             };
 
@@ -1399,17 +1462,27 @@ Notes générales pour ta Nutrition :
                 let mealsHtml = `<div class="space-y-6"> <h3 class="text-xl sm:text-2xl text-yellow-300 mb-3 text-center">TON PLAN DE REPAS :</h3> `;
 
                 weeklyMealPlan.semaine.forEach((dayData, dayIndex) => {
-                    const dayId = `day-panel-${dayIndex}`;
                     const dateString = new Date(dayData.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
                     const dayContextString = getDayContextString(dayData.dayContext.poste, dayData.dayContext.sport);
 
+                    const totalDailyCalories = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation_apresmidi', 'diner', 'collation_unique'].reduce((sum, mealType) => {
+                        const meal = dayData[mealType];
+                        return sum + (meal && typeof meal.calories_kcal === 'number' ? meal.calories_kcal : 0);
+                    }, 0);
+                    const requiredDailyCalories = getDailyCalorieNeeds(dayData.dayContext.poste, dayData.dayContext.sport);
+
                     mealsHtml += `
                         <div class="bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg">
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center cursor-pointer toggle-day-details" data-day-id="${dayId}">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center cursor-pointer py-2" data-toggle="day-content-${dayData.date}">
                                 <h4 class="text-lg sm:text-xl font-bold text-yellow-300 mb-2 sm:mb-0">${dateString} - ${dayContextString}</h4>
                                 <i data-lucide="chevron-down" class="text-yellow-300 transition-transform duration-300"></i>
                             </div>
-                            <div id="${dayId}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0 mt-4 space-y-4">
+                            <div class="text-sm text-gray-200 mt-2 p-2 bg-gray-600 rounded-md">
+                                <p>CALORIES JOURNÉE : <span class="font-bold text-blue-300">${totalDailyCalories} KCAL</span></p>
+                                <p>BESOIN ESTIMÉ : <span class="font-bold text-blue-300">${requiredDailyCalories} KCAL</span></p>
+                            </div>
+                            <div id="day-content-${dayData.date}" class="overflow-hidden transition-all duration-500 ease-in-out max-h-0">
+                                <div class="space-y-4 pt-2">
                     `;
 
                     const mealOrder = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation_apresmidi', 'diner', 'collation_unique'];
@@ -1424,8 +1497,8 @@ Notes générales pour ta Nutrition :
 
                             mealsHtml += `
                                 <div class="bg-gray-800 p-3 rounded-md border border-blue-700 shadow-sm">
-                                    <div class="flex justify-between items-center">
-                                        <h5 class="text-lg font-bold text-gray-100">${momentContext} : ${String(meal.title || 'Titre Indisponible').toUpperCase()}</h5>
+                                    <div class="flex justify-between items-center cursor-pointer py-2" data-toggle="meal-content-${meal.id}">
+                                        <h5 class="text-lg font-bold text-gray-100">${momentContext} : ${String(meal.title || 'Titre Indisponible').toUpperCase()} <span class="text-yellow-400 text-sm">(${meal.calories_kcal} KCAL)</span></h5>
                                         <div class="flex items-center">
                                             <button class="btn-retro-purple text-xs px-2 py-1 flex items-center justify-center regenerate-meal-btn" data-date="${dayData.date}" data-meal-type="${mealType}" ${isRegeneratingCurrentMeal ? 'disabled' : ''}>
                                                 ${isRegeneratingCurrentMeal ? `<span class="spinner w-4 h-4"></span>` : `<i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>`}
@@ -1452,7 +1525,7 @@ Notes générales pour ta Nutrition :
                             `;
                         }
                     });
-                    mealsHtml += `</div></div>`;
+                    mealsHtml += `</div></div></div>`;
                 });
                 mealsHtml += `</div>`;
                 weeklyMealPlanContentDiv.innerHTML = mealsHtml;
@@ -1465,24 +1538,45 @@ Notes générales pour ta Nutrition :
 
         // Gère l'affichage/masquage des détails de repas
         function attachCollapsibleListeners() {
-            document.querySelectorAll('.toggle-day-details').forEach(header => {
-                header.onclick = () => {
-                    const dayId = header.dataset.dayId;
-                    const content = document.getElementById(dayId);
-                    const icon = header.querySelector('i[data-lucide="chevron-down"]');
+            document.querySelectorAll('[data-toggle]').forEach(toggleElement => {
+                // Remove existing listener to prevent duplicates
+                if (toggleElement.dataset.listenerAttached) {
+                    toggleElement.removeEventListener('click', toggleElement._clickHandler);
+                }
 
-                    if (content) {
-                        if (content.classList.contains('max-h-0')) {
-                            content.classList.remove('max-h-0');
-                            content.style.maxHeight = content.scrollHeight + "px";
-                            icon.style.transform = 'rotate(180deg)';
+                const clickHandler = (event) => {
+                    event.stopPropagation();
+                    const targetId = toggleElement.dataset.toggle;
+                    const targetContent = document.getElementById(targetId);
+                    const icon = toggleElement.querySelector('i[data-lucide]');
+
+                    if (targetContent) {
+                        if (targetContent.classList.contains('max-h-0')) {
+                            targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
+                            targetContent.classList.remove('max-h-0');
+                            if (icon) icon.classList.add('rotate-180');
+                            targetContent.classList.add('open');
+                            targetContent.addEventListener('transitionend', function handler() {
+                                if (targetContent.classList.contains('open')) {
+                                    targetContent.style.maxHeight = '9999px';
+                                }
+                                targetContent.removeEventListener('transitionend', handler);
+                            }, { once: true });
                         } else {
-                            content.style.maxHeight = "0px";
-                            content.classList.add('max-h-0');
-                            icon.style.transform = 'rotate(0deg)';
+                            targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
+                            requestAnimationFrame(() => {
+                                targetContent.classList.add('max-h-0');
+                                targetContent.style.maxHeight = '0';
+                            });
+                            if (icon) icon.classList.remove('rotate-180');
+                            targetContent.classList.remove('open');
                         }
                     }
                 };
+
+                toggleElement.addEventListener('click', clickHandler);
+                toggleElement._clickHandler = clickHandler; // Store reference to the handler
+                toggleElement.dataset.listenerAttached = 'true';
             });
         }
 
@@ -1496,7 +1590,7 @@ Notes générales pour ta Nutrition :
                     if (!dayDataForRegen || !dayDataForRegen.dayContext) { showMessage("ERREUR: CONTEXTE DE JOUR NON TROUVÉ POUR LA RÉGÉNÉRATION DU REPAS.", 'error'); return; }
 
                     regeneratingMeal = { dateKey: dateKey, mealType: mealType };
-                    renderRecipeView(document.getElementById('main-content'));
+                    renderRecipeView(document.getElementById('main-content')); // Re-render to show spinner/disabled state
 
                     try {
                         const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds };
@@ -1504,7 +1598,7 @@ Notes générales pour ta Nutrition :
                             mealType,
                             dayDataForRegen.dayContext,
                             Object.values(dayDataForRegen).filter(m => typeof m === 'object' && m !== null && m.mealType && m.mealType !== mealType),
-                            null,
+                            null, // No specific liked meal inspiration for regeneration of an existing slot
                             allowMeatFish,
                             userProfileData,
                             numPeople,
@@ -1513,7 +1607,10 @@ Notes générales pour ta Nutrition :
 
                         dayDataForRegen[mealType] = regeneratedMeal;
 
-                        if (mealType === 'petit_dejeuner' || mealType.startsWith('collation')) syncSimilarMeals(regeneratedMeal, dateKey);
+                        // Synchronize breakfast/collation meals on regeneration
+                        if (mealType === 'petit_dejeuner' || mealType.startsWith('collation')) {
+                            syncSimilarMeals(regeneratedMeal, dateKey);
+                        }
 
                         saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
                         showMessage("SUCCÈS: REPAS RÉGÉNÉRÉ !", 'success');
@@ -1522,8 +1619,8 @@ Notes générales pour ta Nutrition :
                         console.error("Erreur lors de la régénération du repas:", error);
                         showMessage(`ERREUR: ÉCHEC DE LA RÉGÉNÉRATION DU REPAS. ${error.message}`, 'error');
                     } finally {
-                        regeneratingMeal = null;
-                        renderRecipeView(document.getElementById('main-content'));
+                        regeneratingMeal = null; // Clear regeneratingMeal flag
+                        renderRecipeView(document.getElementById('main-content')); // Re-render to update UI and re-enable button
                     }
                 };
             });
@@ -1537,7 +1634,7 @@ Notes générales pour ta Nutrition :
                     const mealToLike = dayData ? dayData[mealType] : null;
 
                     if (mealToLike) {
-                        const existingLikedIndex = userProfile.likedMeals.findIndex(lm => lm.id === mealId);
+                        const existingLikedIndex = userProfile.likedMeals.findIndex(lm => lm.id === mealToLike.id); // Use mealToLike.id for consistency
                         if (existingLikedIndex !== -1) {
                             userProfile.likedMeals.splice(existingLikedIndex, 1);
                             showMessage("RECETTE RETIRÉE DES FAVORIS.", 'info');
@@ -1947,7 +2044,7 @@ Notes générales pour ta Nutrition :
                             saveToLocalStorage('intervalSequences', intervalSequences);
                             showMessage("SUCCÈS: SÉQUENCE SUPPRIMÉE !", 'success');
                             modalDiv.remove();
-                            loadSequenceBtn.click(); // Re-render the load modal
+                            loadSequenceBtn.click();
                         }
                     };
                 });
@@ -1985,10 +2082,14 @@ Notes générales pour ta Nutrition :
                             </div>
                         </div>
                         <div id="exercise-history-content" class="${userProfile.hideExerciseHistory ? 'hidden' : ''}">
+                            <div class="mb-4">
+                                <label for="exerciseSelect" class="block text-gray-200 text-sm font-bold mb-2">SÉLECTIONNER UN EXERCICE :</label>
+                                <select id="exerciseSelect" class="select-retro mb-4"></select>
+                            </div>
                             <div class="relative h-64 mb-4">
                                 <canvas id="exerciseChart"></canvas>
                             </div>
-                            <p class="text-xs text-gray-400 mt-2 text-center">GRAPHIQUE DU NOMBRE D'ENTRAÎNEMENTS PAR TYPE.</p>
+                            <p class="text-xs text-gray-400 mt-2 text-center">GRAPHIQUE DE LA PROGRESSION DE POIDS PAR EXERCICE.</p>
                             <div class="mt-4">
                                 <h4 class="font-semibold text-lg text-yellow-300 mb-2">DÉTAILS :</h4>
                                 <div id="exercise-history-list" class="space-y-2 max-h-48 overflow-y-auto pr-2"></div>
@@ -2068,6 +2169,7 @@ Notes générales pour ta Nutrition :
             // Exercise History
             const hideExerciseHistoryCheckbox = document.getElementById('hideExerciseHistory');
             const exerciseHistoryContent = document.getElementById('exercise-history-content');
+            const exerciseSelect = document.getElementById('exerciseSelect');
             hideExerciseHistoryCheckbox.onchange = (e) => {
                 userProfile.hideExerciseHistory = e.target.checked;
                 saveToLocalStorage('userProfile', userProfile);
@@ -2075,31 +2177,71 @@ Notes générales pour ta Nutrition :
                 if (!userProfile.hideExerciseHistory && !exerciseChartInstance) renderExerciseChart();
             };
 
+            // Populate exercise select dropdown
+            const uniqueExerciseNames = [...new Set(workoutLogs.map(log => log.exerciseName))];
+            exerciseSelect.innerHTML = `<option value="">SÉLECTIONNER UN EXERCICE</option>` +
+                                       uniqueExerciseNames.map(name => `<option value="${name}">${String(name).toUpperCase()}</option>`).join('');
+
+            exerciseSelect.onchange = renderExerciseChart;
+
             function renderExerciseChart() {
-                if (workoutLogs.length === 0) { exerciseHistoryContent.innerHTML = '<p class="text-gray-400">AUCUN ENTRAÎNEMENT ENREGISTRÉ.</p>'; return; }
-                const exerciseCounts = {};
-                workoutLogs.forEach(log => { exerciseCounts[log.exerciseType] = (exerciseCounts[log.exerciseType] || 0) + 1; });
-                const exerciseLabels = Object.keys(exerciseCounts).map(type => String(type).toUpperCase().replace('_', ' '));
-                const exerciseData = Object.values(exerciseCounts);
+                if (exerciseChartInstance) { exerciseChartInstance.destroy(); exerciseChartInstance = null; }
+
+                const selectedExercise = exerciseSelect.value;
+                if (!selectedExercise) {
+                    document.getElementById('exerciseChart').getContext('2d').clearRect(0, 0, document.getElementById('exerciseChart').width, document.getElementById('exerciseChart').height);
+                    return;
+                }
+
+                const filteredLogs = workoutLogs
+                    .filter(log => log.exerciseName === selectedExercise && log.weight !== null && parseFloat(log.weight) > 0)
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+                if (filteredLogs.length === 0) {
+                    document.getElementById('exerciseChart').getContext('2d').clearRect(0, 0, document.getElementById('exerciseChart').width, document.getElementById('exerciseChart').height);
+                    showMessage(`AUCUNNE DONNÉE DE POIDS POUR "${String(selectedExercise).toUpperCase()}".`, 'warning');
+                    return;
+                }
+
+                const chartLabels = filteredLogs.map(log => new Date(log.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }));
+                const chartData = filteredLogs.map(log => parseFloat(log.weight));
+
                 const exerciseCtx = document.getElementById('exerciseChart').getContext('2d');
                 exerciseChartInstance = new Chart(exerciseCtx, {
-                    type: 'bar',
+                    type: 'line',
                     data: {
-                        labels: exerciseLabels,
+                        labels: chartLabels,
                         datasets: [{
-                            label: 'NOMBRE D\'ENTRAÎNEMENTS',
-                            data: exerciseData,
-                            backgroundColor: ['#fcd34d', '#a78bfa', '#16a34a', '#2563eb', '#dc2626', '#d97706'],
-                            borderColor: '#1a202c',
-                            borderWidth: 1
+                            label: `POIDS (${String(selectedExercise).toUpperCase()})`,
+                            data: chartData,
+                            borderColor: '#a78bfa',
+                            backgroundColor: 'rgba(167, 139, 250, 0.2)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: '#a78bfa',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: { display: false },
-                            tooltip: { titleFont: { family: 'VT323' }, bodyFont: { family: 'VT323' } }
+                            legend: { labels: { color: 'white', font: { family: 'VT323' } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        if (context.parsed.y !== null) label += `${context.parsed.y} KG`;
+                                        return label;
+                                    }
+                                },
+                                titleFont: { family: 'VT323' },
+                                bodyFont: { family: 'VT323' }
+                            }
                         },
                         scales: {
                             x: { ticks: { color: 'white', font: { family: 'VT323' } }, grid: { color: 'rgba(255,255,255,0.1)' } },
@@ -2117,7 +2259,7 @@ Notes générales pour ta Nutrition :
                 let exerciseListHtml = `<ul class="space-y-1">`;
                 [...workoutLogs].reverse().forEach(log => {
                     const date = new Date(log.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                    exerciseListHtml += `<li class="text-sm text-gray-300">**${date.toUpperCase()} :** ${String(log.exerciseName).toUpperCase()} (${String(log.sets).toUpperCase()} SÉRIES, ${String(log.reps).toUpperCase()}${log.weight ? `, ${log.weight} KG` : ''}) - RESSENTI: ${String(log.feeling).toUpperCase()}</li>`;
+                    exerciseListHtml += `<li class="text-sm text-gray-300">**${date.toUpperCase()} :** ${String(log.exerciseName).toUpperCase()} (${String(log.sets).toUpperCase()} SÉRIES, ${String(log.reps).toUpperCase()}${log.weight ? `, ${log.weight} KG` : ''}) - RESSENTI: ${String(log.feeling).toUpperCase()}${log.notes ? ` - NOTES: ${String(log.notes).toUpperCase()}` : ''}</li>`;
                 });
                 exerciseListHtml += `</ul>`;
                 exerciseHistoryListDiv.innerHTML = exerciseListHtml;
@@ -2136,20 +2278,30 @@ Notes générales pour ta Nutrition :
             `;
             container.innerHTML = html;
             const trophiesGrid = document.getElementById('trophies-grid');
-            const sortedTrophies = [...allTrophies].sort((a, b) => a.levelRequired - b.levelRequired);
-            sortedTrophies.forEach(trophy => {
-                const isEarned = userProfile.earnedTrophies.some(t => t.id === trophy.id);
-                const trophyDiv = document.createElement('div');
-                trophyDiv.className = `p-4 rounded-lg border-4 ${isEarned ? 'border-yellow-500 bg-yellow-900' : 'border-gray-600 bg-gray-800'} shadow-lg text-center`;
-                trophyDiv.innerHTML = `
-                    <i data-lucide="trophy" class="text-6xl ${isEarned ? 'text-yellow-300' : 'text-gray-500'} mb-2"></i>
-                    <h3 class="text-xl font-bold ${isEarned ? 'text-yellow-200' : 'text-gray-300'}">${String(trophy.name).toUpperCase()}</h3>
-                    <p class="text-sm ${isEarned ? 'text-gray-100' : 'text-gray-400'}">${String(trophy.description).toUpperCase()}</p>
-                    <p class="text-xs mt-2 ${isEarned ? 'text-green-300' : 'text-gray-500'}">NIVEAU REQUIS : ${trophy.levelRequired}</p>
-                    ${isEarned ? `<p class="text-xs text-green-400 mt-1">DÉBLOQUÉ LE : ${new Date(userProfile.earnedTrophies.find(t => t.id === trophy.id).timestamp).toLocaleDateString('fr-FR')}</p>` : ''}
-                `;
-                trophiesGrid.appendChild(trophyDiv);
-            });
+            // Filter to only show earned trophies
+            const earnedTrophiesData = userProfile.earnedTrophies.map(earned => {
+                return allTrophies.find(t => t.id === earned.id);
+            }).filter(Boolean); // Filter out any undefined if an ID doesn't match
+
+            const sortedEarnedTrophies = [...earnedTrophiesData].sort((a, b) => a.levelRequired - b.levelRequired);
+
+            if (sortedEarnedTrophies.length === 0) {
+                trophiesGrid.innerHTML = '<p class="text-gray-400 text-center col-span-full">AUCUN TROPHÉE DÉBLOQUÉ POUR LE MOMENT. CONTINUEZ À VOUS ENTRAÎNER POUR EN GAGNER !</p>';
+            } else {
+                sortedEarnedTrophies.forEach(trophy => {
+                    const earnedInfo = userProfile.earnedTrophies.find(t => t.id === trophy.id);
+                    const trophyDiv = document.createElement('div');
+                    trophyDiv.className = `p-4 rounded-lg border-4 border-yellow-500 bg-yellow-900 shadow-lg text-center`;
+                    trophyDiv.innerHTML = `
+                        <i data-lucide="trophy" class="text-6xl text-yellow-300 mb-2"></i>
+                        <h3 class="text-xl font-bold text-yellow-200">${String(trophy.name).toUpperCase()}</h3>
+                        <p class="text-sm text-gray-100">${String(trophy.description).toUpperCase()}</p>
+                        <p class="text-xs mt-2 text-green-300">NIVEAU REQUIS : ${trophy.levelRequired}</p>
+                        ${earnedInfo ? `<p class="text-xs text-green-400 mt-1">DÉBLOQUÉ LE : ${new Date(earnedInfo.timestamp).toLocaleDateString('fr-FR')}</p>` : ''}
+                    `;
+                    trophiesGrid.appendChild(trophyDiv);
+                });
+            }
             renderLucideIcons();
         }
 
