@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitQuest</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    <style>
-        body { font-family: 'VT323', monospace; background-color: #1a202c; color: #e2e8f0; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>FitQuest</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"/>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+   body { font-family: 'VT323', monospace; background-color: #1a202c; color: #e2e8f0; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
         .font-vt323 { font-family: 'VT323', monospace; }
         .btn-retro { background-color: #2563eb; color: white; font-weight: bold; padding: 0.75rem 1rem; border-radius: 0.375rem; border: 2px solid #1e40af; box-shadow: 4px 4px 0 0 rgba(0,0,0,0.5); transition: all 0.1s ease-in-out; cursor: pointer; }
         .btn-retro:hover { background-color: #1d4ed8; }
@@ -116,91 +116,132 @@
             cursor: pointer;
             box-shadow: 0 0 2px rgba(0,0,0,.6);
         }
-    </style>
-</head>
-<body class="font-vt323 text-white bg-gray-900 min-h-screen flex flex-col">
-    <div id="app-container" class="min-h-screen flex flex-col">
-        <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-yellow-300 p-5 shadow-md border-b-4 border-purple-500 rounded-b-lg">
-            <div class="flex items-center justify-center relative">
-                <button id="home-button" class="absolute left-0 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-blue-600 transition-colors duration-200" title="Retour à l'accueil">
-                    <i data-lucide="home" class="text-yellow-300 text-3xl"></i>
-                </button>
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-center tracking-widest leading-tight flex-1">FITQUEST</h1>
-            </div>
-            <p class="text-center text-lg sm:text-xl mt-2 opacity-90">TON PROGRAMME PERSONNALISÉ</p>
-            <p class="text-center text-sm sm:text-base mt-1 opacity-80 text-gray-300">GÉNÉRÉ PAR POXEL, TON IA PERSONNELLE</p>
-            <p id="user-id-display" class="text-center text-xs sm:text-sm mt-2 opacity-80 text-gray-300 hidden">ID UTILISATEUR: <span id="user-id-value" class="font-mono break-all"></span></p>
-            <div class="flex items-center justify-center my-4 px-4">
-                <i data-lucide="zap" class="text-yellow-400 text-3xl sm:text-4xl mr-2"></i>
-                <div class="flex-1 xp-bar-container">
-                    <div id="xp-bar-fill" class="xp-bar-fill" style="width: 0%;"></div>
-                    <span id="xp-bar-text" class="xp-bar-text">LVL 0 : 0/100 XP</span>
-                </div>
-            </div>
-            <div class="mt-4 p-3 bg-gray-700 rounded-md border-2 border-blue-700">
-                <h3 class="text-lg sm:text-xl font-bold text-yellow-300 mb-2">TON PROFIL ET STATS VITALES :</h3>
-                <div class="flex flex-col sm:flex-row sm:items-end gap-3 justify-center">
-                    <div class="flex-1 w-full sm:w-auto">
-                        <label for="userHeight" class="block text-gray-200 text-sm font-bold mb-1">TAILLE (CM) :</label>
-                        <input type="number" id="userHeight" class="input-retro" placeholder="EX: 175" />
-                    </div>
-                    <div class="flex-1 w-full sm:w-auto">
-                        <label for="userWeight" class="block text-gray-200 text-sm font-bold mb-1">POIDS (KG) :</label>
-                        <input type="number" id="userWeight" class="input-retro" placeholder="EX: 70" />
-                    </div>
-                    <button id="save-profile-btn" class="btn-retro-green sm:w-auto w-full px-5 py-2">ENREGISTRER</button>
-                </div>
-                <div id="imc-display" class="mt-3 text-center text-lg text-white hidden">
-                    <p>TON IMC : <span id="imc-value" class="font-bold text-yellow-300"></span></p>
-                    <p>CATÉGORIE : <span id="imc-category" class="font-bold text-blue-400"></span></p>
-                    <p>PROTÉINES ESTIMÉES : <span id="protein-needs" class="font-bold text-yellow-300"></span></p>
-                    <div class="text-xs text-gray-400 mt-2">
-                        <p>**IMC INF. À 16.5 :** INSUFFISANCE PONDÉRALE (DÉNUTRITION SÉVÈRE)</p>
-                        <p>**IMC 16.5 À 18.4 :** INSUFFISANCE PONDÉRALE</p>
-                        <p>**IMC 18.5 À 24.9 :** POIDS NORMAL</p>
-                        <p>**IMC 25 À 26.9 :** SURPOIDS (PRÉ-OBÉSITÉ)</p>
-                        <p>**IMC 27 À 29.9 :** OBÉSITÉ MODÉRÉE</p>
-                        <p>**IMC 30 À 34.9 :** OBÉSITÉ CLASSE I</p>
-                        <p>**IMC 35 À 39.9 :** OBÉSITÉ CLASSE II (SÉVÈRE)</p>
-                        <p>**IMC SUP. OU ÉGAL À 40 :** OBÉSITÉ CLASSE III (MORBIDE OU MASSIVE)</p>
-                        <p class="mt-2">**BESOINS EN PROTÉINES :** ESTIMATION POUR LA RÉCUPÉRATION MUSCULAIRE ET LE MAINTIEN DE LA MASSE CORPORELLE, CLÉ POUR TON ACTIVITÉ PHYSIQUE.</p>
-                    </div>
-                </div>
-            </div>
-        </header>
-        <nav class="bg-gray-800 shadow-xl py-3 px-2 sm:px-4 border-y-4 border-blue-700 rounded-b-lg mb-4 mx-2">
-            <div class="nav-scroll-container">
-                <div class="nav-items-wrapper">
-                    <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="daily_plan"><i data-lucide="calendar" class="text-xl" style="width:24px; height:24px;"></i><span class="text-sm mt-1">PLANNING</span></button>
-                    <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="workout"><i data-lucide="dumbbell" class="text-xl" style="width:24px; height:24px;"></i><span class="text-sm mt-1">SPORT</span></button>
-                    <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="recipes"><i data-lucide="utensils" class="text-xl" style="width:24px; height:24px;"></i><span class="text-sm mt-1">RECETTES</span></button>
-                    <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="chrono"><i data-lucide="timer" class="text-xl" style="width:24px; height:24px;"></i><span class="text-sm mt-1">CHRONO</span></button>
-                    <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="progress"><i data-lucide="line-chart" class="text-xl" style="width:24px; height:24px;"></i><span class="text-sm mt-1">ÉVOLUTION</span></button>
-                    <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="trophies"><i data-lucide="trophy" class="text-xl" style="width:24px; height:24px;"></i><span class="text-sm mt-1">TROPHÉES</span></button>
-                    <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="options"><i data-lucide="settings" class="text-xl" style="width:24px; height:24px;"></i><span class="text-sm mt-1">OPTIONS</span></button>
-                </div>
-            </div>
-        </nav>
-        <main id="main-content" class="flex-1 p-4 sm:p-6 main-content-area max-w-full mx-auto"></main>
-        <footer class="fixed bottom-0 left-0 right-0 bg-gray-800 shadow-lg p-3 sm:hidden border-t-4 border-blue-700 text-center text-xs text-gray-400">FitQuest - 2023</footer>
+  </style>
+ </head>
+ <body class="font-vt323 text-white bg-gray-900 min-h-screen flex flex-col">
+  <div class="min-h-screen flex flex-col" id="app-container">
+   <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-yellow-300 p-5 shadow-md border-b-4 border-purple-500 rounded-b-lg">
+    <div class="flex items-center justify-center relative">
+     <button class="absolute left-0 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-blue-600 transition-colors duration-200" id="home-button" title="Retour à l'accueil">
+      <i class="text-yellow-300 text-3xl" data-lucide="home"></i>
+     </button>
+     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-center tracking-widest leading-tight flex-1">FITQUEST</h1>
     </div>
-    <div id="global-modals-container"></div>
-    <div id="notification-container-bottom-right" class="notification-container notification-container-bottom-right flex-col-reverse"></div>
-
-    <script>
-        // Fonction pour rendre les icônes Lucide
+    <p class="text-center text-lg sm:text-xl mt-2 opacity-90">TON PROGRAMME PERSONNALISÉ</p>
+    <p class="text-center text-sm sm:text-base mt-1 opacity-80 text-gray-300">GÉNÉRÉ PAR POXEL, TON IA PERSONNELLE</p>
+    <p class="text-center text-xs sm:text-sm mt-2 opacity-80 text-gray-300 hidden" id="user-id-display">
+     ID UTILISATEUR:
+     <span class="font-mono break-all" id="user-id-value"></span>
+    </p>
+    <div class="flex items-center justify-center my-4 px-4">
+     <i class="text-yellow-400 text-3xl sm:text-4xl mr-2" data-lucide="zap"></i>
+     <div class="flex-1 xp-bar-container">
+      <div class="xp-bar-fill" id="xp-bar-fill" style="width: 0%;"></div>
+      <span class="xp-bar-text" id="xp-bar-text">LVL 0 : 0/100 XP</span>
+     </div>
+    </div>
+    <div class="mt-4 p-3 bg-gray-700 rounded-md border-2 border-blue-700">
+     <h3 class="text-lg sm:text-xl font-bold text-yellow-300 mb-2">TON PROFIL ET STATS VITALES :</h3>
+     <div class="flex flex-col sm:flex-row sm:items-end gap-3 justify-center">
+      <div class="flex-1 w-full sm:w-auto">
+       <label class="block text-gray-200 text-sm font-bold mb-1" for="userHeight">TAILLE (CM) :</label>
+       <input class="input-retro" id="userHeight" placeholder="EX: 175" type="number"/>
+      </div>
+      <div class="flex-1 w-full sm:w-auto">
+       <label class="block text-gray-200 text-sm font-bold mb-1" for="userWeight">POIDS (KG) :</label>
+       <input class="input-retro" id="userWeight" placeholder="EX: 70" type="number"/>
+      </div>
+      <button class="btn-retro-green sm:w-auto w-full px-5 py-2" id="save-profile-btn">ENREGISTRER</button>
+     </div>
+     <div class="mt-3 text-center text-lg text-white hidden" id="imc-display">
+      <p>TON IMC : <span class="font-bold text-yellow-300" id="imc-value"></span></p>
+      <p>CATÉGORIE : <span class="font-bold text-blue-400" id="imc-category"></span></p>
+      <p>PROTÉINES ESTIMÉES : <span class="font-bold text-yellow-300" id="protein-needs"></span></p>
+      <div class="text-xs text-gray-400 mt-2">
+       <p>**IMC INF. À 16.5 :** INSUFFISANCE PONDÉRALE (DÉNUTRITION SÉVÈRE)</p>
+       <p>**IMC 16.5 À 18.4 :** INSUFFISANCE PONDÉRALE</p>
+       <p>**IMC 18.5 À 24.9 :** POIDS NORMAL</p>
+       <p>**IMC 25 À 26.9 :** SURPOIDS (PRÉ-OBÉSITÉ)</p>
+       <p>**IMC 27 À 29.9 :** OBÉSITÉ MODÉRÉE</p>
+       <p>**IMC 30 À 34.9 :** OBÉSITÉ CLASSE I</p>
+       <p>**IMC 35 À 39.9 :** OBÉSITÉ CLASSE II (SÉVÈRE)</p>
+       <p>**IMC SUP. OU ÉGAL À 40 :** OBÉSITÉ CLASSE III (MORBIDE OU MASSIVE)</p>
+       <p class="mt-2">**BESOINS EN PROTÉINES :** ESTIMATION POUR LA RÉCUPÉRATION MUSCULAIRE ET LE MAINTIEN DE LA MASSE CORPORELLE, CLÉ POUR TON ACTIVITÉ PHYSIQUE.</p>
+      </div>
+     </div>
+    </div>
+   </header>
+   <nav class="bg-gray-800 shadow-xl py-3 px-2 sm:px-4 border-y-4 border-blue-700 rounded-b-lg mb-4 mx-2">
+    <div class="nav-scroll-container">
+     <div class="nav-items-wrapper">
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="daily_plan">
+       <i class="text-xl" data-lucide="calendar" style="width:24px; height:24px;"></i>
+       <span class="text-sm mt-1">PLANNING</span>
+      </button>
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="workout">
+       <i class="text-xl" data-lucide="dumbbell" style="width:24px; height:24px;"></i>
+       <span class="text-sm mt-1">SPORT</span>
+      </button>
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="recipes">
+       <i class="text-xl" data-lucide="utensils" style="width:24px; height:24px;"></i>
+       <span class="text-sm mt-1">RECETTES</span>
+      </button>
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="chrono">
+       <i class="text-xl" data-lucide="timer" style="width:24px; height:24px;"></i>
+       <span class="text-sm mt-1">CHRONO</span>
+      </button>
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="progress">
+       <i class="text-xl" data-lucide="line-chart" style="width:24px; height:24px;"></i>
+       <span class="text-sm mt-1">ÉVOLUTION</span>
+      </button>
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="trophies">
+       <i class="text-xl" data-lucide="trophy" style="width:24px; height:24px;"></i>
+       <span class="text-sm mt-1">TROPHÉES</span>
+      </button>
+      <button class="nav-item inline-flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-100 text-gray-200 hover:bg-gray-700 hover:text-yellow-300 border-2 border-gray-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1" data-page="options">
+       <i class="text-xl" data-lucide="settings" style="width:24px; height:24px;"></i>
+       <span class="text-sm mt-1">OPTIONS</span>
+      </button>
+     </div>
+    </div>
+   </nav>
+   <main class="flex-1 p-4 sm:p-6 main-content-area max-w-full mx-auto" id="main-content"></main>
+   <footer class="fixed bottom-0 left-0 right-0 bg-gray-800 shadow-lg p-3 sm:hidden border-t-4 border-blue-700 text-center text-xs text-gray-400">
+    FitQuest - 2023
+   </footer>
+  </div>
+  <div id="global-modals-container"></div>
+  <div class="notification-container notification-container-bottom-right flex-col-reverse" id="notification-container-bottom-right"></div>
+  <script>
+   // Fonction pour rendre les icônes Lucide
         function renderLucideIcons() { lucide.createIcons(); }
 
         // Variables d'état globales de l'application
         let currentPage = 'daily_plan';
-        let weeklyMealPlan = null, userProfile = { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [] };
-        let workoutLogs = [], weightHistory = [], intervalSequences = [], shifts = [];
-        let workoutProgram = {}, previousLevel = 0, isAudioActive = true, masterVolume = 1;
+        let weeklyMealPlan = null;
+        let userProfile = { height: '', weight: '', imc: null, imcCategory: '', proteinNeeds: 'N/A', currentXP: 0, earnedTrophies: [], hideExerciseHistory: false, apiKey: '', likedMeals: [] };
+        let workoutLogs = [];
+        let weightHistory = [];
+        let intervalSequences = [];
+        let shifts = [];
+        let workoutProgram = {};
+        let previousLevel = 0;
+        let isAudioActive = true;
+        let masterVolume = 1;
         let trophySoundPlayer, levelUpPlayer, majorLevelUpPlayer, beepPlayer, startSoundPlayer, synth;
-        let chronoIntervals = [], chronoCurrentTime = 0, chronoCurrentIntervalIndex = -1, isChronoRunning = false, isChronoPaused = false, enableChronoPreCountdown = true, chronoPreCountdownDuration = 10, chronoIntervalTimerRef = null;
-        let weightChartInstance = null, exerciseChartInstance = null, userId = 'local_user';
+        let chronoIntervals = [];
+        let chronoCurrentTime = 0;
+        let chronoCurrentIntervalIndex = -1;
+        let isChronoRunning = false;
+        let isChronoPaused = false;
+        let enableChronoPreCountdown = true;
+        let chronoPreCountdownDuration = 10;
+        let chronoIntervalTimerRef = null;
+        let weightChartInstance = null;
+        let exerciseChartInstance = null;
+        let userId = 'local_user';
         let editingIntervalIndex = -1;
-        let regeneratingMeal = null;
+        let regeneratingMeal = null; // Flag to control generation state
 
         // Nutritional program text to be passed to the AI
         const nutritionalProgramText = `
@@ -519,7 +560,7 @@ Notes générales pour ta Nutrition :
             const iconMap = { 'success': '🎉', 'error': '❌', 'warning': '⚠️', 'info': 'ℹ️', 'chrono': '⏱️', 'tip': '💡' };
             notification.innerHTML = `<span class="text-2xl">${iconMap[type] || 'ℹ️'}</span><p class="font-bold text-sm sm:text-base">${String(msg).toUpperCase()}</p>`;
             container.appendChild(notification);
-            void notification.offsetWidth;
+            void notification.offsetWidth; // Force reflow for animation
             notification.classList.add('show');
             const duration = type === 'trophy' ? 12000 : (type === 'tip' ? 20000 : (type === 'ai-advice' ? 15000 : 5000)); // AI advice for 15 seconds
             setTimeout(() => { notification.classList.remove('show'); notification.addEventListener('transitionend', () => notification.remove(), { once: true }); }, duration);
@@ -533,7 +574,7 @@ Notes générales pour ta Nutrition :
             notification.innerHTML = `<span class="text-4xl">🏆</span><div><p class="font-bold text-lg sm:text-xl">TROPHÉE DÉBLOQUÉ !</p><p class="text-yellow-300 text-sm sm:text-base">${String(trophyName).toUpperCase()}</p><p class="text-gray-200 text-xs sm:text-sm">${String(description).toUpperCase()}</p></div>`;
             container.appendChild(notification);
             playTrophySound();
-            void notification.offsetWidth;
+            void notification.offsetWidth; // Force reflow for animation
             setTimeout(() => { notification.classList.add('show'); }, 100);
             setTimeout(() => { notification.classList.remove('show'); notification.addEventListener('transitionend', () => notification.remove(), { once: true }); }, 12000);
         }
@@ -768,7 +809,7 @@ Notes générales pour ta Nutrition :
                 speak(`Felicitations, vous avez atteint le niveau ${level} !`);
                 progressBar.style.transition = 'none';
                 progressBar.style.width = '0%';
-                void progressBar.offsetWidth;
+                void progressBar.offsetWidth; // Trigger reflow
                 setTimeout(() => { progressBar.style.transition = 'width 0.5s ease-in-out, background 0.5s ease-in-out'; progressBar.style.width = `${actualProgress}%`; }, 150);
             } else {
                 progressBar.style.transition = 'width 0.5s ease-in-out, background 0.5s ease-in-out';
@@ -798,9 +839,16 @@ Notes générales pour ta Nutrition :
 
         // Met à jour l'affichage du profil utilisateur
         function updateProfileDisplay() {
-            const heightInput = document.getElementById('userHeight'), weightInput = document.getElementById('userWeight'), imcDisplay = document.getElementById('imc-display'), imcValue = document.getElementById('imc-value'), imcCategory = document.getElementById('imc-category'), proteinNeeds = document.getElementById('protein-needs');
+            const heightInput = document.getElementById('userHeight');
+            const weightInput = document.getElementById('userWeight');
+            const imcDisplay = document.getElementById('imc-display');
+            const imcValue = document.getElementById('imc-value');
+            const imcCategory = document.getElementById('imc-category');
+            const proteinNeeds = document.getElementById('protein-needs');
+
             heightInput.value = userProfile.height;
             weightInput.value = userProfile.weight;
+
             if (userProfile.imc && userProfile.imcCategory && userProfile.proteinNeeds) {
                 imcValue.textContent = userProfile.imc;
                 imcCategory.textContent = userProfile.imcCategory;
@@ -813,9 +861,15 @@ Notes générales pour ta Nutrition :
 
         // Gère la sauvegarde du profil utilisateur (taille, poids, IMC)
         async function handleSaveProfile() {
-            const height = document.getElementById('userHeight').value, weight = document.getElementById('userWeight').value;
+            const height = document.getElementById('userHeight').value;
+            const weight = document.getElementById('userWeight').value;
+
             if (!height || !weight) { showMessage("ERREUR: TAILLE ET POIDS REQUIS POUR L'IMC.", 'error'); return; }
-            const currentHeight = parseFloat(height), currentWeight = parseFloat(weight), currentImc = (currentWeight / ( (currentHeight / 100) * (currentHeight / 100) )).toFixed(2);
+
+            const currentHeight = parseFloat(height);
+            const currentWeight = parseFloat(weight);
+            const currentImc = (currentWeight / ( (currentHeight / 100) * (currentHeight / 100) )).toFixed(2);
+
             let currentImcCategory;
             const imcVal = parseFloat(currentImc);
             const imcCategories = [
@@ -829,14 +883,22 @@ Notes générales pour ta Nutrition :
                 { threshold: Infinity, category: 'OBÉSITÉ CLASSE III (MORBIDE OU MASSIVE)' }
             ];
             for (const cat of imcCategories) { if (imcVal < cat.threshold) { currentImcCategory = cat.category; break; } }
-            const proteinMultiplier = 1.6, currentProteinNeeds = (currentWeight * proteinMultiplier).toFixed(0);
+
+            const proteinMultiplier = 1.6;
+            const currentProteinNeeds = (currentWeight * proteinMultiplier).toFixed(0);
+
             let newXP = userProfile.currentXP;
-            const oldWeight = parseFloat(userProfile.weight) || 0, oldImcCategory = userProfile.imcCategory || '';
+            const oldWeight = parseFloat(userProfile.weight) || 0;
+            const oldImcCategory = userProfile.imcCategory || '';
+
             if (oldWeight > 0 && currentWeight !== oldWeight) {
                 const weightDiff = oldWeight - currentWeight;
-                const oldImcIndex = imcCategories.findIndex(c => c.category === oldImcCategory), currentImcIndex = imcCategories.findIndex(c => c.category === currentImcCategory);
+                const oldImcIndex = imcCategories.findIndex(c => c.category === oldImcCategory);
+                const currentImcIndex = imcCategories.findIndex(c => c.category === currentImcCategory);
+
                 if (currentImcIndex < oldImcIndex) { newXP += 50; showMessage(`XP GAGNÉE: AMÉLIORATION DE L'IMC !`, 'success'); }
                 else if (currentImcIndex > oldImcIndex) { newXP = Math.max(0, newXP - 30); showMessage(`XP PERDUE: DÉTÉRIORATION DE L'IMC.`, 'warning'); }
+
                 if (currentImcCategory === 'POIDS NORMAL') {
                     if (!oldImcCategory.includes('POIDS NORMAL')) { newXP += 100; showMessage(`XP GAGNÉE: ENTRÉE DANS LA CATÉGORIE DE POIDS NORMAL !`, 'success'); }
                     else { newXP += 5; showMessage(`XP GAGNÉE: MAINTIEN DANS LA CATÉGORIE DE POIDS NORMAL !`, 'success'); }
@@ -845,17 +907,40 @@ Notes générales pour ta Nutrition :
                 else if (currentImcCategory.includes('INSUFFISANCE PONDÉRALE') && weightDiff > 0) { newXP = Math.max(0, newXP - Math.round(Math.abs(weightDiff) * 5)); showMessage(`XP PERDUE: PERTE DE POIDS À PARTIR DE LA NORMALITÉ !`, 'warning'); }
                 else if ((currentImcCategory.includes('SURPOIDS') || currentImcCategory.includes('OBÉSITÉ')) && weightDiff < 0) { newXP = Math.max(0, newXP - Math.round(Math.abs(weightDiff) * 5)); showMessage(`XP PERDUE: PRISE DE POIDS À PARTIR DE LA NORMALITÉ !`, 'warning'); }
             }
+
             userProfile = { ...userProfile, height: currentHeight, weight: currentWeight, imc: currentImc, imcCategory: currentImcCategory, proteinNeeds: currentProteinNeeds, currentXP: newXP, updatedAt: new Date().toISOString() };
             saveToLocalStorage('userProfile', userProfile);
             updateProfileDisplay();
             updateXPBar();
+
             const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0); // Normalize to start of day
             const todayFormatted = formatDateToYYYYMMDD(today);
+
             const existingEntryIndex = weightHistory.findIndex(entry => formatDateToYYYYMMDD(new Date(entry.date)) === todayFormatted);
-            if (existingEntryIndex !== -1) { weightHistory[existingEntryIndex] = { ...weightHistory[existingEntryIndex], weight: currentWeight, imc: currentImc, imcCategory: currentImcCategory, timestamp: new Date().toISOString() }; }
-            else { weightHistory.push({ id: generateUniqueId(), date: new Date().toISOString(), weight: currentWeight, imc: currentImc, imcCategory: currentImcCategory, timestamp: new Date().toISOString() }); }
+
+            if (existingEntryIndex !== -1) {
+                // Update existing entry for today
+                weightHistory[existingEntryIndex] = {
+                    ...weightHistory[existingEntryIndex],
+                    weight: currentWeight,
+                    imc: currentImc,
+                    imcCategory: currentImcCategory,
+                    timestamp: new Date().toISOString()
+                };
+            } else {
+                // Add new entry
+                weightHistory.push({
+                    id: generateUniqueId(),
+                    date: new Date().toISOString(),
+                    weight: currentWeight,
+                    imc: currentImc,
+                    imcCategory: currentImcCategory,
+                    timestamp: new Date().toISOString()
+                });
+            }
             saveToLocalStorage('weightHistory', weightHistory);
+
             if (currentPage === 'progress') renderProgressView(document.getElementById('main-content'));
         }
 
@@ -863,20 +948,34 @@ Notes générales pour ta Nutrition :
         function renderDailyPlanView(container) {
             let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">MON PLANNING</h2><div class="mb-6 space-y-4 p-4 rounded-lg border-2 border-blue-700 bg-gray-700"><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">AJOUTER UN POSTE :</h3><div class="relative"><label for="shiftDate" class="block text-white-200 text-sm font-bold mb-2">DATE DU POSTE :</label><input type="date" id="shiftDate" class="input-retro pr-10" style="color: #ffffff;" value="" /><i data-lucide="calendar" class="absolute right-11 top-12 -translate-y-1/2 text-white pointer-events-none" style="width:15px; height:18px;"></i></div><div><label for="shiftType" class="block text-gray-200 text-sm font-bold mb-2">TYPE DE POSTE :</label><select id="shiftType" class="select-retro"><option value="6h-18h">POSTE JOUR (6H-18H)</option><option value="7h-18h">POSTE JOUR (7H-18H)</option><option value="18h-6h">POSTE NUIT (18H-6H)</option><option value="repos">JOUR DE REPOS</option><option value="repos_sport">JOUR DE REPOS (SPORT)</option></select></div><div><label for="workoutType" class="block text-gray-200 text-sm font-bold mb-2">SÉANCE SPORT PRÉVUE :</label><select id="workoutType" class="select-retro"><option value="aucun">AUCUNE</option><option value="renforcement">RENFORCEMENT MUSCULAIRE</option><option value="cardio">CARDIO</option><option value="hiit">HIIT</option><option value="repos_actif">RÉCUPÉRATION ACTIVE / FLEXIBILITÉ</option></select></div><button id="add-shift-btn" class="btn-retro w-full">AJOUTER POSTE</button></div><h3 class="text-xl sm:text-2xl text-yellow-300 mb-3">TON PLAN POUR LES JOURS PLANIFIÉS :</h3><div id="shifts-list" class="space-y-6"></div></div>`;
             container.innerHTML = html;
-            const shiftDateInput = document.getElementById('shiftDate'), shiftTypeSelect = document.getElementById('shiftType'), workoutTypeSelect = document.getElementById('workoutType'), addShiftBtn = document.getElementById('add-shift-btn'), shiftsListDiv = document.getElementById('shifts-list');
+
+            const shiftDateInput = document.getElementById('shiftDate');
+            const shiftTypeSelect = document.getElementById('shiftType');
+            const workoutTypeSelect = document.getElementById('workoutType');
+            const addShiftBtn = document.getElementById('add-shift-btn');
+            const shiftsListDiv = document.getElementById('shifts-list');
+
             addShiftBtn.onclick = async () => {
-                const date = shiftDateInput.value, type = shiftTypeSelect.value, workout = workoutTypeSelect.value;
+                const date = shiftDateInput.value;
+                const type = shiftTypeSelect.value;
+                const workout = workoutTypeSelect.value;
+
                 if (!date || !type) { showMessage("ERREUR: DATE ET TYPE DE POSTE REQUIS.", 'error'); return; }
+
                 const dateObj = new Date(date);
-                dateObj.setHours(0, 0, 0, 0);
+                dateObj.setHours(0, 0, 0, 0); // Normalize to start of day
+
                 if (shifts.some(s => formatDateToYYYYMMDD(new Date(s.date)) === formatDateToYYYYMMDD(dateObj))) { showMessage("ERREUR: POSTE DÉJÀ ENREGISTRÉ POUR CETTE DATE.", 'error'); return; }
+
                 shifts.push({ id: generateUniqueId(), date: dateObj.toISOString(), type: type, workoutType: workout, createdAt: new Date().toISOString() });
                 saveToLocalStorage('shifts', shifts);
                 showMessage("SUCCÈS: POSTE AJOUTÉ !", 'success');
+
                 shiftDateInput.value = '';
                 workoutTypeSelect.value = 'aucun';
                 renderDailyPlanView(container);
             };
+
             renderShiftsList(shiftsListDiv, shifts);
         }
 
@@ -884,17 +983,46 @@ Notes générales pour ta Nutrition :
         function renderShiftsList(container, shiftsData) {
             container.innerHTML = '';
             if (shiftsData.length === 0) { container.innerHTML = '<p class="text-gray-400">AUCUN POSTE ENREGISTRÉ. AJOUTE TON PREMIER POSTE CI-DESSOUS !</p>'; return; }
+
             const sortedShifts = [...shiftsData].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
             sortedShifts.forEach(shift => {
                 const dateObj = new Date(shift.date);
                 const dateString = dateObj.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
                 const routine = sleepRoutines[String(shift.type)] || sleepRoutines['repos'];
                 const mealForThisDay = weeklyMealPlan?.semaine?.find(d => d.date === formatDateToYYYYMMDD(dateObj));
+
                 const shiftDiv = document.createElement('div');
                 shiftDiv.className = "bg-gray-700 p-4 rounded-lg border-4 border-purple-500 shadow-lg";
-                shiftDiv.innerHTML = `<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3"><h4 class="text-lg sm:text-xl font-bold text-yellow-300">${dateString} - POSTE: ${String(shift.type).toUpperCase()}</h4><button class="btn-retro-red text-sm px-3 py-1 mt-2 sm:mt-0 delete-shift-btn" data-id="${shift.id}" data-date="${formatDateToYYYYMMDD(dateObj)}">SUPPRIMER</button></div>${String(shift.workoutType) !== 'aucun' ? `<div class="mb-3 p-2 bg-blue-800 rounded-md border border-purple-400"><p class="text-sm sm:text-base font-medium text-white">SÉANCE SPORT : ${String(shift.workoutType).toUpperCase().replace('_', ' ')} PRÉVUE</p></div>` : ''}<div class="mb-4"><h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">💤 ROUTINE SOMMEIL : ${String(routine.name).toUpperCase()}</h5><ul class="list-disc list-inside text-gray-300 text-sm space-y-1">${routine.details.map(detail => `<li>${String(detail).toUpperCase()}</li>`).join('')}</ul></div><div class="mb-4"><h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">🍽️ PLAN REPAS SUGGÉRÉ :</h5>${mealForThisDay ? `<ul class="list-disc list-inside text-gray-300 text-sm space-y-1">${mealForThisDay.petit_dejeuner ? `<li>**PETIT-DÉJEUNER :** ${String(mealForThisDay.petit_dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.dejeuner ? `<li>**DÉJEUNER :** ${String(mealForThisDay.dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.diner ? `<li>**DÎNER :** ${String(mealForThisDay.diner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_matin ? `<li>**COLLAT. MATIN :** ${String(mealForThisDay.collation_matin.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_apresmidi ? `<li>**COLLAT. APRÈS-MIDI :** ${String(mealForThisDay.collation_apresmidi.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}${mealForThisDay.collation_unique ? `<li>**COLLAT. UNIQUE :** ${String(mealForThisDay.collation_unique.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}</ul>` : `<p class="text-gray-400">PLAN DE REPAS NON DISPONIBLE POUR CE JOUR. GÉNÉREZ UN PLAN HEBDOMADAIRE DANS L'ONGLET "RECETTES".</p>`}</div>`;
+                shiftDiv.innerHTML = `
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
+                        <h4 class="text-lg sm:text-xl font-bold text-yellow-300">${dateString} - POSTE: ${String(shift.type).toUpperCase()}</h4>
+                        <button class="btn-retro-red text-sm px-3 py-1 mt-2 sm:mt-0 delete-shift-btn" data-id="${shift.id}" data-date="${formatDateToYYYYMMDD(dateObj)}">SUPPRIMER</button>
+                    </div>
+                    ${String(shift.workoutType) !== 'aucun' ? `<div class="mb-3 p-2 bg-blue-800 rounded-md border border-purple-400"><p class="text-sm sm:text-base font-medium text-white">SÉANCE SPORT : ${String(shift.workoutType).toUpperCase().replace('_', ' ')} PRÉVUE</p></div>` : ''}
+                    <div class="mb-4">
+                        <h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">💤 ROUTINE SOMMEIL : ${String(routine.name).toUpperCase()}</h5>
+                        <ul class="list-disc list-inside text-gray-300 text-sm space-y-1">
+                            ${routine.details.map(detail => `<li>${String(detail).toUpperCase()}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-semibold text-base sm:text-lg text-yellow-300 mb-2">🍽️ PLAN REPAS SUGGÉRÉ :</h5>
+                        ${mealForThisDay ? `
+                            <ul class="list-disc list-inside text-gray-300 text-sm space-y-1">
+                                ${mealForThisDay.petit_dejeuner ? `<li>**PETIT-DÉJEUNER :** ${String(mealForThisDay.petit_dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
+                                ${mealForThisDay.dejeuner ? `<li>**DÉJEUNER :** ${String(mealForThisDay.dejeuner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
+                                ${mealForThisDay.diner ? `<li>**DÎNER :** ${String(mealForThisDay.diner.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
+                                ${mealForThisDay.collation_matin ? `<li>**COLLAT. MATIN :** ${String(mealForThisDay.collation_matin.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
+                                ${mealForThisDay.collation_apresmidi ? `<li>**COLLAT. APRÈS-MIDI :** ${String(mealForThisDay.collation_apresmidi.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
+                                ${mealForThisDay.collation_unique ? `<li>**COLLAT. UNIQUE :** ${String(mealForThisDay.collation_unique.title || 'TITRE INDISPONIBLE').toUpperCase()}</li>` : ''}
+                            </ul>
+                        ` : `<p class="text-gray-400">PLAN DE REPAS NON DISPONIBLE POUR CE JOUR. GÉNÉREZ UN PLAN HEBDOMADAIRE DANS L'ONGLET "RECETTES".</p>`}
+                    </div>
+                `;
                 container.appendChild(shiftDiv);
             });
+
             container.querySelectorAll('.delete-shift-btn').forEach(button => {
                 button.onclick = async (event) => {
                     const idToDelete = event.target.dataset.id;
@@ -908,7 +1036,7 @@ Notes générales pour ta Nutrition :
                         }
                         showMessage("SUCCÈS: POSTE ET REPAS ASSOCIÉS SUPPRIMÉS !", 'success');
                         renderDailyPlanView(document.getElementById('main-content'));
-                        renderRecipeView(document.getElementById('main-content'));
+                        renderRecipeView(document.getElementById('main-content')); // Re-render recipe view to update meal plan display
                     }
                 };
             });
@@ -918,20 +1046,93 @@ Notes générales pour ta Nutrition :
         function renderWorkoutView(container) {
             let html = `<div class="card-retro mb-6"><h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">PROGRAMME SPORTIF</h2><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700"><h3 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">LIGNES DIRECTRICES SPORTIVES :</h3><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>ÉCOUTE TON CORPS : AVEC LA SCLÉROSE EN PLAQUES ET TES HORAIRES DE TRAVAIL, LA FATIGUE PEUT VARIER. SI TU TE SENS MOINS EN FORME, RÉDUIS L'INTENSITÉ, LE NOMBRE DE SÉRIES, OU OPTE POUR UNE SÉANCE PLUS LÉGÈRE OU DU REPOS ACTIF. NE FORCE JAMAIS LA DOULEUR.</li><li>LA FORME AVANT LA CHARGE : CONCENTRE-TOI SUR L'EXÉCUTION CORRECTE DE CHAQUE MOUVEMENT POUR MAXIMISER L'EFFICACITÉ ET PRÉVENIR LES BLESSURES. UNE BONNE TECHNIQUE EST PLUS IMPORTANTE QUE DE SOULEVER LOURD.</li><li>PROGRESSION PROGRESSIVE : L'OBJECTIF EST D'AMÉLIORER TES PERFORMANCES AU FIL DES SEMAINES. LORSQUE TU PEUX RÉALISER FACILEMENT LE MAXIMUM DE RÉPÉTITIONS/SÉRIES AVEC UNE BONNE FORME, AUGMENTE LÉGÈREMENT LA CHARGE (PAR PALIERS DE 2KG POUR LES HALTÈRES, OU 2.5KG/5KG POUR LES MACHINES) OU LE NOMBRE DE RÉPÉTITIONS.</li><li>HYDRATATION : BOIS DE L'EAU RÉGULIÈREMENT AVANT, PENDANT ET APRÈS CHAQUE SÉANCE.</li></ul></div><div class="mb-6 mt-6"><label for="phaseSelect" class="block text-gray-200 text-sm font-bold mb-2">CHOISIR UNE PHASE :</label><select id="phaseSelect" class="select-retro"><option value="phase1">${String(workoutProgram.phase1?.name || 'PHASE 1').toUpperCase()}</option><option value="phase2">${String(workoutProgram.phase2?.name || 'PHASE 2').toUpperCase()}</option></select></div><div id="workout-phase-content" class="space-y-6"></div></div>`;
             container.innerHTML = html;
-            const phaseSelect = document.getElementById('phaseSelect'), workoutPhaseContent = document.getElementById('workout-phase-content');
+
+            const phaseSelect = document.getElementById('phaseSelect');
+            const workoutPhaseContent = document.getElementById('workout-phase-content');
+
             let selectedPhase = loadFromLocalStorage('selectedWorkoutPhase', 'phase1');
-            if (!workoutProgram[selectedPhase]) selectedPhase = 'phase1'; saveToLocalStorage('selectedWorkoutPhase', selectedPhase);
+            if (!workoutProgram[selectedPhase]) selectedPhase = 'phase1'; // Fallback if saved phase is invalid
+            saveToLocalStorage('selectedWorkoutPhase', selectedPhase); // Save validated phase
+
             phaseSelect.value = selectedPhase;
+
             function renderPhaseContent(phase) {
                 const currentPhaseData = workoutProgram[phase];
-                if (!currentPhaseData || !currentPhaseData.sessions || !currentPhaseData.sessions.main || !currentPhaseData.sessions.cardio || !currentPhaseData.sessions.hiit) { workoutPhaseContent.innerHTML = '<p class="text-gray-400 text-center">CONTENU DE LA PHASE INDISPONIBLE. VEUILLEZ IMPORTER UN PROGRAMME VALIDE ET COMPLET.</p>'; return; }
-                const generateExerciseHtml = (ex, index) => `<div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-md border-2 border-blue-700 bg-gray-800 shadow-md"><div class="flex-1"><p class="font-medium text-gray-100 text-base sm:text-lg">${index + 1}. ${String(ex.name).toUpperCase()}</p><p class="text-sm text-gray-400 italic">${String(ex.desc).toUpperCase()}</p></div><button class="btn-retro-green text-sm px-4 py-2 mt-2 sm:mt-0 log-workout-btn" data-exercise-name="${ex.name}" data-exercise-type="${ex.type}">ENREGISTRER</button></div>`;
-                let phaseHtml = `<h3 class="text-xl sm:text-2xl font-bold text-blue-400">${String(currentPhaseData.name).toUpperCase()}</h3><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">ÉCHAUFFEMENT (10-15 MIN) :</h4><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1"><li>**CARDIO LÉGER (5-7 MIN):** TAPIS (MARCHE RAPIDE 5.0 KM/H, PENTE 1.0) OU VÉLO/ELLIPTIQUE (NIVEAU 3-5).</li><li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-8 MIN):** CERCLES DE BRAS, ROTATIONS DU TRONC, FENTES (SANS CHARGE), ROTATIONS DE HANCHES, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 RÉPÉTITIONS DE CHAQUE).</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.main.name).toUpperCase()}</h4><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (40-50 MINUTES) :</h5><div class="space-y-3">${currentPhaseData.sessions.main.exercises.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**ÉTIREMENTS DOUX :** MAINTIENS CHAQUE ÉTIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTRE-TOI SUR LES ISCHIO-JAMBIERS, QUADRICÈPES, PECTORAUX, DOS, ÉPAULES ET BRAS.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.cardio.name).toUpperCase()}</h4><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (35-45 MINUTES) :</h5><div class="space-y-3">${currentPhaseData.sessions.cardio.options.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1"><li>**ÉTIREMENTS DOUX :** MAINTIENS CHAQUE ÉTIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTRE-TOI SUR LES ISCHIO-JAMBIERS, QUADRICÈPES, PECTORAUX, DOS, ÉPAULES ET BRAS.</li></ul></div><div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"><h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.hiit.name).toUpperCase()}</h4><p class="text-sm sm:text-base text-gray-300 mb-4">${String(currentPhaseData.sessions.hiit.desc).toUpperCase()}</p><h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (20-25 MINUTES) :</h5><div class="space-y-3">${currentPhaseData.sessions.hiit.exercises.map(generateExerciseHtml).join('')}</div><h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5><ul class="list-disc list-inside text-gray-300 text-sm space-y-1"><li>**RETOUR AU CALME :** MARCHE LÉGÈRE ET RESPIRATION PROFONDE.</li><li>**ÉTIREMENTS DOUX :** AXÉS SUR LES MUSCLES PRINCIPAUX SOLLICITÉS.</li></ul></div>`;
+                if (!currentPhaseData || !currentPhaseData.sessions || !currentPhaseData.sessions.main || !currentPhaseData.sessions.cardio || !currentPhaseData.sessions.hiit) {
+                    workoutPhaseContent.innerHTML = '<p class="text-gray-400 text-center">CONTENU DE LA PHASE INDISPONIBLE. VEUILLEZ IMPORTER UN PROGRAMME VALIDE ET COMPLET.</p>';
+                    return;
+                }
+
+                const generateExerciseHtml = (ex, index) => `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-md border-2 border-blue-700 bg-gray-800 shadow-md">
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-100 text-base sm:text-lg">${index + 1}. ${String(ex.name).toUpperCase()}</p>
+                            <p class="text-sm text-gray-400 italic">${String(ex.desc).toUpperCase()}</p>
+                        </div>
+                        <button class="btn-retro-green text-sm px-4 py-2 mt-2 sm:mt-0 log-workout-btn" data-exercise-name="${ex.name}" data-exercise-type="${ex.type}">ENREGISTRER</button>
+                    </div>
+                `;
+
+                let phaseHtml = `
+                    <h3 class="text-xl sm:text-2xl font-bold text-blue-400">${String(currentPhaseData.name).toUpperCase()}</h3>
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">ÉCHAUFFEMENT (10-15 MIN) :</h4>
+                        <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base mb-4 space-y-1">
+                            <li>**CARDIO LÉGER (5-7 MIN):** TAPIS (MARCHE RAPIDE 5.0 KM/H, PENTE 1.0) OU VÉLO/ELLIPTIQUE (NIVEAU 3-5).</li>
+                            <li>**MOBILISATIONS ARTICULAIRES DYNAMIQUES (5-8 MIN):** CERCLES DE BRAS, ROTATIONS DU TRONC, FENTES (SANS CHARGE), ROTATIONS DE HANCHES, CERCLES DE CHEVILLES ET DE POIGNETS (10-15 RÉPÉTITIONS DE CHAQUE).</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.main.name).toUpperCase()}</h4>
+                        <h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (40-50 MINUTES) :</h5>
+                        <div class="space-y-3">
+                            ${currentPhaseData.sessions.main.exercises.map(generateExerciseHtml).join('')}
+                        </div>
+                        <h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5>
+                        <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1">
+                            <li>**ÉTIREMENTS DOUX :** MAINTIENS CHAQUE ÉTIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTRE-TOI SUR LES ISCHIO-JAMBIERS, QUADRICÈPES, PECTORAUX, DOS, ÉPAULES ET BRAS.</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.cardio.name).toUpperCase()}</h4>
+                        <h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (35-45 MINUTES) :</h5>
+                        <div class="space-y-3">
+                            ${currentPhaseData.sessions.cardio.options.map(generateExerciseHtml).join('')}
+                        </div>
+                        <h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5>
+                        <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1">
+                            <li>**ÉTIREMENTS DOUX :** MAINTIENS CHAQUE ÉTIREMENT PENDANT 20-30 SECONDES, SANS DOULEUR. CONCENTRE-TOI SUR LES ISCHIO-JAMBIERS, QUADRICÈPES, PECTORAUX, DOS, ÉPAULES ET BRAS.</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                        <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(currentPhaseData.sessions.hiit.name).toUpperCase()}</h4>
+                        <p class="text-sm sm:text-base text-gray-300 mb-4">${String(currentPhaseData.sessions.hiit.desc).toUpperCase()}</p>
+                        <h5 class="font-medium text-lg sm:text-xl mb-2 text-blue-400">CORPS DE SÉANCE (20-25 MINUTES) :</h5>
+                        <div class="space-y-3">
+                            ${currentPhaseData.sessions.hiit.exercises.map(generateExerciseHtml).join('')}
+                        </div>
+                        <h5 class="font-medium text-lg sm:text-xl mt-4 mb-2 text-blue-400">RÉCUPÉRATION (5-10 MIN) :</h5>
+                        <ul class="list-disc list-inside text-gray-300 text-sm space-y-1">
+                            <li>**RETOUR AU CALME :** MARCHE LÉGÈRE ET RESPIRATION PROFONDE.</li>
+                            <li>**ÉTIREMENTS DOUX :** AXÉS SUR LES MUSCLES PRINCIPAUX SOLLICITÉS.</li>
+                        </ul>
+                    </div>
+                `;
+
                 if (workoutProgram.recovery) {
-                    phaseHtml += `<div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4"> <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(workoutProgram.recovery.name).toUpperCase()}</h4> <p class="text-sm sm:text-base text-gray-300 mb-4">${String(workoutProgram.recovery.desc).toUpperCase()}</p><ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1">${workoutProgram.recovery.activities.map(act => `<li>**${String(act.name).toUpperCase()} :** ${String(act.desc).toUpperCase()}</li>`).join('')}</ul></div>`;
+                    phaseHtml += `
+                        <div class="p-4 rounded-lg border-2 border-purple-500 bg-gray-700 mt-4">
+                            <h4 class="font-semibold text-xl sm:text-2xl mb-3 text-yellow-300">${String(workoutProgram.recovery.name).toUpperCase()}</h4>
+                            <p class="text-sm sm:text-base text-gray-300 mb-4">${String(workoutProgram.recovery.desc).toUpperCase()}</p>
+                            <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base space-y-1">
+                                ${workoutProgram.recovery.activities.map(act => `<li>**${String(act.name).toUpperCase()} :** ${String(act.desc).toUpperCase()}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
                 }
                 workoutPhaseContent.innerHTML = phaseHtml;
-                renderLucideIcons();
+                renderLucideIcons(); // Ensure icons are rendered after content is added
+
                 workoutPhaseContent.querySelectorAll('.log-workout-btn').forEach(button => {
                     button.onclick = (event) => {
                         const exerciseName = event.target.dataset.exerciseName;
@@ -940,7 +1141,13 @@ Notes générales pour ta Nutrition :
                     };
                 });
             }
-            phaseSelect.onchange = (event) => { selectedPhase = event.target.value; saveToLocalStorage('selectedWorkoutPhase', selectedPhase); renderPhaseContent(selectedPhase); };
+
+            phaseSelect.onchange = (event) => {
+                selectedPhase = event.target.value;
+                saveToLocalStorage('selectedWorkoutPhase', selectedPhase);
+                renderPhaseContent(selectedPhase);
+            };
+
             renderPhaseContent(selectedPhase);
         }
 
@@ -985,6 +1192,7 @@ Notes générales pour ta Nutrition :
                 </div>
             `;
             document.getElementById('global-modals-container').innerHTML = modalHtml;
+
             const modal = document.getElementById('log-workout-modal');
             modal.querySelector('#cancel-log-btn').onclick = () => modal.remove();
             modal.querySelector('#confirm-log-btn').onclick = async () => {
@@ -1142,6 +1350,7 @@ Notes générales pour ta Nutrition :
             weeklyMealPlan.semaine.forEach(dayData => {
                 const isSimilarDay = dayData.dayContext.poste === originalDayContext.poste && dayData.dayContext.sport === originalDayContext.sport;
 
+                // Only update if it's a similar day AND not the original day that triggered the regeneration
                 if (isSimilarDay && dayData.date !== originalDateKey) {
                     dayData[generatedMeal.mealType] = { ...generatedMeal };
                     updatedCount++;
@@ -1347,7 +1556,9 @@ Notes générales pour ta Nutrition :
 
         // Rend la vue des recettes et gère la génération du plan de repas
         function renderRecipeView(container) {
-            let numPeople = loadFromLocalStorage('recipeNumPeople', 1), allowMeatFish = loadFromLocalStorage('recipeAllowMeatFish', true);
+            let numPeople = loadFromLocalStorage('recipeNumPeople', 1);
+            let allowMeatFish = loadFromLocalStorage('recipeAllowMeatFish', true);
+
             let html = `
                 <div class="card-retro mb-6">
                     <h2 class="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4 text-center">PLAN DE REPAS</h2>
@@ -1371,15 +1582,24 @@ Notes générales pour ta Nutrition :
                 </div>
             `;
             container.innerHTML = html;
-            const numPeopleInput = document.getElementById('numPeople'), allowMeatFishCheckbox = document.getElementById('allowMeatFish'), generatePlanBtn = document.getElementById('generate-plan-btn'), generatePlanSpinner = document.getElementById('generate-plan-spinner'), generatePlanText = document.getElementById('generate-plan-text'), weeklyMealPlanContentDiv = document.getElementById('weekly-meal-plan-content');
+
+            const numPeopleInput = document.getElementById('numPeople');
+            const allowMeatFishCheckbox = document.getElementById('allowMeatFish');
+            const generatePlanBtn = document.getElementById('generate-plan-btn');
+            const generatePlanSpinner = document.getElementById('generate-plan-spinner');
+            const generatePlanText = document.getElementById('generate-plan-text');
+            const weeklyMealPlanContentDiv = document.getElementById('weekly-meal-plan-content');
+
             numPeople = loadFromLocalStorage('recipeNumPeople', 1);
             allowMeatFish = loadFromLocalStorage('recipeAllowMeatFish', true);
             numPeopleInput.value = numPeople;
             allowMeatFishCheckbox.checked = allowMeatFish;
+
             numPeopleInput.onchange = (e) => { numPeople = Math.max(1, parseInt(e.target.value) || 1); saveToLocalStorage('recipeNumPeople', numPeople); };
             allowMeatFishCheckbox.onchange = (e) => { allowMeatFish = e.target.checked; saveToLocalStorage('recipeAllowMeatFish', allowMeatFish); };
 
-            if (regeneratingMeal) { // Only disable if a regeneration is explicitly in progress
+            // Update button state based on regeneratingMeal flag
+            if (regeneratingMeal) {
                 generatePlanBtn.disabled = true;
                 generatePlanSpinner.classList.remove('hidden');
                 generatePlanText.textContent = 'GÉNÉRATION...';
@@ -1395,12 +1615,15 @@ Notes générales pour ta Nutrition :
 
                 try {
                     if (!userProfile.height || !userProfile.weight) { showMessage("ERREUR: VEUILLEZ REMPLIR VOTRE TAILLE ET VOTRE POIDS DANS LE PROFIL POUR GÉNÉRER DES RECETTES PRÉCISES.", 'error'); return; }
+
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
                     const fetchedShifts = (loadFromLocalStorage('shifts', []) || []).filter(s => new Date(s.date).getTime() >= today.getTime());
+
                     if (fetchedShifts.length === 0) { showMessage("AUCUN POSTE ENREGISTRÉ POUR LES JOURS À VENIR. VEUILLEZ AJOUTER DES POSTES DANS L'ONGLET 'PLANNING' POUR GÉNÉRER UN PLAN DE REPAS.", 'warning'); return; }
+
                     const newMealPlan = { semaine: [] };
-                    const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds };
+                    const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds, apiKey: userProfile.apiKey };
 
                     const generatedSimilarMeals = {}; // Key: "shiftType_workoutType_mealType", Value: meal object
 
@@ -1433,9 +1656,11 @@ Notes générales pour ta Nutrition :
                             const dayContextKey = `${dayContext.poste}_${dayContext.sport}_${mealType}`;
 
                             if (isSynchronizableMeal && generatedSimilarMeals[dayContextKey]) {
+                                // Reuse already generated meal for similar context
                                 generatedMeal = { ...generatedSimilarMeals[dayContextKey] };
-                                generatedMeal.id = generateUniqueId();
+                                generatedMeal.id = generateUniqueId(); // Assign a new unique ID for this instance
                             } else {
+                                // Generate new meal
                                 generatedMeal = await generateInternalMeal(
                                     mealType,
                                     dayContext,
@@ -1447,6 +1672,7 @@ Notes générales pour ta Nutrition :
                                     nutritionalProgramText
                                 );
                                 if (isSynchronizableMeal) {
+                                    // Store for future reuse in this generation cycle
                                     generatedSimilarMeals[dayContextKey] = { ...generatedMeal };
                                 }
                             }
@@ -1460,12 +1686,11 @@ Notes générales pour ta Nutrition :
                     saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
                     showMessage("SUCCÈS: PLAN DE REPAS GÉNÉRÉ ET ENREGISTRÉ !", 'success');
                     speak("Plan de repas généré !");
-                    regeneratingMeal = null; // Clear regeneratingMeal flag
-                    renderRecipeView(container); // Re-render to update UI and re-enable button
                 } catch (error) {
                     console.error("Erreur lors de la génération du plan de repas:", error);
                     showMessage(`ERREUR: Échec de la génération du plan. ${error.message}`, 'error');
-                    regeneratingMeal = null; // Clear regeneratingMeal flag on error
+                } finally {
+                    regeneratingMeal = null; // Clear regeneratingMeal flag
                     renderRecipeView(container); // Re-render to update UI and re-enable button
                 }
             };
@@ -1510,7 +1735,7 @@ Notes générales pour ta Nutrition :
                             const adviceKey = mealType.includes('collation') ? `${mealType.replace('_unique', '')}_${dayData.dayContext.poste === '18h-6h' ? 'pendant' : (dayData.dayContext.sport !== 'aucun' ? 'post' : (dayData.dayContext.poste === '7h-18h' ? '7h-18h_apresmidi' : 'repos_default'))}` : dayData.dayContext.poste === '18h-6h' ? '18h-6h' : (dayData.dayContext.sport !== 'aucun' ? 'repos_sport' : 'default');
                             const advice = specificMealAdvice[mealType]?.[adviceKey] || specificMealAdvice[mealType]?.default || "CONSEIL GÉNÉRAL : MANGEZ ÉQUILIBRÉ.";
                             const isRegeneratingCurrentMeal = regeneratingMeal && regeneratingMeal.dateKey === dayData.date && regeneratingMeal.mealType === mealType;
-                            const isLiked = userProfile.likedMeals.some(lm => lm.id === meal.id);
+                            const isLiked = userProfile.likedMeals.some(lm => lm.id === meal.id); // Check if this specific meal instance is liked
 
                             mealsHtml += `
                                 <div class="bg-gray-800 p-3 rounded-md border border-blue-700 shadow-sm">
@@ -1562,28 +1787,31 @@ Notes générales pour ta Nutrition :
                 }
 
                 const clickHandler = (event) => {
-                    event.stopPropagation();
+                    event.stopPropagation(); // Prevent bubbling to parent if nested
                     const targetId = toggleElement.dataset.toggle;
                     const targetContent = document.getElementById(targetId);
                     const icon = toggleElement.querySelector('i[data-lucide]');
 
                     if (targetContent) {
                         if (targetContent.classList.contains('max-h-0')) {
+                            // Expand
                             targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
                             targetContent.classList.remove('max-h-0');
                             if (icon) icon.classList.add('rotate-180');
                             targetContent.classList.add('open');
+                            // After transition, set max-height to a very large value to accommodate dynamic content
                             targetContent.addEventListener('transitionend', function handler() {
                                 if (targetContent.classList.contains('open')) {
-                                    targetContent.style.maxHeight = '9999px';
+                                    targetContent.style.maxHeight = '9999px'; // Allow content to grow
                                 }
                                 targetContent.removeEventListener('transitionend', handler);
                             }, { once: true });
                         } else {
-                            targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
+                            // Collapse
+                            targetContent.style.maxHeight = targetContent.scrollHeight + 'px'; // Set explicit height before collapsing
                             requestAnimationFrame(() => {
                                 targetContent.classList.add('max-h-0');
-                                targetContent.style.maxHeight = '0';
+                                targetContent.style.maxHeight = '0'; // Collapse
                             });
                             if (icon) icon.classList.remove('rotate-180');
                             targetContent.classList.remove('open');
@@ -1604,13 +1832,14 @@ Notes générales pour ta Nutrition :
                     const dateKey = event.currentTarget.dataset.date;
                     const mealType = event.currentTarget.dataset.mealType;
                     const dayDataForRegen = weeklyMealPlan.semaine.find(d => d.date === dateKey);
+
                     if (!dayDataForRegen || !dayDataForRegen.dayContext) { showMessage("ERREUR: CONTEXTE DE JOUR NON TROUVÉ POUR LA RÉGÉNÉRATION DU REPAS.", 'error'); return; }
 
                     regeneratingMeal = { dateKey: dateKey, mealType: mealType };
                     renderRecipeView(document.getElementById('main-content')); // Re-render to show spinner/disabled state
 
                     try {
-                        const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds };
+                        const userProfileData = { height: parseFloat(userProfile.height), weight: parseFloat(userProfile.weight), imc: userProfile.imc, imcCategory: userProfile.imcCategory, proteinNeeds: userProfile.proteinNeeds, apiKey: userProfile.apiKey };
                         const regeneratedMeal = await generateInternalMeal(
                             mealType,
                             dayDataForRegen.dayContext,
@@ -1651,24 +1880,26 @@ Notes générales pour ta Nutrition :
                     const mealToLike = dayData ? dayData[mealType] : null;
 
                     if (mealToLike) {
-                        const existingLikedIndex = userProfile.likedMeals.findIndex(lm => lm.id === mealToLike.id); // Use mealToLike.id for consistency
+                        // Check if the specific meal instance (by its unique ID) is already liked
+                        const existingLikedIndex = userProfile.likedMeals.findIndex(lm => lm.id === mealToLike.id);
                         if (existingLikedIndex !== -1) {
                             userProfile.likedMeals.splice(existingLikedIndex, 1);
                             showMessage("RECETTE RETIRÉE DES FAVORIS.", 'info');
                         } else {
+                            // Add the meal to likedMeals, including its context for AI inspiration
                             userProfile.likedMeals.push({
                                 id: mealToLike.id,
                                 title: mealToLike.title,
                                 description_du_plat: mealToLike.description_du_plat,
                                 ingredients_list: mealToLike.ingredients_list,
                                 mealType: mealToLike.mealType,
-                                dayContext: mealToLike.dayContext,
+                                dayContext: mealToLike.dayContext, // Store day context for better inspiration
                                 likedAt: new Date().toISOString()
                             });
                             showMessage("RECETTE AJOUTÉE AUX FAVORIS !", 'success');
                         }
                         saveToLocalStorage('userProfile', userProfile);
-                        renderRecipeView(document.getElementById('main-content'));
+                        renderRecipeView(document.getElementById('main-content')); // Re-render to update heart icon
                     }
                 };
             });
@@ -1796,7 +2027,7 @@ Notes générales pour ta Nutrition :
             function chronoLoop() {
                 if (!isChronoRunning || isChronoPaused) return;
 
-                if (chronoCurrentIntervalIndex === -1) {
+                if (chronoCurrentIntervalIndex === -1) { // Pre-countdown phase
                     chronoCurrentTime--;
                     if (chronoCurrentTime <= 0) {
                         playMarioKartStartSound();
@@ -1804,8 +2035,10 @@ Notes générales pour ta Nutrition :
                         chronoCurrentTime = chronoIntervals[0].duration;
                         speak(String(chronoIntervals[0].instruction).toUpperCase());
                         showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono');
-                    } else if (chronoCurrentTime <= 3 && chronoCurrentTime > 0) playBeep(660, 0.1);
-                } else {
+                    } else if (chronoCurrentTime <= 3 && chronoCurrentTime > 0) {
+                        playBeep(660, 0.1); // Short beep for last 3 seconds
+                    }
+                } else { // Main interval phase
                     chronoCurrentTime--;
                     if (chronoCurrentTime <= 0) {
                         chronoCurrentIntervalIndex++;
@@ -1823,7 +2056,9 @@ Notes générales pour ta Nutrition :
                             clearInterval(chronoIntervalTimerRef);
                             chronoIntervalTimerRef = null;
                         }
-                    } else if (chronoCurrentTime <= 10 && chronoCurrentTime > 0) playBeep(880, 0.05);
+                    } else if (chronoCurrentTime <= 10 && chronoCurrentTime > 0) {
+                        playBeep(880, 0.05); // Short beep for last 10 seconds of an interval
+                    }
                 }
                 updateLocalStorageChronoState();
                 updateChronoDisplay();
@@ -1926,20 +2161,37 @@ Notes générales pour ta Nutrition :
 
             enablePreCountdownCheckbox.onchange = (e) => { enableChronoPreCountdown = e.target.checked; preCountdownDurationSetting.classList.toggle('hidden', !enableChronoPreCountdown); updateLocalStorageChronoState(); };
             chronoPreCountdownDurationInput.onchange = (e) => { chronoPreCountdownDuration = Math.max(1, parseInt(e.target.value) || 1); updateLocalStorageChronoState(); };
+
             startChronoBtn.onclick = () => {
                 if (chronoIntervals.length === 0) { showMessage("ERREUR: AJOUTEZ DES INTERVALLES AVANT DE COMMENCER.", 'error'); return; }
-                if (isChronoRunning && !isChronoPaused) return;
+                if (isChronoRunning && !isChronoPaused) return; // Already running
+
                 isChronoRunning = true;
                 isChronoPaused = false;
-                chronoCurrentIntervalIndex = -1;
-                if (enableChronoPreCountdown) chronoCurrentTime = chronoPreCountdownDuration;
-                else { chronoCurrentIntervalIndex = 0; chronoCurrentTime = chronoIntervals[0].duration; speak(String(chronoIntervals[0].instruction).toUpperCase()); showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono'); }
+                chronoCurrentIntervalIndex = -1; // Reset to pre-countdown state
+                if (enableChronoPreCountdown) {
+                    chronoCurrentTime = chronoPreCountdownDuration;
+                } else {
+                    chronoCurrentIntervalIndex = 0; // Skip pre-countdown
+                    chronoCurrentTime = chronoIntervals[0].duration;
+                    speak(String(chronoIntervals[0].instruction).toUpperCase());
+                    showMessage(String(chronoIntervals[0].instruction).toUpperCase(), 'chrono');
+                }
                 updateLocalStorageChronoState();
                 updateChronoDisplay();
                 showMessage("CHRONO DÉMARRÉ !", 'info');
-                if (!chronoIntervalTimerRef) chronoIntervalTimerRef = setInterval(chronoLoop, 1000);
+                if (!chronoIntervalTimerRef) {
+                    chronoIntervalTimerRef = setInterval(chronoLoop, 1000);
+                }
             };
-            pauseChronoBtn.onclick = () => { isChronoPaused = true; updateLocalStorageChronoState(); updateChronoDisplay(); showMessage("CHRONO EN PAUSE.", 'info'); clearInterval(chronoIntervalTimerRef); chronoIntervalTimerRef = null; };
+            pauseChronoBtn.onclick = () => {
+                isChronoPaused = true;
+                updateLocalStorageChronoState();
+                updateChronoDisplay();
+                showMessage("CHRONO EN PAUSE.", 'info');
+                clearInterval(chronoIntervalTimerRef);
+                chronoIntervalTimerRef = null;
+            };
             resetChronoBtn.onclick = () => {
                 isChronoRunning = false;
                 isChronoPaused = false;
@@ -1953,12 +2205,14 @@ Notes générales pour ta Nutrition :
             };
             skipIntervalBtn.onclick = () => {
                 if (!isChronoRunning || chronoCurrentIntervalIndex === -1) { showMessage("LE CHRONO N'EST PAS EN COURS OU EN PHASE DE PRÉ-COMPTE.", 'warning'); return; }
+
                 chronoCurrentIntervalIndex++;
                 if (chronoCurrentIntervalIndex < chronoIntervals.length) {
                     chronoCurrentTime = chronoIntervals[chronoCurrentIntervalIndex].duration;
                     speak(String(chronoIntervals[chronoCurrentIntervalIndex].instruction).toUpperCase());
                     showMessage(String(chronoIntervals[chronoCurrentIntervalIndex].instruction).toUpperCase(), 'chrono');
                 } else {
+                    // End of sequence
                     isChronoRunning = false;
                     isChronoPaused = false;
                     chronoCurrentIntervalIndex = -1;
@@ -1998,7 +2252,7 @@ Notes générales pour ta Nutrition :
                     saveToLocalStorage('intervalSequences', intervalSequences);
                     showMessage("SUCCÈS: SÉQUENCE ENREGISTRÉE !", 'success');
                     modalDiv.remove();
-                    document.getElementById('sequenceName').value = '';
+                    document.getElementById('sequenceName').value = ''; // Clear sequence name input
                 };
             };
 
@@ -2046,7 +2300,7 @@ Notes générales pour ta Nutrition :
                                 showMessage(`SUCCÈS: SÉQUENCE "${String(sequenceToLoad.name).toUpperCase()}" CHARGÉE !`, 'success');
                                 renderIntervalsList();
                                 resetIntervalForm();
-                                document.getElementById('sequenceName').value = sequenceToLoad.name;
+                                document.getElementById('sequenceName').value = sequenceToLoad.name; // Set loaded sequence name
                                 modalDiv.remove();
                             }
                         }
@@ -2061,7 +2315,7 @@ Notes générales pour ta Nutrition :
                             saveToLocalStorage('intervalSequences', intervalSequences);
                             showMessage("SUCCÈS: SÉQUENCE SUPPRIMÉE !", 'success');
                             modalDiv.remove();
-                            loadSequenceBtn.click();
+                            loadSequenceBtn.click(); // Re-open load modal to show updated list
                         }
                     };
                 });
@@ -2069,6 +2323,7 @@ Notes générales pour ta Nutrition :
 
             renderIntervalsList();
             updateChronoDisplay();
+            // Restart chrono if it was running before page re-render
             if (isChronoRunning && !isChronoPaused && !chronoIntervalTimerRef) {
                 chronoIntervalTimerRef = setInterval(chronoLoop, 1000);
             }
@@ -2175,7 +2430,8 @@ Notes générales pour ta Nutrition :
             if (sortedWeightHistory.length === 0) { weightHistoryListDiv.innerHTML = '<p class="text-gray-400">AUCUN HISTORIQUE DE POIDS ENREGISTRÉ.</p>'; }
             else {
                 let weightListHtml = `<ul class="space-y-1">`;
-                sortedWeightHistory.reverse().forEach(entry => {
+                // Display in reverse chronological order (most recent first)
+                [...sortedWeightHistory].reverse().forEach(entry => {
                     const date = new Date(entry.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
                     weightListHtml += `<li class="text-sm text-gray-300">**${date.toUpperCase()} :** POIDS: ${entry.weight} KG, IMC: ${entry.imc} (${String(entry.imcCategory).toUpperCase()})</li>`;
                 });
@@ -2187,6 +2443,7 @@ Notes générales pour ta Nutrition :
             const hideExerciseHistoryCheckbox = document.getElementById('hideExerciseHistory');
             const exerciseHistoryContent = document.getElementById('exercise-history-content');
             const exerciseSelect = document.getElementById('exerciseSelect');
+
             hideExerciseHistoryCheckbox.onchange = (e) => {
                 userProfile.hideExerciseHistory = e.target.checked;
                 saveToLocalStorage('userProfile', userProfile);
@@ -2206,6 +2463,7 @@ Notes générales pour ta Nutrition :
 
                 const selectedExercise = exerciseSelect.value;
                 if (!selectedExercise) {
+                    // Clear canvas if no exercise is selected
                     document.getElementById('exerciseChart').getContext('2d').clearRect(0, 0, document.getElementById('exerciseChart').width, document.getElementById('exerciseChart').height);
                     return;
                 }
@@ -2215,6 +2473,7 @@ Notes générales pour ta Nutrition :
                     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
                 if (filteredLogs.length === 0) {
+                    // Clear canvas if no data
                     document.getElementById('exerciseChart').getContext('2d').clearRect(0, 0, document.getElementById('exerciseChart').width, document.getElementById('exerciseChart').height);
                     showMessage(`AUCUNNE DONNÉE DE POIDS POUR "${String(selectedExercise).toUpperCase()}".`, 'warning');
                     return;
@@ -2274,6 +2533,7 @@ Notes générales pour ta Nutrition :
             else if (workoutLogs.length === 0) { exerciseHistoryListDiv.innerHTML = '<p class="text-gray-400">AUCUN ENTRAÎNEMENT ENREGISTRÉ.</p>'; }
             else {
                 let exerciseListHtml = `<ul class="space-y-1">`;
+                // Display in reverse chronological order (most recent first)
                 [...workoutLogs].reverse().forEach(log => {
                     const date = new Date(log.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                     exerciseListHtml += `<li class="text-sm text-gray-300">**${date.toUpperCase()} :** ${String(log.exerciseName).toUpperCase()} (${String(log.sets).toUpperCase()} SÉRIES, ${String(log.reps).toUpperCase()}${log.weight ? `, ${log.weight} KG` : ''}) - RESSENTI: ${String(log.feeling).toUpperCase()}${log.notes ? ` - NOTES: ${String(log.notes).toUpperCase()}` : ''}</li>`;
@@ -2282,6 +2542,7 @@ Notes générales pour ta Nutrition :
                 exerciseHistoryListDiv.innerHTML = exerciseListHtml;
             }
 
+            // Render chart initially if not hidden
             if (!userProfile.hideExerciseHistory) renderExerciseChart();
         }
 
@@ -2294,6 +2555,7 @@ Notes générales pour ta Nutrition :
                 </div>
             `;
             container.innerHTML = html;
+
             const trophiesGrid = document.getElementById('trophies-grid');
             // Filter to only show earned trophies
             const earnedTrophiesData = userProfile.earnedTrophies.map(earned => {
@@ -2306,7 +2568,7 @@ Notes générales pour ta Nutrition :
                 trophiesGrid.innerHTML = '<p class="text-gray-400 text-center col-span-full">AUCUN TROPHÉE DÉBLOQUÉ POUR LE MOMENT. CONTINUEZ À VOUS ENTRAÎNER POUR EN GAGNER !</p>';
             } else {
                 sortedEarnedTrophies.forEach(trophy => {
-                    const earnedInfo = userProfile.earnedTrophies.find(t => t.id === trophy.id);
+                    const earnedInfo = userProfile.earnedTrophies.find(t => t.id === trophy.id); // Get the timestamp from earnedTrophies
                     const trophyDiv = document.createElement('div');
                     trophyDiv.className = `p-4 rounded-lg border-4 border-yellow-500 bg-yellow-900 shadow-lg text-center`;
                     trophyDiv.innerHTML = `
@@ -2319,7 +2581,7 @@ Notes générales pour ta Nutrition :
                     trophiesGrid.appendChild(trophyDiv);
                 });
             }
-            renderLucideIcons();
+            renderLucideIcons(); // Ensure Lucide icons are rendered
         }
 
         // Rend la vue des options
@@ -2422,6 +2684,7 @@ Notes générales pour ta Nutrition :
                         try {
                             const importedData = JSON.parse(e.target.result);
                             if (await showConfirmModal("CONFIRMER L'IMPORTATION ? CELA REMPLACERA TOUTES VOS DONNÉES ACTUELLES.")) {
+                                // Update global state variables directly
                                 userProfile = importedData.userProfile || userProfile;
                                 weeklyMealPlan = importedData.weeklyMealPlan || weeklyMealPlan;
                                 workoutLogs = importedData.workoutLogs || workoutLogs;
@@ -2431,6 +2694,7 @@ Notes générales pour ta Nutrition :
                                 workoutProgram = importedData.savedWorkoutProgram || workoutProgram;
                                 masterVolume = importedData.masterVolume !== undefined ? importedData.masterVolume : masterVolume;
 
+                                // Save updated state to localStorage
                                 saveToLocalStorage('userProfile', userProfile);
                                 saveToLocalStorage('weeklyMealPlan', weeklyMealPlan);
                                 saveToLocalStorage('workoutLogs', workoutLogs);
@@ -2477,6 +2741,6 @@ Notes générales pour ta Nutrition :
 
         // Chargement initial de l'application
         window.onload = initializeApp;
-    </script>
-</body>
+  </script>
+ </body>
 </html>
