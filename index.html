@@ -606,15 +606,27 @@ Notes générales pour ta Nutrition :
             }
         }
 
-        // Fait parler l'IA avec la synthèse vocale
-        function speak(text) { if (isAudioActive) { if (synth) { synth.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'fr-FR'; synth.speak(utterance); } } }
-
         // Fonction pour parler avec Kodular (intégration)
         function parlerAvecKodular(texte) {
             if (window.AppInventor && window.AppInventor.setWebViewString) {
                 window.AppInventor.setWebViewString(texte);
             } else {
-                // showMessage("KODULAR NON DÉTECTÉ, TEXTE : " + texte, 'warning'); // Commented as per user request
+                console.log("KODULAR NON DÉTECTÉ, TEXTE À PRONONCER : " + texte);
+            }
+        }
+
+        // Fait parler l'IA avec la synthèse vocale
+        function speak(text) {
+            if (!isAudioActive) return; // Ne parle que si l'audio est actif
+
+            // Priorise l'intégration Kodular si disponible
+            if (window.AppInventor && window.AppInventor.setWebViewString) {
+                parlerAvecKodular(text);
+            } else if (synth) { // Repli sur la synthèse vocale du navigateur si pas dans Kodular
+                synth.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'fr-FR';
+                synth.speak(utterance);
             }
         }
 
@@ -1023,10 +1035,15 @@ Notes générales pour ta Nutrition :
             const apiKey = userProfile.apiKey || "";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-            if (!apiKey) {
-                showMessage("CLÉ API MANQUANTE POUR GÉNÉRER DES CONSEILS DE L'IA.", 'warning');
-                return;
-            }
+            // Debugging API key and URL
+            console.log(`[API KEY DEBUG] Using API Key: ${apiKey ? 'Provided (length: ' + apiKey.length + ')' : 'Empty (expecting Canvas injection)'}`);
+            console.log(`[API KEY DEBUG] API URL: ${apiUrl}`);
+
+            const userHeight = userProfile.height;
+            const userWeight = userProfile.weight;
+            const userImc = userProfile.imc;
+            const userImcCategory = userProfile.imcCategory;
+            const userProteinNeeds = userProfile.proteinNeeds;
 
             const prompt = `
             Génère un conseil personnalisé pour l'utilisateur suite à son entraînement.
